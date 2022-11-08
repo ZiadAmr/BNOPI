@@ -1,67 +1,33 @@
-const electron = require("electron");
-const url = require("url");
-const path = require("path");
 
-const { app, BrowserWindow, Menu } = electron;
+const { BrowserWindow, app, ipcMain, Notification } = require('electron');
+const path = require('path');
 
-let mainWindow;
-let addWindow;
+const isDev = !app.isPackaged;
 
-// listen for app to be ready
-app.on('ready', function () {
-    //Create new window
-    mainWindow = new BrowserWindow({});
-    //load html into into window
-    mainWindow.loadURL(url.format({
-        //pass the path of the file 
-        pathname: path.join(__dirname, 'mainWindow.html'),
-        protocol: 'file',
-        slashes: true
-    }));
-
-    //quit app when closed
-    mainWindow.on("closed", function () {
-        app.quit();
-    });
-
-    //build menu from template
-    const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
-    //insert menu
-    Menu.setApplicationMenu(mainMenu);
-});
-
-const mainMenuTemplate = [
-    {
-        label: 'File',
-        submenu: [
-            {
-                label: 'Quit',
-                accelerator: process.platform == 'darwin' ? 'Commmand + Q': 'Ctrl+Q',
-                click() {
-                    app.quit();
-                }
-            }
-        ]
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    backgroundColor: "white",
+    webPreferences: {
+      nodeIntegration: false,
+      worldSafeExecuteJavaScript: true,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     }
-];
+  })
 
-//handle create add window
-function createAddWindow() {
-    //Create new window
-    addWindow = new BrowserWindow({
-        width: 300,
-        height: 200,
-        title: "APP"
-    });
-    //load html into into window
-    addWindow.loadURL(url.format({
-        //pass the path of the file 
-        pathname: path.join(__dirname, 'addWindow.html'),
-        protocol: 'file',
-        slashes: true
-    }));
-    //garbage collection
-    addWindow.on("close", function () {
-        addWindow = null;
-    });
+  win.loadFile('index.html');
 }
+
+if (isDev) {
+  require('electron-reload')(__dirname, {
+    electron: path.join(__dirname, 'node_modules', '.bin', 'electron')
+  })
+}
+
+ipcMain.on('notify', (_, message) => {
+  new Notification({title: 'Notifiation', body: message}).show();
+})
+
+app.whenReady().then(createWindow)
