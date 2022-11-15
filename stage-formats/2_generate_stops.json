@@ -1,0 +1,55 @@
+{
+	"stops" : [
+		{
+			"name": "Road Street, adj",
+			"id": ...,
+			"lat": ...,
+			"lon": ...
+		},
+		{
+			"name": "Road Street, opp",
+			"id": ...,
+			"lat": ...,
+			"lon": ...
+		}
+	],
+	"stations": [
+		{
+			"name": "bus station",
+			"id": ...,
+			"members" : [
+				{
+					"name": "UW1",
+					"id": ...,
+					"lat": ...,
+					"lon": ...
+				},
+				{
+					"name": "UW2",
+					"id": ...,
+					"lat": ...,
+					"lon": ...
+				}
+			]
+		},
+		{
+			"name": "bus station",
+			"id": ...,
+			"members": [
+				{
+					"name": "UW1",
+					"id": ...,
+					"lat": ...,
+					"lon": ...
+				},
+				{
+					"name": "UW2",
+					"id": ...,
+					"lat": ...,
+					"lon": ...
+				}
+			]
+		}
+	]
+}
+

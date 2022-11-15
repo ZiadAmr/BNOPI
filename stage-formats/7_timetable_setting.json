@@ -1,0 +1,24 @@
+
+{
+	"timetables": [
+		{
+			"routeid":...,
+			"trips":[
+				{
+					"id":...,
+					"timings": [
+						"6:00",
+						"6:03",
+						"6:04",
+						null, // certain busses may skip stops.
+						null,
+						null,
+						"6:08"
+					]
+				},
+				...
+			]
+		},
+		...
+	]
+}

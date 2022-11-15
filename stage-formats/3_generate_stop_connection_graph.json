@@ -1,0 +1,20 @@
+{
+	"links": [
+		{
+			"id": ...,
+			"name": ..., // perhaps the name of the section of road they're on, e.g. Charter Avenue section 5
+			"length": 0.3, // km
+			"speed":{ // avg speed at different times of day. based on traffic data, if available. for values inbetween entries, round to the nearest time.
+			// takes into account average speed from waiting at traffic lights, etc.
+				"0:00": 60,
+				"1:00": 60,
+				...
+				"18:00":35,
+				...
+			},
+			"startid": ..., // id of bus stop/we start at. This might refer to a stop within a station, but in that case the graph should be considered to be a single node for a station
+			"endid": ...,
+		},
+		...
+	]
+}

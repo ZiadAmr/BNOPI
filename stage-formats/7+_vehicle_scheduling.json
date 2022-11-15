@@ -1,0 +1,9 @@
+{
+	"vehicle-schedules":[
+		{
+			"id":..., // specified elsewhere in some other stage?
+			"vehicle-type-id":..., // single decker, double decker, manufacturer, etc
+			"tripids":[...] // the different "trips" - each is one length of a bus route (or a subset of the stops from it)
+		}
+	]
+}

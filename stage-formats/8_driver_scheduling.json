@@ -1,0 +1,27 @@
+{
+	"driver-schedules": [
+		{
+			"id":...,
+			"sections":[
+			// these sections are refering to the timetable - it may be ambiguous where the driver is supposed to leave the vehicle since some stops might be at indistinguishable times (if rounded to the nearest minute, for example) 
+			// to fix this, we could also specify stop where the changeover should take place (start-stopid and end-stopid), which in all realistic situations should be enough to disambiguate this.
+				{
+					"start-time" : "6:00", 
+					"end-time" : "9:30",
+					"vehicleid": ...,
+					"start-stopid":...,
+					"end-stopid":...,
+				},
+				{
+					"start-time": "10:00",
+					"end-time": "12:30",
+					"vehicleid": ...,
+					"start-stopid":...,
+					"end-stopid":...,
+				},
+				...
+			]
+
+		}
+	]
+}
