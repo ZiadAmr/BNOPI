@@ -18,15 +18,18 @@ function initMap(){
     //Ensures the map only displays roads
     map.setOptions({styles: styleArray});
 
-    var request = {
-        location: {lat:52.4128,lng:-1.5090},
-        radius: '500',
-        rankby: "distance",
-        type: ["bus_station"]
-    };
+    // var request = {
+    //     location: {lat:52.4128,lng:-1.5090},
+    //     radius: '500',
+    //     rankby: "distance",
+    //     type: ["bus_station"]
+    // };
+
+    //Importing the icon for the bus stops
+    const image = 
 
     //Getting the bus stop location data using openstreetmap api
-    fetch('https://www.overpass-api.de/api/interpreter?data=[out:json];node(around:500.0,52.4766,-1.4243)[highway=bus_stop];out;')
+    fetch('https://www.overpass-api.de/api/interpreter?data=[out:json];node(around:2500.0,52.4128,-1.5090)[highway=bus_stop];out;')
         .then((response) => response.json())
         .then((data) => createStopMarkers(data));
 
@@ -56,7 +59,7 @@ function createGoogleMarker(marker){
     new google.maps.Marker({
         position: marker.geometry.location,
         map,
-        title: "Bus stop"
+        title: "Bus stop",
     })
 }
 
@@ -65,6 +68,11 @@ function createMarker(marker){
     new google.maps.Marker({
         position: position,
         map,
-        title: "Bus stop"
+        title: "Bus stop",
+        icon: {
+            size: new google.maps.Size(50, 50),
+            scaledSize: new google.maps.Size(50, 50),
+            url: "icons/bus-station.png"
+        }
     })
 }
