@@ -16,4 +16,14 @@ html, body {
 #firstRow{
   height: 75%;
 }
- 
+#Network_toolkit{
+  height: 50%;
+  background-color: white;
+  z-index: 99;
+  position: absolute;
+  top: 28%;
+  left: 2%;
+}
+#mapContainer{
+  position: relative;
+}
