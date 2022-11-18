@@ -1,5 +1,11 @@
 //Variable storing the google maps embedding
 var map;
+//List used to store references to the buttons in the network toolkit 
+var buttonList = [document.getElementById("add_stop"), 
+document.getElementById("remove_stop"), 
+document.getElementById("add_route"), 
+document.getElementById("remove_route"), 
+document.getElementById("edit_route")];
 
 //Code for styling the map
 var styleArray = [
@@ -113,6 +119,15 @@ function changeMode(newMode){
         mode = 0;
     //If clicking from a different tool active or no tool active must set the tool related to the clicked button active 
     }else{
+        //Set the state of all other buttons to inactive
+        for (let i = 0; i < buttonList.length; i ++){
+            if(i + 1 != newMode){
+                if(buttonList[i].className.slice(-6) === "active"){
+                    buttonList[i].toggleAttribute(false);
+                    buttonList[i].className = buttonList[i].className.slice(0, -6)
+                }
+            }
+        }
         mode = newMode;
     }
 }
