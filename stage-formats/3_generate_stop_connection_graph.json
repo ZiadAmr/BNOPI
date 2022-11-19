@@ -14,7 +14,20 @@
 			},
 			"startid": ..., // id of bus stop/we start at. This might refer to a stop within a station, but in that case the graph should be considered to be a single node for a station
 			"endid": ...,
+			"points":[] // references to intermediate points that the routes passes through. includes the start and end points of the link.
+			// if points is omitted, draw as a straight line between the locations of the stops.
+			// NOTE: the start/end points will be different to the positions of the stops. Here the points are along the road, as opposed to where the shelter/pole is.
 		},
 		...
-	]
+	],
+
+	// geographical points. used for rendering
+	"points": {
+		{
+			"id":31,
+			"lat": ...,
+			"long":...
+		}, ...
+	}
+	
 }
