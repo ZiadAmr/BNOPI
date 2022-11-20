@@ -90,7 +90,8 @@ def merc(lat, lon):
 # hand-inverted from the above. hope it's correct!
 def amerc(x, y):
 	lon = x/r_major * 180.0/math.pi
-	lat = (2.0*math.atan(math.exp(y*math.pi/180.0*lon/x))-math.pi/4.0)*180.0/math.pi
+	# no idea why that - 45.0 should be there - but it doesn't work without TODO.
+	lat = (2.0*math.atan(math.exp(y*math.pi/180.0*lon/x))-math.pi/4.0)*180.0/math.pi - 45.0
 	return (lat, lon)
 
 # https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
