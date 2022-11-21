@@ -1,5 +1,15 @@
 //Variable storing the google maps embedding
 var map;
+
+//Code used for polylines (drawing a route on the map was directly referenced from google maps documentation)
+//https://developers.google.com/maps/documentation/roads/snap
+var apiKey = 'AIzaSyAZil-yMz6ZxUso7hrq0XQTRzXt8SCgsTw';
+var drawingManager;
+var placeIdArray = [];
+var polylines = [];
+var snappedCoordinates = [];
+
+
 //List used to store references to the buttons in the network toolkit 
 var buttonList = [document.getElementById("add_stop"), 
 document.getElementById("remove_stop"), 
@@ -114,6 +124,11 @@ function createMarker(marker){
 
 //Called when a button from the network toolkit is clicked
 function changeMode(newMode){
+    //If the last mode the program was in was add route mode, we need to disable the drawing manager
+    if(mode == 3){
+        disableRouteDraw();
+    }
+
     //Double clicking on the same button means the user has deactivated the tool
     if(mode == newMode){
         mode = 0;
@@ -124,10 +139,101 @@ function changeMode(newMode){
             if(i + 1 != newMode){
                 if(buttonList[i].className.slice(-6) === "active"){
                     buttonList[i].toggleAttribute(false);
-                    buttonList[i].className = buttonList[i].className.slice(0, -6)
+                    buttonList[i].className = buttonList[i].className.slice(0, -6);
                 }
             }
         }
         mode = newMode;
     }
+
+    //If the new mode is 3 we need to start the drawing manager
+    if(mode == 3){
+        enableRouteDraw();
+    }
+}
+
+
+//This code is part of google maps stick to road documentation (include that in the report references)
+//Once the draw a route button is clicked, this function will be called
+function enableRouteDraw(){
+    // Enables the polyline drawing control. Click on the map to start drawing a
+    // polyline. Each click will add a new vertice. Double-click to stop drawing.
+    drawingManager = new google.maps.drawing.DrawingManager({
+        drawingMode: google.maps.drawing.OverlayType.POLYLINE,
+        drawingControl: true,
+        drawingControlOptions: {
+          position: google.maps.ControlPosition.TOP_CENTER,
+          drawingModes: [
+            google.maps.drawing.OverlayType.POLYLINE
+          ]
+        },
+        polylineOptions: {
+          strokeColor: '#696969',
+          strokeWeight: 4,
+          strokeOpacity: 1,
+        }
+      });
+      drawingManager.setMap(map);
+
+    // Snap-to-road when the polyline is completed.
+    drawingManager.addListener('polylinecomplete', function(poly) {
+        var path = poly.getPath();
+        poly.setMap(null);
+        polylines.push(poly);
+        //placeIdArray = [];
+        runSnapToRoad(path);
+    });
+}
+
+function disableRouteDraw(){
+    drawingManager.setMap(null);
+}
+
+// Snap a user-created polyline to roads and draw the snapped path
+function runSnapToRoad(path) {
+    var pathValues = [];
+    for (var i = 0; i < path.getLength(); i++) {
+      pathValues.push(path.getAt(i).toUrlValue());
+    }
+  
+    $.get('https://roads.googleapis.com/v1/snapToRoads', {
+      interpolate: true,
+      key: apiKey,
+      path: pathValues.join('|')
+    }, function(data) {
+      processSnapToRoadResponse(data);
+      drawSnappedPolyline();
+    });
+  }
+
+  // Store snapped polyline returned by the snap-to-road service.
+function processSnapToRoadResponse(data) {
+    snappedCoordinates = [];
+    placeIdArray = [];
+    for (var i = 0; i < data.snappedPoints.length; i++) {
+      var latlng = new google.maps.LatLng(
+          data.snappedPoints[i].location.latitude,
+          data.snappedPoints[i].location.longitude);
+      snappedCoordinates.push(latlng);
+      placeIdArray.push(data.snappedPoints[i].placeId);
+    }
+}
+
+// Draws the snapped polyline (after processing snap-to-road response).
+function drawSnappedPolyline() {
+    var snappedPolyline = new google.maps.Polyline({
+      path: snappedCoordinates,
+      strokeColor: '#00FF00',
+      strokeWeight: 5,
+      strokeOpacity: 1,
+    }); 
+
+    snappedPolyline.setMap(map);
+    snappedPolyline.addListener('click',function deleteRoute(){
+        if(mode == 4){
+            //Remember to remove it from the list of polylines as well
+            snappedPolyline.setMap(null);
+        }
+    })
+    polylines.push(snappedPolyline);
 }
