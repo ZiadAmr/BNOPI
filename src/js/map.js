@@ -233,6 +233,8 @@ function drawSnappedPolyline() {
         if(mode == 4){
             //Remember to remove it from the list of polylines as well
             snappedPolyline.setMap(null);
+        }else if(mode == 5){
+            this.setOptions({editable: true});
         }
     })
     polylines.push(snappedPolyline);
