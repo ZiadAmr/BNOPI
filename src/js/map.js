@@ -5,7 +5,6 @@ var map;
 //https://developers.google.com/maps/documentation/roads/snap
 var apiKey = 'AIzaSyAZil-yMz6ZxUso7hrq0XQTRzXt8SCgsTw';
 var drawingManager;
-var placeIdArray = [];
 var snappedCoordinates = [];
 var polyMap = new Map();
 
