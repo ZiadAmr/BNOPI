@@ -6,8 +6,8 @@ var map;
 var apiKey = 'AIzaSyAZil-yMz6ZxUso7hrq0XQTRzXt8SCgsTw';
 var drawingManager;
 var placeIdArray = [];
-var polylines = [];
 var snappedCoordinates = [];
+var polyMap = new Map();
 
 
 //List used to store references to the buttons in the network toolkit 
@@ -40,7 +40,7 @@ function initMap(){
 
     google.maps.event.addListener(map, 'click', 
     function(event){
-        if(mode == 1){
+        if(window.localStorage.getItem('mode') == 1){
             createGoogleMarker(event);
         }
     });
@@ -94,7 +94,7 @@ function createGoogleMarker(marker){
     google.maps.event.addListener(temp, 'click', function deleteMarker(event) {
         
         //The user has clicked the delete markers button 
-        if(mode == 2){
+        if(window.localStorage.getItem('mode') == 2){
             busStops.get(event.latLng).setMap(null);
             busStops.delete(event.latLng);
         }
@@ -118,7 +118,7 @@ function createMarker(marker){
     google.maps.event.addListener(temp, 'click', function deleteMarker(event) {
         
         //The user has clicked the delete markers button 
-        if(mode == 2){
+        if(window.localStorage.getItem('mode') == 2){
             busStops.get(event.latLng).setMap(null);
             busStops.delete(event.latLng);
         }
@@ -128,16 +128,19 @@ function createMarker(marker){
 //Called when a button from the network toolkit is clicked
 function changeMode(newMode){
     //If the last mode the program was in was add route mode, we need to disable the drawing manager
-    if(mode == 3){
+    if(window.localStorage.getItem('mode') == 3){
         disableRouteDraw();
-    }else if (mode == 5){
-        selectedPolyline.setOptions({editable:false});
-        selectedPolyline = null;
+    }else if (window.localStorage.getItem('mode') == 5){
+
+        if (selectedPolyline!= null){
+            selectedPolyline.setOptions({editable:false});
+            selectedPolyline = null;
+        }
     }
 
     //Double clicking on the same button means the user has deactivated the tool
-    if(mode == newMode){
-        mode = 0;
+    if(window.localStorage.getItem('mode') == newMode){
+        window.localStorage.setItem('mode', 0);
     //If clicking from a different tool active or no tool active must set the tool related to the clicked button active 
     }else{
         //Set the state of all other buttons to inactive
@@ -149,11 +152,11 @@ function changeMode(newMode){
                 }
             }
         }
-        mode = newMode;
+        window.localStorage.setItem('mode',newMode);
     }
 
     //If the new mode is 3 we need to start the drawing manager
-    if(mode == 3){
+    if(window.localStorage.getItem('mode') == 3){
         enableRouteDraw();
     }
 }
@@ -185,7 +188,6 @@ function enableRouteDraw(){
     drawingManager.addListener('polylinecomplete', function(poly) {
         var path = poly.getPath();
         poly.setMap(null);
-        polylines.push(poly);
         runSnapToRoad(path);
     });
 }
@@ -232,11 +234,17 @@ function drawSnappedPolyline() {
     }); 
 
     snappedPolyline.setMap(map);
+    var count = +window.localStorage.getItem('routeCounter') + 1;
+    //Update the localstoreage
+    window.localStorage.setItem("routeCounter", count);
+    polyMap.set(count,snappedPolyline);
     snappedPolyline.addListener('click',function deleteRoute(){
-        if(mode == 4){
+        if(window.localStorage.getItem('mode') == 4){
             //Remember to remove it from the list of polylines as well
             snappedPolyline.setMap(null);
-        }else if(mode == 5){
+            //Remove the polyline from the list
+            polyMap.delete(count);
+        }else if(window.localStorage.getItem('mode') == 5){
             this.setOptions({editable: true});
 
             //If the user had clicked on another polyline before (make that previous polyline uneditable)
@@ -246,5 +254,4 @@ function drawSnappedPolyline() {
             selectedPolyline = this;
         }
     })
-    polylines.push(snappedPolyline);
 }
