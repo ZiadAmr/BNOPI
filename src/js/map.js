@@ -17,6 +17,9 @@ document.getElementById("add_route"),
 document.getElementById("remove_route"), 
 document.getElementById("edit_route")];
 
+//Elements relating to editing a polyline
+var selectedPolyline = null;    //When a user clicks on another polyline after editing one (instead of clicking save), this variable will be used to change the setting to editable = false
+
 //Code for styling the map
 var styleArray = [
   {featureType: "poi", stylers: [{ visibility: "off" }]},
@@ -127,6 +130,9 @@ function changeMode(newMode){
     //If the last mode the program was in was add route mode, we need to disable the drawing manager
     if(mode == 3){
         disableRouteDraw();
+    }else if (mode == 5){
+        selectedPolyline.setOptions({editable:false});
+        selectedPolyline = null;
     }
 
     //Double clicking on the same button means the user has deactivated the tool
@@ -180,7 +186,6 @@ function enableRouteDraw(){
         var path = poly.getPath();
         poly.setMap(null);
         polylines.push(poly);
-        //placeIdArray = [];
         runSnapToRoad(path);
     });
 }
@@ -209,13 +214,11 @@ function runSnapToRoad(path) {
   // Store snapped polyline returned by the snap-to-road service.
 function processSnapToRoadResponse(data) {
     snappedCoordinates = [];
-    placeIdArray = [];
     for (var i = 0; i < data.snappedPoints.length; i++) {
       var latlng = new google.maps.LatLng(
           data.snappedPoints[i].location.latitude,
           data.snappedPoints[i].location.longitude);
       snappedCoordinates.push(latlng);
-      placeIdArray.push(data.snappedPoints[i].placeId);
     }
 }
 
@@ -235,6 +238,12 @@ function drawSnappedPolyline() {
             snappedPolyline.setMap(null);
         }else if(mode == 5){
             this.setOptions({editable: true});
+
+            //If the user had clicked on another polyline before (make that previous polyline uneditable)
+            if(selectedPolyline != null){
+                selectedPolyline.setOptions({editable:false});
+            }
+            selectedPolyline = this;
         }
     })
     polylines.push(snappedPolyline);

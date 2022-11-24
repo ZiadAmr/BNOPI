@@ -6,9 +6,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/a1dd23ffcc.js" crossorigin="anonymous"></script>
     <script nonce="324234nb23h42u310/1234j324jgf">
+      window.localStorage.clear();
       let mode = 0;
+      window.localStorage.setItem('mode', mode);
       //Hashmap used for storing the loaded bus stops 
       var busStops = new Map();
+      window.localStorage.setItem('busStops', busStops);
     </script>
     <!--Include JQuery for api calls-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
