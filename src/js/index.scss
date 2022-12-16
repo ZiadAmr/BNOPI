@@ -15,6 +15,7 @@ html, body {
 }
 #firstRow{
   height: 75%;
+  width:100%;
 }
 #Network_toolkit{
   height: 50%;
@@ -25,4 +26,12 @@ html, body {
 }
 #mapContainer{
   position: relative;
+}
+#root{
+  height:100%;
+  width:100%;
+}
+#secondRow{
+  height:25%;
+  width:100%;
 }
