@@ -5,6 +5,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import NetworkToolKit from './NetworkToolKit';
+import DependencyGraph from './DependencyGraph';
 
 export default function App() {
 
@@ -20,7 +21,9 @@ export default function App() {
         </Row>
 
         <Row id="secondRow">
-          <Col sm={10} id="Dependency graph">Dependency graph</Col>
+          <Col sm={10} id="Dependency graph">
+            <DependencyGraph></DependencyGraph>
+          </Col>
           <Col sm id="StageTracker">Stage tracker</Col>
         </Row>
       </Container>
