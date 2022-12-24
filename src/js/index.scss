@@ -38,3 +38,38 @@ html, body {
 #icon1,#icon2{
   color: indianred;
 }
+.depNode {
+  height: 90px;
+  width: 250px;
+  border: 1px solid rgb(122, 148, 155);
+  padding: 5px;
+  border-radius: 5px;
+  background: rgb(64, 66, 65);
+}
+.depNode label {
+  display: block;
+  color: rgb(255, 255, 255);
+  font-size: 15px;
+}
+.react-flow {
+  background: rgb(62, 62, 62);
+}
+#breakPoint{
+  position: absolute;
+  right: 5%;
+  bottom: 5%; 
+}
+#deleteNode{
+  position: absolute;
+  right: 20%;
+  bottom: 5%; 
+}
+#addNode{
+  position: absolute;
+  right: 36%;
+  bottom: 5%; 
+}
+// #breakLogo{
+//   width: 7px;
+//   height: 7px;
+// }
