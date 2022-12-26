@@ -14,11 +14,6 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import AlgorithmNode from './AlgorithmNode';
 
-const initialNodes = [
-  { id: '1', type: 'nodeAlg', position: { x: 0, y: 100 }, data: { label: '1' } },
-  { id: '2', type: 'nodeAlg', position: { x: 300, y: 100 }, data: { label: '2' } },
-  { id: '3', type: 'nodeAlg', position: { x: 600, y: 100 }, data: { label: '3' } }
-];
 
 const directed = {
   type: 'arrow', // 'arrow' or 'arrowclosed'
@@ -28,12 +23,38 @@ const directed = {
 
 const nodeTypes = {nodeAlg : AlgorithmNode}
 
-const initialEdges = [{ id: 'e1-2', source: '1', target: '2', type:'smoothstep', markerEnd:directed},
-                        { id: 'e2-3', source: '2', target: '3', animated:true, style:{stroke:'red'}, markerEnd:directed}];
-
 function DependencyGraph() {
+  //Function used to create a new node when the user has clicked on the + button on a node
+  const addNewNode = useCallback((prevNodeId, newNodeID) => {
+    //Add a new node to the list of nodes
+    setNodes((nodes)=>{
+      return [...nodes,{id: newNodeID, type: 'nodeAlg', 
+      position: { x:nodes.filter((item)=>item.id == prevNodeId)[0].position.x + 300, y:nodes.filter((item)=>item.id == prevNodeId)[0].position.y + (Math.random() * 300) - 150}, 
+      data: { label: newNodeID, addNewNode:addNewNode, removeNode:removeNode}}];
+    });
+    //Add a new edge from parent node to new node
+    setEdges((edges)=>{
+      return[...edges, {id:prevNodeId + '-' + newNodeID, source:prevNodeId, target:newNodeID, type:'default', markerEnd:directed}]
+    })
+  }, []);
+
+  const removeNode = useCallback((nodeID) => {
+    setNodes((nodes)=>{
+      console.log(nodes);
+      console.log(nodeID);
+      return nodes.filter(item=>item.id!=nodeID);
+    })
+  },[]);
+
+
+  const initialNodes = [
+    { id: '1', type: 'nodeAlg', position: { x: 50, y: 50 }, data: { label: '1', addNewNode:addNewNode, removeNode:removeNode} }];
+  
+  const initialEdges = [];
+
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
 
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 

@@ -3,7 +3,7 @@ var map;
 
 //Code used for polylines (drawing a route on the map was directly referenced from google maps documentation)
 //https://developers.google.com/maps/documentation/roads/snap
-var apiKey = 'AIzaSyAZil-yMz6ZxUso7hrq0XQTRzXt8SCgsTw';
+var apiKey = 'AIzaSyAWmWHoyHgni9A2p4kYBloFIuTeE4linzo';
 var drawingManager;
 var snappedCoordinates = [];
 var polyMap = new Map();
