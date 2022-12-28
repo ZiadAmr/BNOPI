@@ -2,13 +2,18 @@
 
 import math
 import json
-from math import sqrt, inf
+from math import sqrt, inf, sin, cos, atan2, radians
 from numbers import Number
 from sys import exit
+from re import search
+from typing import List
 
 # !!!!!!!! 
 drive_on_left = True
+max_search_distance = 2000 # metres
 
+
+# TODO need to check for height restrictions
 # ================================================================================== command to download routes:
 
 # wget -O coventry-routes.json "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%3B%0Arelation%28around%3A7000.0%2C52.4128%2C-1.5090%29%5Broute%3D%22bus%22%5D%3B%0A%28._%3B%3E%3B%29%3B%0Aout%3B"
@@ -67,9 +72,33 @@ def closest_point_on_line(p0x: Number, p0y: Number, p1x: Number, p1y: Number, cx
 	t = (bx*(cx-ax)+by*(cy-ay))/(bx**2+by**2)
 
 	# if t out of range [0,1] just return the endpoint
-	if t <= 0: return (p0x, p0y)
-	elif t >= 1: return (p1x, p1y)
-	else: return (ax+t*bx, ay+t*by)
+	if t <= 0: return (p0x, p0y, t)
+	elif t >= 1: return (p1x, p1y, t)
+	else: return (ax+t*bx, ay+t*by, t)
+
+# https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude
+def surface_distance(lat0, lon0, lat1, lon1):
+
+	# hopefully should prevent divide by zero errors
+	if lat0 == lat1 and lon0 == lon1: return 0.0
+
+	lat0 = radians(lat0)
+	lon0 = radians(lon0)
+	lat1 = radians(lat1)
+	lon1 = radians(lon1)
+
+	# approximate radius of earth in m
+	R = 6373.0 * 1000
+
+	dlon = lon1 - lon0
+	dlat = lat1 - lat0
+
+	a = sin(dlat / 2)**2 + cos(lat0) * cos(lat1) * sin(dlon / 2)**2
+	c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+	distance = R * c
+
+	return distance
 
 # https://stackoverflow.com/questions/1560492/how-to-tell-whether-a-point-is-to-the-right-or-left-side-of-a-line
 # Where a = line point 1; b = line point 2; c = point to check against.
@@ -106,9 +135,9 @@ def intersect(A, B, C, D):
 
 
 with open("stops.json", "r") as f:
-	stops = json.loads(f.read())
-stop_dict = {stop["id"] : stop for stop in stops["stops"]}
-del stops
+	stop_data = json.loads(f.read())
+stops = {stop["id"]: stop for stop in stop_data["stops"]}
+del stop_data
 
 with open("coventry-routes.json", "r") as f:
 	route_data = json.loads(f.read())
@@ -116,10 +145,12 @@ with open("coventry-routes.json", "r") as f:
 with open("coventry-roads.json", "r") as f:
 	road_data = json.loads(f.read())
 
+
 # preprocess the roads.
 # create a set of "lines": section of a road that is joined by a straight line
 nodes = dict()
 ways = dict()
+restrictions = dict()
 lines = [] # (n0, n1, wayid)
 # TODO: assumption - the area of nodes does not cross the north/south pole or lon=+-180
 min_x = inf
@@ -141,10 +172,14 @@ for el in road_data["elements"]:
 		max_y = max(max_y, merc_y)
 
 	elif el["type"] == "way":
+		el["stops"] = [] # add this for later
 		ways[el["id"]] = el
 		way_nodes = el["nodes"]
 		for n0, n1 in zip(way_nodes[:-1], way_nodes[1:]):
 			lines.append((n0, n1, el["id"]))
+
+	elif el["type"] == "relation" and "tags" in el and "restriction" in el["tags"]:
+		restrictions[el["id"]] = el
 
 # make sure every node is strictly inside the bbox
 max_x += 0.000000001
@@ -217,7 +252,7 @@ for line in lines:
 
 
 # calculate the stopping position for every stop by snapping to the road.
-for id, stop in stop_dict.items():
+for stopid, stop in stops.items():
 	# mercartor projection of stop
 	stopmx, stopmy = merc(stop["lat"], stop["lon"])
 	# find the square that contains the stop
@@ -236,16 +271,16 @@ for id, stop in stop_dict.items():
 				m0x, m0y = (nodes[l0id]["mercx"], nodes[l0id]["mercy"])
 				m1x, m1y = (nodes[l1id]["mercx"], nodes[l1id]["mercy"])
 
-				cx, cy = closest_point_on_line(m0x, m0y, m1x, m1y, stopmx, stopmy)
+				cx, cy, t = closest_point_on_line(m0x, m0y, m1x, m1y, stopmx, stopmy)
 				dist = sqrt((stopmx-cx)**2 + (stopmy-cy)**2)
 
 				if dist < min_dist_to_road:
 					min_dist_to_road = dist
 					best_line = line
-					best_stop_position = (cx, cy)
+					best_stop_position = (cx, cy, t)
 	
 	# convert back from mercartor
-	best_stop_lat, best_stop_lon = amerc(*best_stop_position)
+	best_stop_lat, best_stop_lon = amerc(best_stop_position[0], best_stop_position[1])
 
 	# find which side of the road the stop was on.
 	# note: this works even if the closest point is at the end of the line, since if that were the case, the road must be bending away from us
@@ -260,24 +295,675 @@ for id, stop in stop_dict.items():
 	stop.update({
 		"wayid": best_line[2],
 		"nodeid0": best_line[0],
-		"nodeid1": best_line[1],
+		"nodeid1": best_line[1], # always in the direction of the line/way.
 		"stoppos":{
 			"lat": best_stop_lat,
 			"lon": best_stop_lon
 		},
-		"dir":stop_direction
+		"dir":stop_direction,
+		"pos-on-line": best_stop_position[2]
 	})
 
+	ways[wayid]["stops"].append(stopid)
 
-# test that the stop positions are correct:
-test_nodes = []
-println = ""
-for id, stop in stop_dict.items():
-	println += f"({str(stop['stoppos']['lat'])}, {str(stop['stoppos']['lon'])})\n"
-print(println)
+
+# # test that the stop positions are correct:
+# test_nodes = []
+# println = ""
+# for stopid, stop in stop_dict.items():
+# 	println += f"({str(stop['stoppos']['lat'])}, {str(stop['stoppos']['lon'])})\n"
+# print(println)
 
 		
 
+# lost changes somehow, so this is what I need to do now:
+
+# also make a spacial index of ways, too.
+
+# for every stop, start at the stop position
+# travel along the way, checking each node in the way for outgoing connections.
+# create branches
+# terminate a branch when a new bus stop is reached, or the maximum distance is exceeded.
+# at the end of the search we might have multiple routes to the same bus stop. Keep the shortest one.
+
+
+# create a new data structure: for each node have the ways attached to it.
+node_connections = dict() # nodeid -> list(wayid)
+for wayid, way in ways.items():
+	for nid in way["nodes"]:
+		if nid in nodes:
+			if nid in node_connections:
+				node_connections[nid].append(wayid)
+			else:
+				node_connections[nid] = [wayid]
+
+# all restriction relations a node/way is part of.
+node_restrictions = dict()  # nodeid +-> list(relationid)
+way_restrictions = dict()
+for rid, restriction in restrictions.items():
+	for member in restriction["members"]:
+		if member["type"] == "node":
+			nid = member["ref"]
+			if nid in node_restrictions:
+				node_restrictions[nid].append(rid)
+			else:
+				node_restrictions[nid] = [rid]
+		elif member["type"] == "way":
+			wid = member["ref"]
+			if wid in way_restrictions:
+				way_restrictions[wid].append(rid)
+			else:
+				way_restrictions[wid] = [rid]
+
+
+allowed_access_tags = ("yes", "permissive", "permit",
+                       "destination", "designated", "variable", "unknown")
+# @.* is to match (ignore) osm conditional expressions.
+# we can have stuff like access:bus:lanes=no|no|yes
+# this regex just checks that one of the lanes is open to buses.
+# TODO - lane restrictions are not considered in conjunction with turn restrictions.
+allowed_access_tags_pattern = f"^([^\|]*\|)*({'|'.join(allowed_access_tags)})(\|[^\|]*)*( @.*)?$"
+
+# check access tags of element.
+def has_access(tags, dir=None) -> bool:
+	# TODO again, ignoring conditionals.
+	# highest priority patterns first
+
+	# check for service tag
+	if "highway" in tags and tags["highway"] == "service":
+		if "service" in tags and tags["service"] in ("parking_aisle", "driveway", "alley", "emergency_access", "drive-through"):
+			return False
+
+
+	# check for access tag
+	if dir is None: # NODE
+		tagname_patterns = [
+			"^(access:)?psv:bus(:conditional)?$",
+			"^(access:)?bus(:conditional)?$",
+			"^(access:)?psv(:conditional)?$",
+			"^(access:)?vehicle(:conditional)?$",
+			"^access(:conditional)?$"
+		]
+	else: # WAY
+		dir_string = "forward" if dir else "backward"
+		tagname_patterns = [
+			f"^(access:)?psv:bus(:lanes)?:{dir_string}(:conditional)?$",
+			f"^(access:)?psv:bus(:lanes)?(:conditional)?$",
+			f"^(access:)?bus(:lanes)?:{dir_string}(:conditional)?$",
+			f"^(access:)?bus(:lanes)?(:conditional)?$",
+			f"^(access:)?psv(:lanes)?:{dir_string}(:conditional)?$",
+			f"^(access:)?psv(:lanes)?(:conditional)?$",
+			f"^(access:)?vehicle(:lanes)?:{dir_string}(:conditional)?$",
+			f"^(access:)?vehicle(:lanes)?(:conditional)?$",
+			f"^access(:lanes)?:{dir_string}(:conditional)?$",
+			f"^access(:lanes)?(:conditional)?$"
+		]
+	for pattern in tagname_patterns:
+
+		for name, value in tags.items():
+			if search(pattern, name) is not None:
+				return search(allowed_access_tags_pattern, value) is not None
+	return True
+
+
+# check a node is passable by a bus
+def check_node(nodeid) -> bool:
+	allowed_barriers = ("border_control", "bump_gate", "bus_trap", "cattle_grid", "coupure", "entrance", "gate",
+	                    "hampshire_gate", "lift_gate", "sally_port", "sliding_beam", "sliding_gate", "spikes", "sump_buster", "toll_booth")
+	node = nodes[nodeid]
+	if "tags" in node and "barrier" in node["tags"]:
+
+		if node["tags"]["barrier"] not in allowed_barriers:
+			return False
+
+		# check for the access tag on this node
+		if not has_access(node["tags"]):
+			return False
+
+	return True
+
+
+# check the oneway tag to see if buses can pass.
+def check_oneway(wayid, dir) -> bool:
+	# TODO once again we are ignoring conditionals.
+	# this function does not consider the :direction subkey - that (should) be handled in the has_access
+
+	way = ways[wayid]
+	if "tags" not in way: return True
+
+	# matching one of these verifies access.
+	oneway_forwards_tags = ("yes", "true", "1", "no", "false", "0", "reversible", "alternating")
+	oneway_backwards_tags = ("-1", "reverse", "no", "false", "0", "reversible", "alternating")
+
+	oneway_tags = oneway_forwards_tags if dir else oneway_backwards_tags
+	oneway_tags_pattern = f"^{'|'.join(oneway_tags)}( @.*)?$"
+
+	# again, this list is in descending priority
+	tagname_patterns = [
+		"^oneway:psv:bus(:conditional)?$",
+		"^oneway:bus(:conditional)?$",
+		"^oneway:psv(:conditional)?$",
+		"^oneway(:conditional)?$",
+	]
+
+	for pattern in tagname_patterns:
+		for name, value in way["tags"].items():
+			if search(pattern, name) is not None:
+				return search(oneway_tags_pattern, value) is not None
+	
+	# some tags imply oneway by definition:
+	implied_oneway = {
+		"junction": "roundabout",
+		"highway": "motorway"}
+	if not set(implied_oneway.items()).isdisjoint(way["tags"].items()):
+		# implied oneway
+		return dir
+
+	return True
+
+
+def check_restriction(from_wayid: int, via_nodeid: int, to_wayid: int) -> bool:
+	"""Given the restriction relations on OSM, is is possible to travel on this path?"""
+
+	# TODO TODO TODO this function only considers prohibitory restrictions, not mandatory restritions!
+
+
+	prohibitory_restrictions = ("no_right_turn" , "no_left_turn" , "no_u_turn" , "no_straight_on")
+
+
+	# # returns a filter that searches for **kwargs in the members
+	# def check_fields(**kwargs):
+	# 	def check_fields_inner(rid):
+	# 		for member in restriction[rid]["members"]:
+	# 			for name, value in kwargs.items():
+	# 				if name in member and member[name] == value:
+	# 					return True
+	# 		return False
+	# 	return check_fields_inner
+
+
+	
+
+	def restriction_matches(restriction):
+
+		# osm restrictions have the roles "from", "via", and "to".
+		# https://wiki.openstreetmap.org/wiki/Relation:restriction
+		# extract this data.
+		fr = None
+		via_type = 0  # 0->no via, 1->node, 2->ways
+		vi_n = None # via node
+		vi_ws = [] # via ways
+		to = None
+
+		for member in restriction["members"]:
+			if member["role"] == "from":
+				fr = member["ref"]
+			elif member["role"] == "via":
+				if member["type"] == "node":
+					vi_n = member["ref"]
+					via_type = 1
+				elif member["type"] == "way":
+					vi_ws.append(member["ref"])
+					via_type = 2
+			elif member["role"] == "to":
+				to = member["ref"]
+
+		# there are many cases here.
+		# pseudocode:
+
+		# "from_wayid" matches FROM
+		# 	VIA is a node
+		#		VIA matches "via_nodeid"
+		#			TO matches "to_wayid"	-> TRUE
+		#			else 					-> FALSE
+		#	VIA is a list of ways
+		#		the first VIA way matches "to_wayid"	-> TRUE
+		#		else									-> FALSE
+		#	VIA is missing
+		#		TO matches "to_wayid"	-> TRUE
+		#		else 					-> FALSE
+		# VIA is a list of ways
+		# 	"from_wayid" is in this list, but not the last member
+		# 		the next member VIA way is "to_wayid"	-> TRUE
+		# 		else									-> FALSE
+		# 	"from_wayid" is the last member of this list
+		# 		TO matches "to_wayid"	-> TRUE
+		# 		else					-> FALSE
+		# 	else -> FALSE
+		# else -> FALSE
+
+		if from_wayid == fr:
+			if via_type == 1: # node
+				return vi_n == via_nodeid and to == to_wayid
+			elif via_type == 2: # list of ways
+				return vi_ws[0] == to_wayid
+			elif via_type == 0: # no via specified
+				return to == to_wayid
+			raise RuntimeError # this literally cannot happen
+		elif via_type == 2:
+			try:
+				FROM_index_in_vias = vi_ws.index(from_wayid)
+			except ValueError:
+				return False
+			else:
+				if FROM_index_in_vias == len(vi_ws) - 1:
+					return to == to_wayid
+				else:
+					return vi_ws[FROM_index_in_vias + 1] == to_wayid
+		else:
+			return False
+
+	tagname_pattern = "^restriction(:psv)?(:bus)?(:conditional)?$"
+	prohibitory_restrictions_pattern = f"^{'|'.join(prohibitory_restrictions)}( @.*)?$"
+
+	# loop through restrictions involving the 2 ways. use set union to remove duplicates
+	restrictions_to_loop = set()
+	if from_wayid in way_restrictions:
+		restrictions_to_loop.union(way_restrictions[from_wayid])
+	if to_wayid in way_restrictions:
+		restrictions_to_loop.union(way_restrictions[to_wayid])
+	for restriction in restrictions_to_loop:
+		
+		if "tags" in restriction:
+			if "except" in restriction["tags"]:
+				# check that neither bus nor psv is in the "except" tag
+				# if "psv" in ... OR "bus" in ...
+				if {"psv", "bus"}.intersection(restriction["tags"]["except"].split(";")) != set():
+					continue
+			for name, value in restriction["tags"].items():
+				if restriction_matches(restriction) and \
+					search(tagname_pattern, name) is not None and \
+					search(prohibitory_restrictions_pattern, value) is not None:
+
+					return False
+	
+	return True
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	# # 1. "from_wayid" appears in the from field
+	# from_restrictions = filter(check_fields(role="from", ref=from_wayid), way_restrictions[from_wayid])
+	# for restriction in from_restrictions:
+
+	# 	# if there is a "via" node, check if this node matches
+	# 	# if there is instead a list of ways, check that the first one matches.
+	# 	for member in from_restrictions:
+	# 		if member["role"] == "via":
+	# 			if member["type"] == "node":
+	# 				if member["ref"] != via_nodeid:
+	# 					continue
+						
+					# check the relaton
+	
+
+
+
+def check_maneuver(from_wayid: int, via_nodeid:int, to_wayid:int, from_dir:bool, to_dir:bool) -> bool:
+	"""Is it possible for a bus to travel along this path?
+
+	Args:
+		from_wayid (int): 
+		via_nodeid (int): 
+		to_wayid (int): 
+		from_dir (bool): direction along from_wayid we are travelling
+		to_dir (bool): direction along to_wayid we intend to travel
+
+	Returns:
+		bool: Whether the maneuver is valid (there are no OSM restrictions that disallow this)
+	"""
+
+	from_way = ways[from_wayid]
+	via_node = nodes[via_nodeid]
+	to_way = ways[to_wayid]
+
+	# 0. check that we are not at the end of the way
+	# TODO this does not accound for circular roads, e.g. roundabouts
+	if via_nodeid == to_way["nodes"][-1 if to_dir else 0]:
+		return False
+
+	# 1. check that buses have access to "to_wayid"
+	# (not considering oneway/restrictions in this step)
+	
+	if "tags" in to_way and not has_access(to_way["tags"], to_dir):
+		return False
+
+	# 2. Check that via_nodeid is not a barrier of some sort
+	# some of the allowed barriers are used in conjucntion with access=*, so check for that as well
+	if not check_node(via_nodeid):
+		return False
+
+	# 3. check that, if the road is oneway, we are travelling in the correct direction
+	if not check_oneway(to_wayid, to_dir):
+		return False
+
+	# 4. check for turn restrictions
+	if not check_restriction(from_wayid, via_nodeid, to_wayid):
+		return False
+
+	return True
+
+
+
+# during the search we need to check if the current line contains a bus stop.
+# index the stops by the lines they are on.
+# line -> list of stopid, ordered by t
+stops_on_line = dict()
+for stopid, stop in stops.items():
+	line = (stop["nodeid0"], stop["nodeid1"])
+	if line in stops_on_line:
+		# insert into the correct position on the line
+		def _a():
+			for i, _stopid in enumerate(stops_on_line[line]):
+				if stops[_stopid]["pos-on-line"] < stop["pos-on-line"]:
+					stops_on_line[line].insert(i, stopid)
+					return
+			stops_on_line[line].append(stopid)
+		_a()
+	else:
+		stops_on_line[line] = [stopid]
+
+
+
+
+
+# get a list of tuples containing the distance and list of nodes between stops (including start and end nodes)
+# e.g.
+# output[0] = (156, stopid0, [nid0_0, nid0_1, ...], stopid1)
+# output[1] = etc.
+# NOTE, nid0_0 etc are references to openstreetmap nodes.
+# NOTE for the purpose of plotting on the map, we use "points" - need to convert to points later. Also, we must add the stopping points!
+def paths_from_stop(stopid: int, maxdist: Number=max_search_distance) -> 'List[tuple[Number, int, List[int], int]]':
+	"""Returns all connections from this stop within max_search distance. Within this function we only check for other stops on the same link as stopid, before passing over to paths_from_node to complete the search.
+
+	Args:
+		stopid (int): Id of starting stop
+		maxdist (Number, optional): Max distance to search, in meters. Defaults to max_search_distance.
+
+	Returns:
+		List[tuple[Number, int, List[int], int]]: List of (distance, stopid, path, stopid0), where
+			distance (Number): the real-world distance between the stoppos of stopid and stopid0 in meters, travelling along the path.
+			stopid (int): same as in the input
+			path (List[int]): path between stopid and stopid 0
+			stopid0 (int): the found bus stop.
+	"""
+
+	stop = stops[stopid]
+	# find the way that contains the stop
+	wayid = stop["wayid"]
+	way = ways[wayid]
+	direction = stop["dir"]
+
+	# stop.update({
+	# 	"wayid": best_line[2],
+	# 	"nodeid0": best_line[0],
+	# 	"nodeid1": best_line[1], # always in the direction of the line/way.
+	# 	"stoppos":{
+	# 		"lat": best_stop_lat,
+	# 		"lon": best_stop_lon
+	# 	},
+	# 	"dir":stop_direction
+	# })
+
+
+	# start searching at the node on the link of the bus stop we are facing
+	#
+	#	o---------(STOP)->>----o
+	#	^ prev_node   
+
+	path = []
+	path_distance = 0
+
+	prev_node_id, next_node_id = (stop["nodeid0"], stop["nodeid1"])[::1 if direction else -1]
+
+	current_pos = [stop["stoppos"]["lat"], stop["stoppos"]["lon"]]
+
+
+	# edge case - check if there is another proceeding stop in the same line as this.
+	line = (stop["nodeid0"], stop["nodeid1"])
+	sol = stops_on_line[line]
+	if line in sol:
+		it = iter(sol[::1 if direction else -1])
+		while next(it) != stopid: pass
+		for next_stop_id in it:
+			next_stop = stops[next_stop_id]
+			if next_stop["dir"] == direction:
+				return [(surface_distance(*current_pos, next_stop["stoppos"]["lat"], next_stop["stoppos"]["lon"]), stopid, [], next_stop["stopid"])]
+
+
+	path_distance += surface_distance(*current_pos, nodes[next_node_id]["lat"], nodes[next_node_id]["lon"])
+	return paths_from_node(next_node_id, wayid, path_distance, stopid, [next_node_id], direction, maxdist)
+
+
+
+# when travelling along the way 'wayid' in direction 'direction' 
+def connections_from_node(nodeid:int, wayid:int, direction:bool) -> 'List[tuple[int, bool]]':
+	"""Find outgoing connections from nodeid
+
+	Args:
+		nodeid (int)
+		wayid (int): id of the way along which we are traveling
+		direction (bool): direction we are travelling along the way (True=forwads, False=backwards)
+
+	Returns:
+		List[tuple[int, bool]]: list of (wayid, direction) pairs
+	"""
+
+	connections = []
+
+	for onto_wayid in node_connections[nodeid]:
+		for onto_direction in (True, False):
+			if onto_wayid == wayid and onto_direction != direction:
+				# NOTE - not considering possibility of making U-turns
+				continue
+			
+			if check_maneuver(wayid, nodeid, onto_wayid, direction, onto_direction):
+				connections.append((onto_wayid, onto_direction))
+	
+	return connections
+
+
+
+
+
+def paths_from_node(nodeid: int, wayid: int, path_distance: Number, stopid: int, path: List[int], direction: bool, maxdist: Number) -> 'List[tuple[Number, int, List[int], int]]':
+	"""
+	Return all the connection starting from "nodeid": way["wayid"], heading in "direction" along that way.
+	The behaviour of this function is to travel along the current way until a junction is reached, and then recur.
+
+	Args:
+		nodeid (int): current position (which must be non-barrier)
+		wayid (int): the way we are travelling along
+		path_distance (Number): real-world distance of the path
+		stopid (int): the bus stop from which we started the search
+		path (List[int]): path of node ids from the bus stop up to and including nodeid.
+		direction (bool): direction along wayid which we are travelling
+		maxdist (Number): maximum distance allowed from the original stop.
+
+	Returns:
+		List[tuple[Number, int, List[int], int]]: List of (distance, stopid, path, stopid0), where
+			distance (Number): the real-world distance between the stoppos of stopid and stopid0 in meters, travelling along the path.
+			stopid (int): same as in the input
+			path (List[int]): path between stopid and stopid 0
+			stopid0 (int): the found bus stop.
+	"""
+
+	# TODO at some point in this function we also need to look for barriers
+
+	# start traversing along this way in the correct direction to find the prev_node
+	# way_nodes_iter = iter(way["nodes"]) if direction else iter(way["nodes"][::-1])
+	# while next(way_nodes_iter) != nodeid: pass
+
+	way = ways[wayid]
+
+	path = path[:]
+	current_pos = [nodes[nodeid]["lat"], nodes[nodeid]["lon"]]
+
+	iter_nodes = way["nodes"] if direction else way["nodes"][::-1]
+	start_index = iter_nodes.index(nodeid)
+	for this_node_id, next_node_id in zip(iter_nodes[start_index:], iter_nodes[start_index+1:]):
+		
+		# structure of this loop:
+		# 1. Check for stops on this link.
+		# 2. "add" the link, updating vars accordingly (current_pos, path_distance, path)
+		# 3. check the next node, and branch if necessary.
+
+		# at the start of every iteration:
+		# +	this_node_id as the last element in the path
+		# + path distance represents the distance up to this_node_id
+
+
+		# if encountered another stop, return result
+		line = (this_node_id, next_node_id)[::1 if direction else -1]
+		if line in stops_on_line:
+			for next_stop_id in stops_on_line[line][::1 if direction else -1]:
+				next_stop = stops[next_stop_id]
+				# check if this stop is on the correct side of the road
+				if next_stop["dir"] != direction:
+					continue
+
+				# terminate the search
+				if next_stop_id == stopid:
+					# ignore self-loops
+					return []
+				# check the stop is on the right side of the road
+				else:
+					path_distance += surface_distance(*current_pos,
+													next_stop["stoppos"]["lat"], next_stop["stoppos"]["lon"])
+					if path_distance < max_search_distance:
+						return [(path_distance, stopid, path, next_stop_id)]
+					else:
+						return []
+
+		# if re-using the same link (in same direction), cancel search
+		# TODO there might be some edge cases where this causes breakage (perhaps managed lanes requiring multiple traversal of the same way), but they seem very rare
+		if (this_node_id, next_node_id) in zip(path[:-1], path[1:]):
+			return []
+
+		# add the new link, and update other variables accordingly
+		new_node_pos = [nodes[next_node_id]["lat"], nodes[next_node_id]["lon"]]
+		path_distance += surface_distance(*current_pos, *new_node_pos)
+		current_pos = new_node_pos
+		path.append(next_node_id)
+
+		# if exceeding predetermined maximum distance, cancel search
+		if path_distance > max_search_distance:
+			return []
+
+		# encoutered a barrier. cancel search
+		if not check_node(next_node_id):
+			return []
+
+		# if there are multiple ways connected to the current node, recurr on those ways
+		if len(node_connections[next_node_id]) > 1:
+			output = []
+			for onto_wayid, onto_direction in connections_from_node(next_node_id, wayid, direction):
+				branch_paths = paths_from_node(next_node_id, onto_wayid, path_distance, stopid, path, onto_direction, maxdist)
+				output.extend(branch_paths)
+			return output
+
+
+	# if we get to here then we have reached the end of the way without encountering any branches
+	# therefore this street was a dead-end. cancel search
+	return []
+
+
+
+
+
+
+
+
+	# node = nodes[nodeid]
+
+	# # 2 choices : either 1) branch off at this node, or 2) continue along the way.
+	
+	# # 1) branch off - look for other ways that are connected to this node
+	# for b_wayid in node_connections[nodeid]:
+	# 	if b_wayid != wayid:
+
+	# 		b_way = ways[b_wayid]  # branch_way
+
+	# 		# for parsing tags, ignore conditional restrictions (for now)
+	# 		# so ignore any tags ending in ":conditional"
+
+	# 		# check which ways buses can traverse this road.
+	# 		# 1. check that buses have access.
+	# 			# access:bus = yes|designated
+	# 			# access:psv = yes|designated
+	# 			# bus = yes|designated
+	# 			# psv = yes|designated
+	# 			# access = yes
+			
+	# 		# 2. check that, if the road is oneway, we are travelling in the correct direction
+	# 			# oneway:bus = yes|-1
+	# 			# oneway:psv = yes|-1
+	# 			# oneway = yes|-1
+			
+	# 		# check for turn restrictions
+
+
+
+	# 		# tags that confirm we are allowed (top of list has priority)
+
+	# 		# oneway:bus = 
+	# 		# access:bus:forward = 
+	# 		# bus:forward = 
+	# 		# access:forward = 
+	# 		# access:bus = 
+	# 		# oneway = 
+	# 		# bus = 
+	# 		# access = 
+
+	# 		# also need to check for restriction relation
+
+
+
+
+
+
+	# 		tags = b_way["tags"] if "tags" in b_way else dict()
+
+	# 		for tag, value in tags.items():
+
+	# 			tag_split = tag.split(":")
+
+
+
+
+
+	# 		# check if we can traverse the way forwards
+	# 		# the only time when we can't is when nodeid is at the end of a oneway street
+	# 		if not (b_way["tags"]["pne"]):
+
+
+
+test_stopid = 370817929  # this is the stop I analyzed in the presentation, near Cannon Park
+print(test_stopid)
+print(paths_from_stop(test_stopid))
+
+while True:
+	test_stopid = int(input("enter stop: "))
+	print(test_stopid)
+	print(paths_from_stop(test_stopid))
+
+exit(0)
+
+
+
+
+
+# stuff below here is old code that generates the graph from the existing routes
+# ==================================================================================
 
 
 _id = 0
@@ -295,12 +981,12 @@ for el in route_data["elements"]:
 		for n0, n1 in zip(el["members"][:-1], el["members"][1:]):
 			if n1["type"] == "way":
 				break
-			if n0["ref"] not in stop_dict or n1["ref"] not in stop_dict:
+			if n0["ref"] not in stops or n1["ref"] not in stops:
 				continue
 
 			# in future d should also contain a list of nodes between the two stops.
-			s0 = stop_dict[n0["ref"]]
-			s1 = stop_dict[n1["ref"]]
+			s0 = stops[n0["ref"]]
+			s1 = stops[n1["ref"]]
 			d = {
 				"id": next_id(),
 				"name": s0["name"] + " => " + s1["name"],
