@@ -3,18 +3,10 @@ var map;
 
 //Code used for polylines (drawing a route on the map was directly referenced from google maps documentation)
 //https://developers.google.com/maps/documentation/roads/snap
-var apiKey = 'AIzaSyAZil-yMz6ZxUso7hrq0XQTRzXt8SCgsTw';
+var apiKey = 'AIzaSyAWmWHoyHgni9A2p4kYBloFIuTeE4linzo';
 var drawingManager;
 var snappedCoordinates = [];
 var polyMap = new Map();
-
-
-//List used to store references to the buttons in the network toolkit 
-var buttonList = [document.getElementById("add_stop"), 
-document.getElementById("remove_stop"), 
-document.getElementById("add_route"), 
-document.getElementById("remove_route"), 
-document.getElementById("edit_route")];
 
 //Elements relating to editing a polyline
 var selectedPolyline = null;    //When a user clicks on another polyline after editing one (instead of clicking save), this variable will be used to change the setting to editable = false
@@ -142,15 +134,6 @@ function changeMode(newMode){
         window.localStorage.setItem('mode', 0);
     //If clicking from a different tool active or no tool active must set the tool related to the clicked button active 
     }else{
-        //Set the state of all other buttons to inactive
-        for (let i = 0; i < buttonList.length; i ++){
-            if(i + 1 != newMode){
-                if(buttonList[i].className.slice(-6) === "active"){
-                    buttonList[i].toggleAttribute(false);
-                    buttonList[i].className = buttonList[i].className.slice(0, -6);
-                }
-            }
-        }
         window.localStorage.setItem('mode',newMode);
     }
 
