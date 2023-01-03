@@ -1,5 +1,6 @@
 #!/bin/python3
 
+from joblib import Parallel, delayed, cpu_count # for parallelizing for loops.
 import math
 import json
 from math import sqrt, inf, sin, cos, atan2, radians
@@ -7,10 +8,14 @@ from numbers import Number
 from sys import exit
 from re import search
 from typing import List
+from os.path import isfile
+
 
 # !!!!!!!! 
 drive_on_left = True
-max_search_distance = 2000 # metres
+max_search_distance = 1000 # metres
+
+print(f"There are {cpu_count()} CPUs.")
 
 
 # TODO need to check for height restrictions
@@ -201,11 +206,13 @@ real_sq_width = dx/hor_squares
 real_sq_height = dy/vert_squares
 
 def merc_to_square(merc_x, merc_y):
+	"""Return the sqaure in the spacial index which contains the mercator coordinates `(merc_x, merc_y)`."""
 	sx = int((merc_x - min_x)/dx * hor_squares)
 	sy = int((merc_y - min_y)/dy * vert_squares)
 	return (sx, sy)
 
 def square_to_merc(sx, sy):
+	"""Return the mercator coordinates of the north-westerly corner of the square `(sx, sy)` in the spacial index."""
 	merc_x = min_x + sx/hor_squares * dx
 	merc_y = min_y + sy/vert_squares * dy
 	return (merc_x, merc_y)
@@ -234,6 +241,7 @@ for line in lines:
 			intersect((m0x, m0y), (m1x, m1y), (mix+real_sq_width, miy+real_sq_height), (mix, miy+real_sq_height)) or \
 			intersect((m0x, m0y), (m1x, m1y), (mix, miy+real_sq_height), (mix, miy)):
 				spac_in[siy][six].append(line)
+
 
 
 # # check this is correct: output json for one of the squares
@@ -315,18 +323,6 @@ for stopid, stop in stops.items():
 # print(println)
 
 		
-
-# lost changes somehow, so this is what I need to do now:
-
-# also make a spacial index of ways, too.
-
-# for every stop, start at the stop position
-# travel along the way, checking each node in the way for outgoing connections.
-# create branches
-# terminate a branch when a new bus stop is reached, or the maximum distance is exceeded.
-# at the end of the search we might have multiple routes to the same bus stop. Keep the shortest one.
-
-
 # create a new data structure: for each node have the ways attached to it.
 node_connections = dict() # nodeid -> list(wayid)
 for wayid, way in ways.items():
@@ -356,6 +352,8 @@ for rid, restriction in restrictions.items():
 				way_restrictions[wid] = [rid]
 
 
+
+# variables for the `has_access` function.
 allowed_access_tags = ("yes", "permissive", "permit",
                        "destination", "designated", "variable", "unknown")
 # @.* is to match (ignore) osm conditional expressions.
@@ -364,8 +362,9 @@ allowed_access_tags = ("yes", "permissive", "permit",
 # TODO - lane restrictions are not considered in conjunction with turn restrictions.
 allowed_access_tags_pattern = f"^([^\|]*\|)*({'|'.join(allowed_access_tags)})(\|[^\|]*)*( @.*)?$"
 
-# check access tags of element.
+
 def has_access(tags, dir=None) -> bool:
+	"""Check access tags of element. Returns True if a bus can pass this node."""
 	# TODO again, ignoring conditionals.
 	# highest priority patterns first
 
@@ -406,8 +405,9 @@ def has_access(tags, dir=None) -> bool:
 	return True
 
 
-# check a node is passable by a bus
 def check_node(nodeid) -> bool:
+	"""Check a node is passable by a bus"""
+
 	allowed_barriers = ("border_control", "bump_gate", "bus_trap", "cattle_grid", "coupure", "entrance", "gate",
 	                    "hampshire_gate", "lift_gate", "sally_port", "sliding_beam", "sliding_gate", "spikes", "sump_buster", "toll_booth")
 	node = nodes[nodeid]
@@ -424,9 +424,10 @@ def check_node(nodeid) -> bool:
 
 
 # check the oneway tag to see if buses can pass.
-def check_oneway(wayid, dir) -> bool:
+def check_oneway(wayid:int, dir:bool) -> bool:
+	"""Check the oneway tags to see if a bus can pass in direction `direction` along the way with `wayid`.
+	This function does not consider the `:direction` subkey - that is handled in `has_access`."""
 	# TODO once again we are ignoring conditionals.
-	# this function does not consider the :direction subkey - that (should) be handled in the has_access
 
 	way = ways[wayid]
 	if "tags" not in way: return True
@@ -467,22 +468,7 @@ def check_restriction(from_wayid: int, via_nodeid: int, to_wayid: int) -> bool:
 
 	# TODO TODO TODO this function only considers prohibitory restrictions, not mandatory restritions!
 
-
 	prohibitory_restrictions = ("no_right_turn" , "no_left_turn" , "no_u_turn" , "no_straight_on")
-
-
-	# # returns a filter that searches for **kwargs in the members
-	# def check_fields(**kwargs):
-	# 	def check_fields_inner(rid):
-	# 		for member in restriction[rid]["members"]:
-	# 			for name, value in kwargs.items():
-	# 				if name in member and member[name] == value:
-	# 					return True
-	# 		return False
-	# 	return check_fields_inner
-
-
-	
 
 	def restriction_matches(restriction):
 
@@ -510,27 +496,28 @@ def check_restriction(from_wayid: int, via_nodeid: int, to_wayid: int) -> bool:
 
 		# there are many cases here.
 		# pseudocode:
-
-		# "from_wayid" matches FROM
-		# 	VIA is a node
-		#		VIA matches "via_nodeid"
-		#			TO matches "to_wayid"	-> TRUE
-		#			else 					-> FALSE
-		#	VIA is a list of ways
-		#		the first VIA way matches "to_wayid"	-> TRUE
-		#		else									-> FALSE
-		#	VIA is missing
-		#		TO matches "to_wayid"	-> TRUE
-		#		else 					-> FALSE
-		# VIA is a list of ways
-		# 	"from_wayid" is in this list, but not the last member
-		# 		the next member VIA way is "to_wayid"	-> TRUE
-		# 		else									-> FALSE
-		# 	"from_wayid" is the last member of this list
-		# 		TO matches "to_wayid"	-> TRUE
-		# 		else					-> FALSE
-		# 	else -> FALSE
-		# else -> FALSE
+		"""
+		"from_wayid" matches FROM
+			VIA is a node
+				VIA matches "via_nodeid"
+					TO matches "to_wayid"	-> TRUE
+					else 					-> FALSE
+			VIA is a list of ways
+				the first VIA way matches "to_wayid"	-> TRUE
+				else									-> FALSE
+			VIA is missing
+				TO matches "to_wayid"	-> TRUE
+				else 					-> FALSE
+		VIA is a list of ways
+			"from_wayid" is in this list, but not the last member
+				the next member VIA way is "to_wayid"	-> TRUE
+				else									-> FALSE
+			"from_wayid" is the last member of this list
+				TO matches "to_wayid"	-> TRUE
+				else					-> FALSE
+			else -> FALSE
+		else -> FALSE
+		"""
 
 		if from_wayid == fr:
 			if via_type == 1: # node
@@ -580,30 +567,6 @@ def check_restriction(from_wayid: int, via_nodeid: int, to_wayid: int) -> bool:
 	return True
 
 
-
-
-
-
-
-
-
-
-
-
-	
-	# # 1. "from_wayid" appears in the from field
-	# from_restrictions = filter(check_fields(role="from", ref=from_wayid), way_restrictions[from_wayid])
-	# for restriction in from_restrictions:
-
-	# 	# if there is a "via" node, check if this node matches
-	# 	# if there is instead a list of ways, check that the first one matches.
-	# 	for member in from_restrictions:
-	# 		if member["role"] == "via":
-	# 			if member["type"] == "node":
-	# 				if member["ref"] != via_nodeid:
-	# 					continue
-						
-					# check the relaton
 	
 
 
@@ -879,86 +842,109 @@ def paths_from_node(nodeid: int, wayid: int, path_distance: Number, stopid: int,
 
 
 
+# test_stopid = 370817929  # this is the stop I analyzed in the presentation, near Cannon Park
+# print(test_stopid)
+# print(paths_from_stop(test_stopid))
+
+# while True:
+# 	test_stopid = int(input("enter stop: "))
+# 	print(test_stopid)
+# 	print(paths_from_stop(test_stopid))
+
+# exit(0)
+
+
+
+# find the connections from every stop, and store the shortest one.
+# TODO: we might want to store other routes found in the future, or maybe do something such as test resilience of the routes found
+
+def paths_from_stop_wrapper(from_stopid: int, i:int=0) -> 'List[tuple[Number, int, List[int], int]]':
+	"""Wrapper for paths_from_stop which filters the results, keeping only the shortest path to each stop.
+
+	Args:
+		from_stopid (int): stop id at which to begin the search
+		i (int): for progress monitoring
+
+	Returns:
+		see `paths_from_stop`
+	"""
+
+	if i % 100 == 0: print(f"{i}: processing stopid {from_stopid}")
+
+	shortest_paths_to_stops = dict()
+
+	for pfs in paths_from_stop(from_stopid):
+
+		distance, _, _, to_stopid = pfs
+
+		if to_stopid not in shortest_paths_to_stops \
+		or distance < shortest_paths_to_stops[to_stopid][0]:
+			shortest_paths_to_stops[to_stopid] = pfs
+
+	# print(f"\t done processing stopid {from_stopid}")
+
+	return shortest_paths_to_stops.values()
+
+
+shortest_pfs = []
+# run, or used cached copy.
+if isfile("shortest_paths.txt"):
+	print("using previously generated file shortest_paths.txt")
+	with open("shortest_paths.txt", "r") as f:
+		shortest_pfs = eval(f.read()) # TODO unsafe
+else:
+	for result in Parallel(n_jobs=-1)(delayed(paths_from_stop_wrapper)(stopid, i) for i, stopid in enumerate(stops)):
+		shortest_pfs.extend(result)
+	with open("shortest_paths.txt", "w") as f:
+		f.write(str(shortest_pfs))
 
 
 
 
-	# node = nodes[nodeid]
+# extend the edges - i.e. add extra edges that jump over existing edges (provided the combined lengths is less than the allowed total distance)
 
-	# # 2 choices : either 1) branch off at this node, or 2) continue along the way.
-	
-	# # 1) branch off - look for other ways that are connected to this node
-	# for b_wayid in node_connections[nodeid]:
-	# 	if b_wayid != wayid:
-
-	# 		b_way = ways[b_wayid]  # branch_way
-
-	# 		# for parsing tags, ignore conditional restrictions (for now)
-	# 		# so ignore any tags ending in ":conditional"
-
-	# 		# check which ways buses can traverse this road.
-	# 		# 1. check that buses have access.
-	# 			# access:bus = yes|designated
-	# 			# access:psv = yes|designated
-	# 			# bus = yes|designated
-	# 			# psv = yes|designated
-	# 			# access = yes
-			
-	# 		# 2. check that, if the road is oneway, we are travelling in the correct direction
-	# 			# oneway:bus = yes|-1
-	# 			# oneway:psv = yes|-1
-	# 			# oneway = yes|-1
-			
-	# 		# check for turn restrictions
+# stopid -> [(distance, from_stopid, path, to_stopid), ...]
+stop_pfs = {stopid: [] for stopid in stops}
+for pfs in shortest_pfs:
+	stop_pfs[pfs[1]].append(pfs)
 
 
-
-	# 		# tags that confirm we are allowed (top of list has priority)
-
-	# 		# oneway:bus = 
-	# 		# access:bus:forward = 
-	# 		# bus:forward = 
-	# 		# access:forward = 
-	# 		# access:bus = 
-	# 		# oneway = 
-	# 		# bus = 
-	# 		# access = 
-
-	# 		# also need to check for restriction relation
+# search all paths originating from this stop
+def extended_edges_from_stop(from_stopid, remaining_distance):
+	for distance, _, path, to_stopid in stop_pfs[from_stopid]:
+		if remaining_distance - distance > 0:
+			yield (distance, from_stopid, path, to_stopid)
+			for dist_ext, _, path_ext, to_stopid_ext in extended_edges_from_stop(to_stopid, remaining_distance - distance):
+				yield (distance + dist_ext, from_stopid, path + path_ext, to_stopid_ext)
+	yield from []
 
 
+# we will recreate stop_pfs here with extended edges
+extended_stop_pfs = {stopid: [] for stopid in stops}
 
+# do dfs starting from each stop
+for from_stopid in stops:
+	for pfs_ext in extended_edges_from_stop(from_stopid, max_search_distance):
+		distance_ext, _, _, to_stopid_ext = pfs_ext # unpack each result.
 
+		# search for an existing edge to see if this is shorter.
+		existing_edge = False
+		for i, pfs in enumerate(extended_stop_pfs[from_stopid]):
+			distance, _, _, to_stopid = pfs  # unpack
+			if to_stopid == to_stopid_ext:
+				if distance_ext < distance:
+					extended_stop_pfs[from_stopid][i] = pfs_ext
+				existing_edge = True
+				break
+		if not existing_edge:
+			extended_stop_pfs[from_stopid].append(pfs_ext)
 
+# recombine
+shortest_pfs = sum(extended_stop_pfs.values(), [])
 
-	# 		tags = b_way["tags"] if "tags" in b_way else dict()
-
-	# 		for tag, value in tags.items():
-
-	# 			tag_split = tag.split(":")
-
-
-
-
-
-	# 		# check if we can traverse the way forwards
-	# 		# the only time when we can't is when nodeid is at the end of a oneway street
-	# 		if not (b_way["tags"]["pne"]):
-
-
-
-test_stopid = 370817929  # this is the stop I analyzed in the presentation, near Cannon Park
-print(test_stopid)
-print(paths_from_stop(test_stopid))
-
-while True:
-	test_stopid = int(input("enter stop: "))
-	print(test_stopid)
-	print(paths_from_stop(test_stopid))
-
-exit(0)
-
-
+with open("shortest_paths_extended.txt", "w") as f:
+	f.write(str(shortest_pfs))
+		
 
 
 
@@ -972,37 +958,57 @@ def next_id():
 	_id += 1
 	return _id
 
+
+points = []
+
+# create extra points for the stopping positions.
+# these points are the negative of the stopid.
+for stopid, stop in stops.items():
+
+	points.append({
+		"id":-stopid,
+		"lat":stop["stoppos"]["lat"],
+		"lon":stop["stoppos"]["lon"]
+	})
+
+
 links = []
+used_nodes = set()
+for distance, from_stopid, path, to_stopid in shortest_pfs:
 
-for el in route_data["elements"]:
+	used_nodes.union(path)
 
-	if el["type"] == "relation" and len(el["members"]) > 1:
-		
-		for n0, n1 in zip(el["members"][:-1], el["members"][1:]):
-			if n1["type"] == "way":
-				break
-			if n0["ref"] not in stops or n1["ref"] not in stops:
-				continue
+	# now in the real of pointids rather than nodeids.
+	# +ve ids: osm nodes
+	# -ve ids: calculated STOPPING POSITION of bus stop. (id is the negative of the stop's osm node id)
+	path_with_endpoints = [-from_stopid] + path + [-to_stopid]
 
-			# in future d should also contain a list of nodes between the two stops.
-			s0 = stops[n0["ref"]]
-			s1 = stops[n1["ref"]]
-			d = {
-				"id": next_id(),
-				"name": s0["name"] + " => " + s1["name"],
-				# just use straight line distance for now.
-				"length": sqrt((s0["lat"]-s1["lat"])**2+(s0["lon"]-s1["lon"])**2),
-				"speed" : {"0:00":30},
-				"startid": s0["id"],
-				"endid": s1["id"]
-			}
+	links.append({
+		"id": next_id(),
+		"name": f'{stops[from_stopid]["name"]} => {stops[to_stopid]["name"]}',
+		"length": distance/1000, # converting to km.
+		"speed": {"0:00": 30}, # TODO
+		"startid": from_stopid,
+		"endid": to_stopid,
+		"points": path_with_endpoints
+	})
 
-			links.append(d)
 
+
+# add the other nodes to points (nodes on ways, direct from osm)
+for nodeid in used_nodes:
+	points.append({
+		"id":nodeid,
+		"lat":nodes[nodeid]["lat"],
+		"lon":nodes[nodeid]["lon"]
+	})
+
+# export data
+exported_json = json.dumps({
+	"links":links,
+	"points":points
+})
 with open("stop-connections.json", "w") as f:
-	f.write(json.dumps({"links":links}))
-
-
-
-		
+	f.write(exported_json)
+	
 
