@@ -976,7 +976,7 @@ links = []
 used_nodes = set()
 for distance, from_stopid, path, to_stopid in shortest_pfs:
 
-	used_nodes.union(path)
+	used_nodes = used_nodes.union(path)
 
 	# now in the real of pointids rather than nodeids.
 	# +ve ids: osm nodes
