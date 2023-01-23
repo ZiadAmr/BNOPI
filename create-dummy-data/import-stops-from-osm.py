@@ -1,5 +1,8 @@
 #!/bin/python3
 
+# downloads a file from OSM containing all the stops in a radius.
+# run with -h option for help
+
 import argparse
 import requests
 
