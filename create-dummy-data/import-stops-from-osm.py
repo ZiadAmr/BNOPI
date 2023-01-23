@@ -5,6 +5,7 @@
 
 import argparse
 import requests
+import json
 
 
 def float_in_range(n0, n1):
@@ -43,7 +44,28 @@ response = requests.get(f"https://overpass-api.de/api/interpreter?data={query}")
 if response.status_code != 200:
 	raise RuntimeError(f"Request failed with exit code {response.status_code}.")
 
-args.output.write(response.content)
+
+
+
+
+# convert to stage format
+
+data = json.loads(response.content)
+
+stops = []
+
+count = 0
+for el in data["elements"]:
+
+	name = el["tags"]["name"] if "name" in el["tags"] else str(el["id"])
+
+	stop = {"name": name,
+         "id": el["id"],
+         "lat": el["lat"],
+         "lon": el["lon"]}
+	stops.append(stop)
+
+args.output.write(json.dumps({"stops": stops}))
 
 
 

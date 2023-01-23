@@ -1,5 +1,6 @@
 #!/bin/python3
 
+import multiprocessing
 from joblib import Parallel, delayed, cpu_count # for parallelizing for loops.
 import math
 import json
@@ -10,12 +11,51 @@ from re import search
 from typing import List
 from os.path import isfile
 
+def positive_float(x):
+	try:
+		y = float(x)
+	except ValueError:
+		raise argparse.ArgumentTypeError(f"{repr(x)} not a number")
+	else:
+		if y <= 0:
+			raise argparse.ArgumentTypeError(f"{repr(x)} not postive")
+	return y
+
+import argparse
+parser = argparse.ArgumentParser(
+    prog=__file__,
+    description='Create the stop connection graph from stop and road data.')
+parser.add_argument("stops", type=argparse.FileType("r"),
+                    action="store", help="A json file containing the stops. See the stage format specification.")
+parser.add_argument("roads", type=argparse.FileType("r"),
+                    action="store", help="A json file containing the roads. See the stage format specification.")
+parser.add_argument("--drive-on-left", dest="drive_on_left", action="store_true", help="Specifies that road users should on the left. If omitted, it is assumed road users drive on the right.")
+parser.add_argument("-d", "--max-search-distance", dest="max_search_distance", metavar="dist", action="store", required=False,
+                    help="Specifies the maximum distance to search for neighboring stops, in meters. Defaults to 1000.", default=1000, type=positive_float)
+parser.add_argument("-o", dest="output", type=argparse.FileType("w"),
+                    action="store", required=False, metavar="outputfile", help="The filename of the output json file. Defaults to stop-connection-graph.json", default="stop-connection-graph.json")
+parser.add_argument("-v", "--verbose", dest="verbose", action="store_true")
+
+
+args = parser.parse_args()
 
 # !!!!!!!! 
-drive_on_left = True
-max_search_distance = 1000 # metres
+drive_on_left = args.drive_on_left
+max_search_distance = args.max_search_distance # metres
 
 print(f"There are {cpu_count()} CPUs.")
+
+# read in data.
+
+stop_data = json.loads(args.stops.read())
+stops = {stop["id"]: stop for stop in stop_data["stops"]}
+del stop_data
+# args.stops.close()
+# del args.stops
+
+road_data = json.loads(args.roads.read())
+# args.roads.close()
+# del args.roads
 
 
 # TODO need to check for height restrictions
@@ -48,6 +88,9 @@ print(f"There are {cpu_count()} CPUs.")
 # (._;>;);
 #
 # out;
+
+
+
 
 
 
@@ -139,16 +182,6 @@ def intersect(A, B, C, D):
 
 
 
-with open("stops.json", "r") as f:
-	stop_data = json.loads(f.read())
-stops = {stop["id"]: stop for stop in stop_data["stops"]}
-del stop_data
-
-with open("coventry-routes.json", "r") as f:
-	route_data = json.loads(f.read())
-
-with open("coventry-roads.json", "r") as f:
-	road_data = json.loads(f.read())
 
 
 # preprocess the roads.
@@ -318,7 +351,7 @@ for stopid, stop in stops.items():
 # # test that the stop positions are correct:
 # test_nodes = []
 # println = ""
-# for stopid, stop in stop_dict.items():
+# for stopid, stop in stops.items():
 # 	println += f"({str(stop['stoppos']['lat'])}, {str(stop['stoppos']['lon'])})\n"
 # print(println)
 
@@ -858,7 +891,7 @@ def paths_from_node(nodeid: int, wayid: int, path_distance: Number, stopid: int,
 # find the connections from every stop, and store the shortest one.
 # TODO: we might want to store other routes found in the future, or maybe do something such as test resilience of the routes found
 
-def paths_from_stop_wrapper(from_stopid: int, i:int=0) -> 'List[tuple[Number, int, List[int], int]]':
+def paths_from_stop_wrapper(arg) -> 'List[tuple[Number, int, List[int], int]]':
 	"""Wrapper for paths_from_stop which filters the results, keeping only the shortest path to each stop.
 
 	Args:
@@ -869,8 +902,13 @@ def paths_from_stop_wrapper(from_stopid: int, i:int=0) -> 'List[tuple[Number, in
 		see `paths_from_stop`
 	"""
 
-	if i % 100 == 0: print(f"{i}: processing stopid {from_stopid}")
 
+	if type(arg) is tuple:
+		i, from_stopid = arg
+		if args.verbose and i % 100 == 0: print(f"{i}: processing stopid {from_stopid}")
+	else:
+		from_stopid = arg
+	
 	shortest_paths_to_stops = dict()
 
 	for pfs in paths_from_stop(from_stopid):
@@ -883,20 +921,31 @@ def paths_from_stop_wrapper(from_stopid: int, i:int=0) -> 'List[tuple[Number, in
 
 	# print(f"\t done processing stopid {from_stopid}")
 
-	return shortest_paths_to_stops.values()
+	return list(shortest_paths_to_stops.values())
 
 
 shortest_pfs = []
 # run, or used cached copy.
-if isfile("shortest_paths.txt"):
-	print("using previously generated file shortest_paths.txt")
-	with open("shortest_paths.txt", "r") as f:
-		shortest_pfs = eval(f.read()) # TODO unsafe
-else:
-	for result in Parallel(n_jobs=-1)(delayed(paths_from_stop_wrapper)(stopid, i) for i, stopid in enumerate(stops)):
+# if isfile("shortest_paths.txt"):
+# 	print("using previously generated file shortest_paths.txt")
+# 	with open("shortest_paths.txt", "r") as f:
+# 		shortest_pfs = eval(f.read()) # TODO unsafe
+# else:
+# 	for result in Parallel(n_jobs=-1)(delayed(paths_from_stop_wrapper)(stopid, i) for i, stopid in enumerate(stops)):
+# 		shortest_pfs.extend(result)
+# 	with open("shortest_paths.txt", "w") as f:
+# 		f.write(str(shortest_pfs))
+
+# for i, stopid in enumerate(stops):
+# 	shortest_pfs.extend(paths_from_stop_wrapper((i, stopid)))
+
+# multiprocessing ver.
+# create a process pool that uses all cpus
+with multiprocessing.Pool() as pool:
+	# call the function for each item in parallel
+	for result in pool.map(paths_from_stop_wrapper, enumerate(stops), chunksize=1):
 		shortest_pfs.extend(result)
-	with open("shortest_paths.txt", "w") as f:
-		f.write(str(shortest_pfs))
+
 
 
 
@@ -946,10 +995,6 @@ with open("shortest_paths_extended.txt", "w") as f:
 	f.write(str(shortest_pfs))
 		
 
-
-
-# stuff below here is old code that generates the graph from the existing routes
-# ==================================================================================
 
 
 _id = 0
@@ -1008,7 +1053,10 @@ exported_json = json.dumps({
 	"links":links,
 	"points":points
 })
-with open("stop-connections.json", "w") as f:
-	f.write(exported_json)
+
+
+args.output.write(exported_json)
+# with open("stop-connections.json", "w") as f:
+# 	f.write(exported_json)
 	
 
