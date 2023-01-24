@@ -29,7 +29,7 @@ parser.add_argument('radius', help="Radius centered on (lat, lon) within which t
 parser.add_argument("latitude", help="Latitude in range [-90, 90]", type=float_in_range(-90, 90))
 parser.add_argument("longitude", help="Longitude in range [-180, 180]", type=float_in_range(-180, 180))
 
-parser.add_argument("-o", dest="output", type=argparse.FileType("wb"),
+parser.add_argument("-o", dest="output", type=argparse.FileType("w"),
                     action="store", required=False, metavar="outputfile", help="The filename of the output json file. Defaults to stops.json", default="stops.json")
 
 args = parser.parse_args()
