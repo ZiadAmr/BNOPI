@@ -15,4 +15,4 @@ public:
 
 	Link(int id, std::string name, float length, Stop* start, Stop*end): id(id), name(name), length(length), start(start), end(end) {};
 
-}
+};

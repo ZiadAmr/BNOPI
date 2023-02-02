@@ -16,4 +16,4 @@ public:
 
 	Stop(std::string name, int id, double lat, double lon): name(name), id(id), lat(lat), lon(lon) {};
 
-}
+};
