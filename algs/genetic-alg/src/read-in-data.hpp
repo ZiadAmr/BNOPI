@@ -15,4 +15,4 @@ int read_in_stops(std::ifstream &stops_file, std::map<int, Stop> &stops);
 int read_in_links(std::ifstream &links_file, std::list<Link> &links, std::map<int, Stop> &stops);
 
 // Create graph data structure from json files.
-int create_graph(std::string stops_file_loc, std::string links_file_loc, Graph* graph);
+int create_graph(std::ifstream &stops_fs, std::ifstream &links_fs, Graph **graph);

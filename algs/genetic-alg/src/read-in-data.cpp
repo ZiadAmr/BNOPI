@@ -33,10 +33,10 @@ int read_in_stops(ifstream &stops_file, map<int, Stop> &stops)
 	// auto x = data["stops"];
 
 	for (const auto stop_js : data["stops"]) {
-		string name = stop_js["name"];
-		int id = stop_js["id"];
-		double lat = stop_js["lat"];
-		double lon = stop_js["lon"];
+		string name = stop_js["name"].get<string>();
+		int id = stop_js["id"].get<int>();
+		double lat = stop_js["lat"].get<double>();
+		double lon = stop_js["lon"].get<double>();
 
 		Stop stop(name, id, lat, lon);
 		stops.insert({id, stop});
@@ -84,29 +84,21 @@ int read_in_links(ifstream &links_file, list<Link> &links, map<int, Stop> &stops
 	return 0;
 }
 
-int create_graph(string stops_file_loc, string links_file_loc, Graph *graph)
+int create_graph(ifstream &stops_fs, ifstream &links_fs, Graph **graph)
 {
-
-	// create file streams
-	ifstream stops_fs;
-	stops_fs.open(stops_file_loc, fstream::in);
-	if (stops_fs.fail()) return errno;
-
-	ifstream links_fs;
-	links_fs.open(links_file_loc, fstream::in);
-	if (links_fs.fail()) return errno;
 
 	// call above functions
 	int err;
 	map<int, Stop> stops{};
-	if (!(err = read_in_stops(stops_fs, stops))) return err;
+	if (read_in_stops(stops_fs, stops)) return 1;
 	stops_fs.close();
 
 	list<Link> links;
-	if (!(err = read_in_links(links_fs, links, stops))) return err;
+	if (read_in_links(links_fs, links, stops)) return 1;
 	links_fs.close();
 
-	graph = new Graph(stops, links);
+	*graph = new Graph(stops, links);
+
 	return 0;
 
 }
