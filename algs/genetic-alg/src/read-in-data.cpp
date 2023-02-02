@@ -1,52 +1,79 @@
 
 #include "read-in-data.hpp"
 #include <string>
-#include <json/json.h>
+// #include <json/json.h>
+#include <nlohmann/json.hpp>
 
 using namespace std;
+using namespace nlohmann;
 
-int read_in_stops(ifstream &stops_file, map<int, Stop> &stops) {
-	Json::Value root;
-	stops_file >> root;
+// int read_in_stops(ifstream &stops_file, map<int, Stop> &stops) {
+// 	Json::Value root;
+// 	stops_file >> root;
 
-	const Json::Value stops_js = root["stops"];
-	if (stops_js.isNull()) return 1;
+// 	const Json::Value stops_js = root["stops"];
+// 	if (stops_js.isNull()) return 1;
 
-	for (const Json::Value stop_js : stops_js) {
-		string name = stop_js.get("name", "").asString();
-		int id = stop_js.get("id", 0).asInt();
-		double lat = stop_js.get("lat", 0.0).asDouble();
-		double lon = stop_js.get("lon", 0.0).asDouble();
+// 	for (const Json::Value stop_js : stops_js) {
+// 		string name = stop_js.get("name", "").asString();
+// 		int id = stop_js.get("id", 0).asInt();
+// 		double lat = stop_js.get("lat", 0.0).asDouble();
+// 		double lon = stop_js.get("lon", 0.0).asDouble();
+
+// 		Stop stop(name, id, lat, lon);
+// 		stops.insert({id, stop});
+// 	}
+// 	return 0;
+
+// }
+
+int read_in_stops(ifstream &stops_file, map<int, Stop> &stops)
+{
+	json data = json::parse(stops_file);
+	// auto x = data["stops"];
+
+	for (const auto stop_js : data["stops"]) {
+		string name = stop_js["name"];
+		int id = stop_js["id"];
+		double lat = stop_js["lat"];
+		double lon = stop_js["lon"];
 
 		Stop stop(name, id, lat, lon);
-
-		stops[id] = stop;
+		stops.insert({id, stop});
 	}
 	return 0;
-
 }
 
 int read_in_links(ifstream &links_file, list<Link> &links, map<int, Stop> &stops) {
 
-	Json::Value root;
-	links_file >> root;
+	// Json::Value root;
+	// links_file >> root;
 
-	const Json::Value links_js = root["links"];
-	if (links_js.isNull())
-		return 1;
+	json data = json::parse(links_file);
 
-	for (const Json::Value link_js : links_js)
+	// const Json::Value links_js = root["links"];
+	// if (links_js.isNull())
+	// 	return 1;
+	json links_js = data["links"];
+
+	for (const auto link_js : links_js)
 	{
-		string name = link_js.get("name", "").asString();
-		int id = link_js.get("id", 0).asInt();
-		float length = link_js.get("length", 0.0).asFloat();
+		// string name = link_js.get("name", "").asString();
+		// int id = link_js.get("id", 0).asInt();
+		// float length = link_js.get("length", 0.0).asFloat();
 
-		int startid = link_js.get("startid", 0).asInt();
-		int endid = link_js.get("endid", 0).asInt();
+		// int startid = link_js.get("startid", 0).asInt();
+		// int endid = link_js.get("endid", 0).asInt();
 
+		string name = link_js["name"];
+		int id = link_js["id"];
+		float length = link_js["length"];
+
+		int startid = link_js["startid"];
+		int endid = link_js["endid"];
 		// find the corresponding stops in the hashmap
-		Stop *start = &stops[startid];
-		Stop *end = &stops[startid];
+		Stop *start = &(stops.find(startid)->second);
+		Stop *end = &(stops.find(endid)->second);
 
 		Link link(id, name, length, start, end);
 
@@ -71,7 +98,7 @@ int create_graph(string stops_file_loc, string links_file_loc, Graph *graph)
 
 	// call above functions
 	int err;
-	map<int, Stop> stops;
+	map<int, Stop> stops{};
 	if (!(err = read_in_stops(stops_fs, stops))) return err;
 	stops_fs.close();
 
