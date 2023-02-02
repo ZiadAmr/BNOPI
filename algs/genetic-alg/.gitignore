@@ -9,3 +9,6 @@ graph_info.json
 
 # binaries
 build/*
+
+# outputs
+routes.json
