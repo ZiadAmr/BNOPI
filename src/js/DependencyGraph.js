@@ -44,7 +44,7 @@ function DependencyGraph() {
     //Add a new edge from parent node to new node
     setEdges((edges)=>{
       return[...edges, {id:prevNodeId + '-' + newNodeID, source:prevNodeId, target:newNodeID, type:'default', markerEnd:directed}]
-    })
+    });
 
 
     //When a new node is added we need to update our backend to hold this data
@@ -54,13 +54,18 @@ function DependencyGraph() {
   }, []);
 
   const removeNode = useCallback((nodeID) => {
-    
-    let nodesToDelete = deleteStage(nodeID);
+
+    let deletions = deleteStage(nodeID);
 
     // Delete the nodes
     setNodes((nodes)=>{
-      return nodes.filter(item=>!nodesToDelete.includes(item.id));
+      return nodes.filter(item=>!deletions[0].includes(item.id));
     });
+
+    setEdges((edges)=>{
+      return edges.filter(item=>!deletions[1].includes(item.id))
+    });
+
   },[]);
 
 

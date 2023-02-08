@@ -28,8 +28,8 @@ export function getdpgraph(){
 }
 
 export function deleteStage(id){
-    lst = []
-    pairs = []
+    let lst = []
+    let pairs = []
     dpgraph.forEach((x,i) => {
         if(x.id == id){
             x.parents.forEach((y,i)=>{
