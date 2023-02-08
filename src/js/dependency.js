@@ -12,14 +12,13 @@ let memory = {}
 //     })
 // }
 
-export function addStage(id, stageName, isRoot, filename, parameters=[], parents=[]) {
+export function addStage(id, stageName, filename, parameters=[], parents=[]) {
     dpgraph.push({
         "id": id,
         "name": stageName,
         "file": filename,
         "params": parameters,
         "parents": parents,
-        "root": isRoot
     })
     return dpgraph;
 }
@@ -30,8 +29,13 @@ export function getdpgraph(){
 
 export function deleteStage(id){
     lst = []
+    pairs = []
     dpgraph.forEach((x,i) => {
         if(x.id == id){
+            x.parents.forEach((y,i)=>{
+                pairs.push(y + "-" + x.id)
+            })
+
             dpgraph.splice(i, 1)
             lst.push(x.id)
         }
@@ -41,6 +45,15 @@ export function deleteStage(id){
     while(unchanged == false){
         unchanged = true
         dpgraph.forEach((x,i) => {
+
+            x.parents.forEach((z,i) => {
+                lst.forEach((y,i) => {
+                    if(y == z){
+                        pairs.push(y + "-" + x.id)
+                    }
+                })
+            })
+
             x.parents = x.parents.filter(function(item) { 
                 return lst.indexOf(item) < 0; // Returns true for items not found in b.
             });
@@ -52,8 +65,9 @@ export function deleteStage(id){
         })
     }
 
-    return lst
+    return [lst, pairs]
 }
+
 
 export function addParam(id, value) {
     memory[id] = value
@@ -104,15 +118,3 @@ export function runScript(id, filename, params) {
         return data.toString()
     });
 }
-
-
-addStage(1, "example", true, "python-scripts/example.py")
-
-addStage(2, "secondexample", false, "python-scripts/io.py", ["param1", "param2"], [1])
-
-addStage(3, "thirdexample", false, "python-scripts/example.py", parents=[example,secondexample])
-
-
-// out = deleteStage(3)
-console.log(out)
-
