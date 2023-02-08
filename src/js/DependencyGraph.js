@@ -17,7 +17,7 @@ import 'reactflow/dist/style.css';
 import AlgorithmNode from './AlgorithmNode';
 
 import './dependency.js';
-import { addParam, addParent, addStage, getdpgraph, runGraph } from './dependency.js';
+import { addParam, addParent, addStage, deleteStage, getdpgraph, runGraph } from './dependency.js';
 
 const directed = {
   type: 'arrow', // 'arrow' or 'arrowclosed'
@@ -54,11 +54,13 @@ function DependencyGraph() {
   }, []);
 
   const removeNode = useCallback((nodeID) => {
+    
+    let nodesToDelete = deleteStage(nodeID);
+
+    // Delete the nodes
     setNodes((nodes)=>{
-      console.log(nodes);
-      console.log(nodeID);
-      return nodes.filter(item=>item.id!=nodeID);
-    })
+      return nodes.filter(item=>!nodesToDelete.includes(item.id));
+    });
   },[]);
 
 

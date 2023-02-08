@@ -41,7 +41,7 @@ export function deleteStage(id){
         }
     })
     // remove deleted node from parents, and remove unconnected nodes
-    unchanged = false
+    let unchanged = false
     while(unchanged == false){
         unchanged = true
         dpgraph.forEach((x,i) => {
@@ -118,3 +118,15 @@ export function runScript(id, filename, params) {
         return data.toString()
     });
 }
+
+
+addStage(1, "example", true, "python-scripts/example.py")
+
+addStage(2, "secondexample", false, "python-scripts/io.py", ["param1", "param2"], [1])
+
+addStage(3, "thirdexample", false, "python-scripts/example.py", parents=[example,secondexample])
+
+
+// out = deleteStage(3)
+console.log(out)
+
