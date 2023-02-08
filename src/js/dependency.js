@@ -3,14 +3,7 @@ const { memo } = require('react')
 let dpgraph = []
 let memory = {}
 
-// export const addStage = (stageName, filename, parameters=[], parents=[]) => {
-//     dpgraph.push({
-//         "name": stageName,
-//         "file": filename,
-//         "params": parameters,
-//         "parents": parents
-//     })
-// }
+// Add breakpoints
 
 export function addStage(id, stageName, filename, parameters=[], parents=[]) {
     dpgraph.push({
@@ -82,9 +75,9 @@ export function addParent(id, parentID) {
 }
 
 export function runGraph() {
-    stages_run = []
+    let stages_run = []
     while(stages_run.length < dpgraph.length){
-        run = []
+        let run = []
         dpgraph.forEach((x, i) => {
             if( x.parents.every( p => stages_run.find(e => e == p)) && x.id != stages_run){
                 run.push(x)
@@ -102,12 +95,14 @@ export function runGraph() {
 
 export function runScript(id, filename, params) {
     /*...*/
-    args = [filename]
+    let args = [filename]
     console.log("Params = ", params)
     for (var i = 0; i < params.length; i++){
         args.push(memory[params[i]])
     }
     console.log(args, memory["param1"], memory["param2"])
+
+    //BUG 1 - Require causing issues
     var python = require('child_process').spawn('python', args);
     python.stdout.on('data',function(data){
         console.log("data: ",data.toString());
