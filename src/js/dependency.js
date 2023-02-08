@@ -12,30 +12,54 @@ let memory = {}
 //     })
 // }
 
-export function addStage(id, stageName, filename, parameters=[], parents=[]) {
+export function addStage(id, stageName, isRoot, filename, parameters=[], parents=[]) {
     dpgraph.push({
         "id": id,
         "name": stageName,
         "file": filename,
         "params": parameters,
-        "parents": parents
+        "parents": parents,
+        "root": isRoot
     })
 }
 
-// export function deleteStage(id){
-//     delete dpgraph[id]
-// }
+export function deleteStage(id){
+    lst = []
+    dpgraph.forEach((x,i) => {
+        if(x.id == id){
+            dpgraph.splice(i, 1)
+            lst.push(x.id)
+        }
+    })
+    // remove deleted node from parents, and remove unconnected nodes
+    unchanged = false
+    while(unchanged == false){
+        unchanged = true
+        dpgraph.forEach((x,i) => {
+            x.parents = x.parents.filter(function(item) { 
+                return lst.indexOf(item) < 0; // Returns true for items not found in b.
+            });
+            if(x.parents.length == 0 & x.id != "1"){
+                lst.push(x.id)
+                dpgraph.splice(i, 1)
+                unchanged = false
+            }
+        })
+    }
+
+    return lst
+}
 
 export function addParam(id, value) {
     memory[id] = value
 }
 
 export function changeFilename(id, filename) {
-    dpgraph[id].filename = filename
+    dpgraph.find(element => element.id == id).filename = filename
 }
 
 export function addParent(id, parentID) {
-    dpgraph[id].parents[parentID]
+    dpgraph.find(element => element.id == id).parents.push(parentID)
 }
 
 export function runGraph() {
@@ -76,13 +100,14 @@ export function runScript(id, filename, params) {
     });
 }
 
-// runScript('python-scripts/example.py')
 
-// addStage("example", "python-scripts/example.py")
+addStage(1, "example", true, "python-scripts/example.py")
 
-// addStage("secondexample", "python-scripts/io.py", ["param1", "param2"], ["example"])
-// addParam("param1", 1)
-// addParam("param2", "food")
+addStage(2, "secondexample", false, "python-scripts/io.py", ["param1", "param2"], [1])
 
-// runGraph()
+addStage(3, "thirdexample", false, "python-scripts/example.py", parents=[example,secondexample])
+
+
+// out = deleteStage(3)
+console.log(out)
 
