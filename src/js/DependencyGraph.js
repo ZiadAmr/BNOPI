@@ -1,6 +1,8 @@
 import React from 'react';
 import { useCallback } from 'react';
 import { Button } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -15,7 +17,7 @@ import 'reactflow/dist/style.css';
 import AlgorithmNode from './AlgorithmNode';
 
 import './dependency.js';
-import { addParam, addParent, addStage, getdpgraph } from './dependency.js';
+import { addParam, addParent, addStage, getdpgraph, runGraph } from './dependency.js';
 
 const directed = {
   type: 'arrow', // 'arrow' or 'arrowclosed'
@@ -37,10 +39,13 @@ function DependencyGraph() {
       position: { x:nodes.filter((item)=>item.id == prevNodeId)[0].position.x + 300, y:nodes.filter((item)=>item.id == prevNodeId)[0].position.y + (Math.random() * 300) - 150}, 
       data: { label: newNodeID, addNewNode:addNewNode, removeNode:removeNode}}];
     });
+
+
     //Add a new edge from parent node to new node
     setEdges((edges)=>{
       return[...edges, {id:prevNodeId + '-' + newNodeID, source:prevNodeId, target:newNodeID, type:'default', markerEnd:directed}]
     })
+
 
     //When a new node is added we need to update our backend to hold this data
     addStage(newNodeID, "New stage", "path", [], [prevNodeId]);
@@ -88,6 +93,7 @@ function DependencyGraph() {
         {/* <Controls /> */}
         {/* <Background /> */}
       </ReactFlow>
+      <Button id= "executeGraph" onClick={() => runGraph()} variant='secondary' data-bs-toggle="button" autoComplete="off" aria-pressed="false"><FontAwesomeIcon icon={faPlay} /></Button>
     </>
   );
 }
