@@ -12,8 +12,9 @@ let memory = {}
 //     })
 // }
 
-export function addStage(stageName, filename, parameters=[], parents=[]) {
+export function addStage(id, stageName, filename, parameters=[], parents=[]) {
     dpgraph.push({
+        "id": id,
         "name": stageName,
         "file": filename,
         "params": parameters,
@@ -21,8 +22,20 @@ export function addStage(stageName, filename, parameters=[], parents=[]) {
     })
 }
 
-export function addParam(name, value) {
-    memory[name] = value
+// export function deleteStage(id){
+//     delete dpgraph[id]
+// }
+
+export function addParam(id, value) {
+    memory[id] = value
+}
+
+export function changeFilename(id, filename) {
+    dpgraph[id].filename = filename
+}
+
+export function addParent(id, parentID) {
+    dpgraph[id].parents[parentID]
 }
 
 export function runGraph() {
@@ -30,13 +43,13 @@ export function runGraph() {
     while(stages_run.length < dpgraph.length){
         run = []
         dpgraph.forEach((x, i) => {
-            if( x.parents.every( p => stages_run.find(e => e == p)) && x.name != stages_run){
+            if( x.parents.every( p => stages_run.find(e => e == p)) && x.id != stages_run){
                 run.push(x)
             }
         });
         // console.log(run)
-        run.forEach((x,i) => runScript(x.name, x.file, x.params))
-        run.forEach((x,i) => stages_run.push(x.name))
+        run.forEach((x,i) => runScript(x.id, x.file, x.params))
+        run.forEach((x,i) => stages_run.push(x.id))
         console.log("loop", stages_run)
         // console.log("Stages Run: ", stages_run)
     }
@@ -44,7 +57,7 @@ export function runGraph() {
     console.log("Stages Run: ", stages_run)
 }
 
-export function runScript(stageName, filename, params) {
+export function runScript(id, filename, params) {
     /*...*/
     args = [filename]
     console.log("Params = ", params)
@@ -55,7 +68,7 @@ export function runScript(stageName, filename, params) {
     var python = require('child_process').spawn('python', args);
     python.stdout.on('data',function(data){
         console.log("data: ",data.toString());
-        memory[stageName] = data.toString()
+        memory[id] = data.toString()
         
         console.log("after:", memory)
 
