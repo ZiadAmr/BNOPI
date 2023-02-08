@@ -56,16 +56,16 @@ else:
 			to_plot.append((start_loc, end_loc))
 
 
-# get into right format for plt.plot
-start_coords, end_coords = zip(*to_plot)
-start_lat, start_lon = zip(*start_coords)
-end_lat, end_lon = zip(*end_coords)
+# # get into right format for plt.plot
+# start_coords, end_coords = zip(*to_plot)
+# start_lat, start_lon = zip(*start_coords)
+# end_lat, end_lon = zip(*end_coords)
 
-plt.plot(start_lon, start_lat, end_lon, end_lat, marker="o", linestyle="solid")
-
-
-
+for (start_lat_, start_lon_), (end_lat_, end_lon_) in to_plot:
+	plt.plot([start_lon_, end_lon_], [start_lat_, end_lat_],
+	         'g-', marker="o", linestyle="solid")
 plt.show()
+
 
 
 
