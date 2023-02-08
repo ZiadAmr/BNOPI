@@ -120,13 +120,13 @@ export function runScript(id, filename, params) {
 }
 
 
-addStage(1, "example", true, "python-scripts/example.py")
+// addStage(1, "example", true, "python-scripts/example.py")
 
-addStage(2, "secondexample", false, "python-scripts/io.py", ["param1", "param2"], [1])
+// addStage(2, "secondexample", false, "python-scripts/io.py", ["param1", "param2"], [1])
 
-addStage(3, "thirdexample", false, "python-scripts/example.py", parents=[example,secondexample])
+// addStage(3, "thirdexample", false, "python-scripts/example.py", parents=[example,secondexample])
 
 
-// out = deleteStage(3)
-console.log(out)
+// // out = deleteStage(3)
+// console.log(out)
 
