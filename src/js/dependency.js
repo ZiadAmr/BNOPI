@@ -1,10 +1,18 @@
 const { memo } = require('react')
 
-dpgraph = []
+let dpgraph = []
+let memory = {}
 
-memory = {}
+// export const addStage = (stageName, filename, parameters=[], parents=[]) => {
+//     dpgraph.push({
+//         "name": stageName,
+//         "file": filename,
+//         "params": parameters,
+//         "parents": parents
+//     })
+// }
 
-function addStage(stageName, filename, parameters=[], parents=[]) {
+export function addStage(stageName, filename, parameters=[], parents=[]) {
     dpgraph.push({
         "name": stageName,
         "file": filename,
@@ -13,11 +21,11 @@ function addStage(stageName, filename, parameters=[], parents=[]) {
     })
 }
 
-function addParam(name, value) {
+export function addParam(name, value) {
     memory[name] = value
 }
 
-function runGraph() {
+export function runGraph() {
     stages_run = []
     while(stages_run.length < dpgraph.length){
         run = []
@@ -36,7 +44,7 @@ function runGraph() {
     console.log("Stages Run: ", stages_run)
 }
 
-function runScript(stageName, filename, params) {
+export function runScript(stageName, filename, params) {
     /*...*/
     args = [filename]
     console.log("Params = ", params)
@@ -57,11 +65,11 @@ function runScript(stageName, filename, params) {
 
 // runScript('python-scripts/example.py')
 
-addStage("example", "python-scripts/example.py")
+// addStage("example", "python-scripts/example.py")
 
-addStage("secondexample", "python-scripts/io.py", ["param1", "param2"], ["example"])
-addParam("param1", 1)
-addParam("param2", "food")
+// addStage("secondexample", "python-scripts/io.py", ["param1", "param2"], ["example"])
+// addParam("param1", 1)
+// addParam("param2", "food")
 
-runGraph()
+// runGraph()
 

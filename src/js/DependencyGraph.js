@@ -14,11 +14,12 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import AlgorithmNode from './AlgorithmNode';
 
+import './dependency.js';
 
 const directed = {
   type: 'arrow', // 'arrow' or 'arrowclosed'
-  strokeWidth: 6,
-  color:'#000000'
+  strokeWidth: 3,
+  color:'#FFFFFF'
 }
 
 const nodeTypes = {nodeAlg : AlgorithmNode}

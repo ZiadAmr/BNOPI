@@ -17,11 +17,10 @@ var styleArray = [
   {featureType: "transit", stylers: [{ visibility: "on" }]}
 ];
 
-
 function initMap(){
     var optionParams = {
         zoom:14,
-        center:{lat:52.4128,lng:-1.5090},
+        center:{lat:52.52955,lng:-1.22395},
         mapTypeId: "terrain"
     };
 
@@ -44,7 +43,7 @@ function initMap(){
     // };
 
     //Getting the bus stop location data using openstreetmap api
-    fetch('https://www.overpass-api.de/api/interpreter?data=[out:json];node(around:500.0,52.4128,-1.5090)[highway=bus_stop];out;')
+    fetch('https://www.overpass-api.de/api/interpreter?data=[out:json];node(around:2100, 52.52955, -1.22395)[highway=bus_stop];out;')
         .then((response) => response.json())
         .then((data) => createStopMarkers(data));
 
