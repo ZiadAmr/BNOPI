@@ -20,6 +20,11 @@ export function addStage(id, stageName, filename, parameters=[], parents=[]) {
         "params": parameters,
         "parents": parents
     })
+    return dpgraph;
+}
+
+export function getdpgraph(){
+    return dpgraph;
 }
 
 // export function deleteStage(id){
@@ -35,7 +40,7 @@ export function changeFilename(id, filename) {
 }
 
 export function addParent(id, parentID) {
-    dpgraph[id].parents[parentID]
+    dpgraph.find(element => element.id == id).parents.push(parentID)
 }
 
 export function runGraph() {

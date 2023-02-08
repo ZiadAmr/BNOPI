@@ -15,6 +15,7 @@ import 'reactflow/dist/style.css';
 import AlgorithmNode from './AlgorithmNode';
 
 import './dependency.js';
+import { addParam, addParent, addStage, getdpgraph } from './dependency.js';
 
 const directed = {
   type: 'arrow', // 'arrow' or 'arrowclosed'
@@ -22,11 +23,14 @@ const directed = {
   color:'#FFFFFF'
 }
 
+addStage("1", "Base node")
+
 const nodeTypes = {nodeAlg : AlgorithmNode}
 
 function DependencyGraph() {
   //Function used to create a new node when the user has clicked on the + button on a node
   const addNewNode = useCallback((prevNodeId, newNodeID) => {
+
     //Add a new node to the list of nodes
     setNodes((nodes)=>{
       return [...nodes,{id: newNodeID, type: 'nodeAlg', 
@@ -37,6 +41,11 @@ function DependencyGraph() {
     setEdges((edges)=>{
       return[...edges, {id:prevNodeId + '-' + newNodeID, source:prevNodeId, target:newNodeID, type:'default', markerEnd:directed}]
     })
+
+    //When a new node is added we need to update our backend to hold this data
+    addStage(newNodeID, "New stage", "path", [], [prevNodeId]);
+    console.log(getdpgraph());
+
   }, []);
 
   const removeNode = useCallback((nodeID) => {
@@ -57,7 +66,13 @@ function DependencyGraph() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
 
-  const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+  // Function is called when we manually connect two nodes
+  const onConnect = useCallback((params) => { 
+    setEdges((eds) => addEdge(params, eds))
+
+    // Set the parent of the node in our backend
+    addParent(params.target, params.source);
+  } , [setEdges]) ;
 
   return (
     <>
