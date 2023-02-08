@@ -1,6 +1,8 @@
 import React from 'react';
 import { useCallback } from 'react';
 import { Button } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -15,6 +17,7 @@ import 'reactflow/dist/style.css';
 import AlgorithmNode from './AlgorithmNode';
 
 import './dependency.js';
+import { addParam, addParent, addStage, getdpgraph, runGraph } from './dependency.js';
 
 const directed = {
   type: 'arrow', // 'arrow' or 'arrowclosed'
@@ -22,21 +25,32 @@ const directed = {
   color:'#FFFFFF'
 }
 
+addStage("1", "Base node")
+
 const nodeTypes = {nodeAlg : AlgorithmNode}
 
 function DependencyGraph() {
   //Function used to create a new node when the user has clicked on the + button on a node
   const addNewNode = useCallback((prevNodeId, newNodeID) => {
+
     //Add a new node to the list of nodes
     setNodes((nodes)=>{
       return [...nodes,{id: newNodeID, type: 'nodeAlg', 
       position: { x:nodes.filter((item)=>item.id == prevNodeId)[0].position.x + 300, y:nodes.filter((item)=>item.id == prevNodeId)[0].position.y + (Math.random() * 300) - 150}, 
       data: { label: newNodeID, addNewNode:addNewNode, removeNode:removeNode}}];
     });
+
+
     //Add a new edge from parent node to new node
     setEdges((edges)=>{
       return[...edges, {id:prevNodeId + '-' + newNodeID, source:prevNodeId, target:newNodeID, type:'default', markerEnd:directed}]
     })
+
+
+    //When a new node is added we need to update our backend to hold this data
+    addStage(newNodeID, "New stage", "path", [], [prevNodeId]);
+    console.log(getdpgraph());
+
   }, []);
 
   const removeNode = useCallback((nodeID) => {
@@ -57,7 +71,13 @@ function DependencyGraph() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
 
-  const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+  // Function is called when we manually connect two nodes
+  const onConnect = useCallback((params) => { 
+    setEdges((eds) => addEdge(params, eds))
+
+    // Set the parent of the node in our backend
+    addParent(params.target, params.source);
+  } , [setEdges]) ;
 
   return (
     <>
@@ -73,6 +93,7 @@ function DependencyGraph() {
         {/* <Controls /> */}
         {/* <Background /> */}
       </ReactFlow>
+      <Button id= "executeGraph" onClick={() => runGraph()} variant='secondary' data-bs-toggle="button" autoComplete="off" aria-pressed="false"><FontAwesomeIcon icon={faPlay} /></Button>
     </>
   );
 }

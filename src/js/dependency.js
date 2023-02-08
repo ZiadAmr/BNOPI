@@ -21,6 +21,11 @@ export function addStage(id, stageName, isRoot, filename, parameters=[], parents
         "parents": parents,
         "root": isRoot
     })
+    return dpgraph;
+}
+
+export function getdpgraph(){
+    return dpgraph;
 }
 
 export function deleteStage(id){
