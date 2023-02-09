@@ -15,6 +15,7 @@ import ReactFlow, {
 
 import 'reactflow/dist/style.css';
 import AlgorithmNode from './AlgorithmNode';
+import Node2 from './Node2';
 
 import './dependency.js';
 import { addParam, addParent, addStage, deleteStage, getdpgraph, runGraph } from './dependency.js';
@@ -27,7 +28,7 @@ const directed = {
 
 addStage("1", "Base node")
 
-const nodeTypes = {nodeAlg : AlgorithmNode}
+const nodeTypes = {nodeAlg : AlgorithmNode, node:Node2}
 
 function DependencyGraph() {
   //Function used to create a new node when the user has clicked on the + button on a node
@@ -68,9 +69,8 @@ function DependencyGraph() {
 
   },[]);
 
-
   const initialNodes = [
-    { id: '1', type: 'nodeAlg', position: { x: 50, y: 50 }, data: { label: '1', addNewNode:addNewNode, removeNode:removeNode} }];
+    { id: '1', type: 'node', position: { x: 50, y: 50 }, data: { label: '1', addNewNode:addNewNode} }];
   
   const initialEdges = [];
 

@@ -1,7 +1,8 @@
 h1 {
   color: blue;
 }
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -9,33 +10,34 @@ html, body {
 #map {
   height: 100%;
 }
-#mainContainer{
+#mainContainer {
   height: 100%;
   padding: 0;
 }
-#firstRow{
+#firstRow {
   height: 75%;
-  width:100%;
+  width: 100%;
 }
-#Network_toolkit{
+#Network_toolkit {
   height: 50%;
   z-index: 99;
   position: absolute;
   top: 28%;
   left: 2%;
 }
-#mapContainer{
+#mapContainer {
   position: relative;
 }
-#root{
-  height:100%;
-  width:100%;
+#root {
+  height: 100%;
+  width: 100%;
 }
-#secondRow{
-  height:25%;
-  width:100%;
+#secondRow {
+  height: 25%;
+  width: 100%;
 }
-#icon1,#icon2{
+#icon1,
+#icon2 {
   color: indianred;
 }
 .depNode {
@@ -54,25 +56,36 @@ html, body {
 .react-flow {
   background: rgb(62, 62, 62);
 }
-#breakPoint{
+#breakPoint {
   position: absolute;
   right: 5%;
-  bottom: 5%; 
+  bottom: 5%;
 }
-#deleteNode{
+#deleteNode {
   position: absolute;
   right: 20%;
-  bottom: 5%; 
+  bottom: 5%;
 }
-#addNode{
+#addNode {
   position: absolute;
   right: 36%;
-  bottom: 5%; 
+  bottom: 5%;
 }
-#executeGraph{
+#executeGraph {
   position: absolute;
-  top:95%;
-  right:20%
+  top: 95%;
+  right: 20%;
+}
+
+#addNode2 {
+  position: absolute;
+  right: 25%;
+  bottom: 5%;
+}
+#breakPoint2 {
+  position: absolute;
+  right: 10%;
+  bottom: 5%;
 }
 // #breakLogo{
 //   width: 7px;
