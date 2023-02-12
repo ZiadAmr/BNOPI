@@ -77,6 +77,9 @@ int read_in_links(ifstream &links_file, list<Link> &links, map<int, Stop> &stops
 
 		Link link(id, name, length, start, end);
 
+		start->out_edges.push_back(link);
+		end->in_edges.push_back(link);
+
 		links.push_back(link);
 
 	}
