@@ -1,5 +1,3 @@
-
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -11,8 +9,8 @@
 
 using namespace std;
 
-
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
 	argparse::ArgumentParser program("genetic-alg");
 
@@ -63,7 +61,8 @@ int main(int argc, char** argv) {
 	// create file streams
 	std::ifstream stops_fs;
 	stops_fs.open(stops_file_loc, fstream::in);
-	if (stops_fs.fail()) {
+	if (stops_fs.fail())
+	{
 		std::cerr << "Error opening file for reading: " << stops_file_loc << std::endl;
 		exit(errno);
 	}
@@ -84,10 +83,11 @@ int main(int argc, char** argv) {
 		exit(errno);
 	}
 
-
-	Graph* graph = nullptr;
-	if (verbose) cout << "Reading in files..." << endl;
-	if (create_graph(stops_fs, connection_graph_fs, &graph)) {
+	Graph *graph = nullptr;
+	if (verbose)
+		cout << "Reading in files..." << endl;
+	if (create_graph(stops_fs, connection_graph_fs, &graph))
+	{
 		exit(1);
 	};
 
@@ -96,7 +96,8 @@ int main(int argc, char** argv) {
 	cout << x << " sample stops:" << endl;
 	for (auto stop_pair : graph->stops)
 	{
-		if(x-- == 0) break;
+		if (x-- == 0)
+			break;
 		Stop stop = stop_pair.second;
 		cout << "Stop id: " << stop.id << " lat: " << stop.lat << " lon " << stop.lon << " name: " << stop.name << endl;
 	}
@@ -105,13 +106,7 @@ int main(int argc, char** argv) {
 
 	// call algorithm
 
-
-
-
 	stops_fs.close();
 	connection_graph_fs.close();
 	outfile_file_fs.close();
-
-
-
 }

@@ -32,7 +32,8 @@ int read_in_stops(ifstream &stops_file, map<int, Stop> &stops)
 	json data = json::parse(stops_file);
 	// auto x = data["stops"];
 
-	for (const auto stop_js : data["stops"]) {
+	for (const auto stop_js : data["stops"])
+	{
 		string name = stop_js["name"].get<string>();
 		int id = stop_js["id"].get<int>();
 		double lat = stop_js["lat"].get<double>();
@@ -44,7 +45,8 @@ int read_in_stops(ifstream &stops_file, map<int, Stop> &stops)
 	return 0;
 }
 
-int read_in_links(ifstream &links_file, list<Link> &links, map<int, Stop> &stops) {
+int read_in_links(ifstream &links_file, list<Link> &links, map<int, Stop> &stops)
+{
 
 	// Json::Value root;
 	// links_file >> root;
@@ -77,11 +79,10 @@ int read_in_links(ifstream &links_file, list<Link> &links, map<int, Stop> &stops
 
 		Link link(id, name, length, start, end);
 
-		start->out_edges.push_back(link);
-		end->in_edges.push_back(link);
+		start->out_edges.push_back(&link);
+		end->in_edges.push_back(&link);
 
 		links.push_back(link);
-
 	}
 
 	return 0;
@@ -93,15 +94,16 @@ int create_graph(ifstream &stops_fs, ifstream &links_fs, Graph **graph)
 	// call above functions
 	int err;
 	map<int, Stop> stops{};
-	if (read_in_stops(stops_fs, stops)) return 1;
+	if (read_in_stops(stops_fs, stops))
+		return 1;
 	stops_fs.close();
 
 	list<Link> links;
-	if (read_in_links(links_fs, links, stops)) return 1;
+	if (read_in_links(links_fs, links, stops))
+		return 1;
 	links_fs.close();
 
 	*graph = new Graph(stops, links);
 
 	return 0;
-
 }
