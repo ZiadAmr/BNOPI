@@ -2,6 +2,8 @@
 #include <vector>
 #include "link.hpp"
 
+extern bool verbose;
+
 typedef std::vector<Link*> Route;
 typedef std::vector<Route> RouteNet;
 

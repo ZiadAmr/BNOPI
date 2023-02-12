@@ -9,6 +9,8 @@
 
 using namespace std;
 
+bool verbose;
+
 int main(int argc, char **argv)
 {
 
@@ -49,7 +51,7 @@ int main(int argc, char **argv)
 	string stops_file_loc = program.get<string>("stops");
 	string connection_graph_file_loc = program.get<string>("connection-graph");
 	string outfile_file_loc = program.get<string>("output");
-	bool verbose = program.get<bool>("verbose");
+	verbose = program.get<bool>("verbose");
 
 #ifdef DEBUG
 	std::cout << "stops_file_loc: " << stops_file_loc << std::endl;
