@@ -2,14 +2,6 @@
 #include "common.hpp"
 #include <vector>
 
-
-
-
-typedef std::vector<RouteNet> Population;
-
-
-
-
 /**
  * @brief Driver class for the Simple Multi-Objective (SMO) algorithm
  * 

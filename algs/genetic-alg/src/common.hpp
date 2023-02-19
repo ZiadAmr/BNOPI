@@ -6,6 +6,7 @@ extern bool verbose;
 
 typedef std::vector<Link*> Route;
 typedef std::vector<Route> RouteNet;
+typedef std::vector<RouteNet> Population;
 
 struct AlgSettings
 {

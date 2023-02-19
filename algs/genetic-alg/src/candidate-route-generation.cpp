@@ -1,12 +1,11 @@
 #include "candidate-route-generation.hpp"
-#include "link.hpp"
 using namespace std;
 
 // remember to do exception handling from the genetic-algorithm.cpp
 
 RouteNet generateRouteSet(int minRouteSize, int maxRouteSize, int numberOfRoutes, Population population)
 {
-    return NULL;
+    return RouteNet();
 }
 
 Population generatePopulation(int minRouteSize, int maxRouteSize, int numberOfRoutes, int populationSize)
@@ -22,7 +21,7 @@ Population generatePopulation(int minRouteSize, int maxRouteSize, int numberOfRo
             throw "Invalid parameter for graph";
         }
 
-        population.push_back(&candidate);
+        population.push_back(candidate);
     }
 
     return population;
