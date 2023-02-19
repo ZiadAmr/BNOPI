@@ -6,6 +6,7 @@
 
 #include "read-in-data.hpp"
 #include "graph.hpp"
+#include "candidate-route-generation.hpp"
 
 using namespace std;
 
@@ -107,6 +108,7 @@ int main(int argc, char **argv)
 #endif
 
 	// call algorithm
+	generatePopulation({5, 7, 6, 3},*graph);
 
 	stops_fs.close();
 	connection_graph_fs.close();
