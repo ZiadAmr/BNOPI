@@ -23,6 +23,10 @@ private:
 	DPopulation population;
 	AlgSettings settings;
 
+	std::vector<float> parent_fitness;
+	float best_so_far_fitness = 0;
+	RouteNet best_so_far_routenet;
+
 public:
 	/**
 	 * @brief Construct a new SMODriver object
@@ -45,6 +49,17 @@ public:
 	Population get_population();
 
 private:
+
+	/**
+	 * @brief Check whether a route network is feasible. 
+	 * If it isn't, then in `step` we keep calling `make_small_change` until it is.
+	 * 
+	 * @param rn Route network to check
+	 * @return true - feasible
+	 * @return false - infeasible
+	 */
+	bool is_feasible(DRouteNet& rn);
+
 	/**
 	 * @brief Convert directional route network to regular route network
 	 * 

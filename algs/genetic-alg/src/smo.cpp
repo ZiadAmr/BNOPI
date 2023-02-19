@@ -1,6 +1,7 @@
 #include "smo.hpp"
 #include "link.hpp"
 #include "stop.hpp"
+#include "objective.hpp"
 #include <vector>
 #include <cstdlib>
 #include <algorithm>
@@ -15,10 +16,68 @@ SMODriver::SMODriver(Population initial_population, AlgSettings& settings): sett
 		}
 		population.push_back(d_route_net);
 	}
+
+	// calculate the initial fitness of each network
+	for (DRouteNet drn : population) {
+		// TOOD call fitness function (net yet implemented)
+		float fitness = 0;
+
+		parent_fitness.push_back(fitness);
+	}
 }
 
 void SMODriver::step() {
-	// TODO
+
+	// copy of the parents to mutate
+	DPopulation offspring = population;
+
+	// make a small change to each of the networks in the population.
+	for (DRouteNet& drn : offspring) {
+		make_small_change(drn);
+	}
+
+	for (int i = 0; i < population.size(); i++) {
+
+		DRouteNet &parent = population[i];
+		DRouteNet &child = offspring[i];
+
+		// ignore offspring if it's a duplicate
+		// TODO
+		bool is_duplicate = false;
+		if (is_duplicate)
+			continue;
+
+		// evaluate fitness of the child
+		// TODO
+		float fitness = 0;
+
+		// if offspring improves on best-so-far
+		if (fitness > best_so_far_fitness) {
+			best_so_far_fitness = fitness;
+			best_so_far_routenet = DRouteNet_to_RouteNet(child);
+		}
+
+		// replace parent
+		if (fitness > parent_fitness[i]) {
+			population[i] = child;
+		}
+
+		// paper also has a course of action if the fitness is the same.
+		// find an individual in the population that is dominated by the offspring and replace it with the offspring.
+		for (int j = 0; j < population.size(); j++) {
+			if (parent_fitness[j] < fitness) {
+				population[j] = child;
+				break;
+			}
+		}
+
+	}
+
+	if (verbose) {
+		cout << "Step complete. Best fitness so far: " << best_so_far_fitness << endl;
+	}
+
+
 }
 
 Population SMODriver::get_population() {
@@ -26,12 +85,11 @@ Population SMODriver::get_population() {
 }
 
 
-
-
-
-
-
-
+bool SMODriver::is_feasible(DRouteNet& rn) {
+	// Because of the inclusion of walking edges it is feasible to walk from any node to any other
+	// so all networks are feasible
+	return true;
+}
 
 
 RouteNet& SMODriver::DRouteNet_to_RouteNet(DRouteNet &drn) {
@@ -54,9 +112,13 @@ Population& SMODriver::DPopulation_to_Population(DPopulation &dp) {
 
 void SMODriver::make_small_change(DRouteNet &route_net) {
 
-	// choose one of the routes
-	int n = (int) rand() * route_net.size();
-	make_small_change(route_net[n]);
+	// keep making changes until we get a feasible network
+	do {
+		// choose one of the routes
+		int n = (int) rand() * route_net.size();
+		make_small_change(route_net[n]);
+
+	} while (!is_feasible(route_net));
 }
 
 void SMODriver::make_small_change(DRoute &route) {
