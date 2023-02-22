@@ -6,6 +6,7 @@
 
 #include "read-in-data.hpp"
 #include "graph.hpp"
+#include "smo.hpp"
 #include "candidate-route-generation.hpp"
 
 using namespace std;
@@ -108,7 +109,21 @@ int main(int argc, char **argv)
 #endif
 
 	// call algorithm
-	generatePopulation({5, 7, 6, 3},*graph);
+	AlgSettings settings = {5, 7, 6, 3};
+
+	// generate population
+	Population initial_population = generatePopulation(settings,*graph);
+
+	// init algorithm
+	SMODriver smo_driver(initial_population, settings, /*niter=*/100);
+
+	// main loop
+	smo_driver.run();
+
+	// get output
+	RouteNet best_routenet = smo_driver.get_best_routenet();
+
+	// TODO serialize this and write to outfile_file_fs 
 
 	stops_fs.close();
 	connection_graph_fs.close();
