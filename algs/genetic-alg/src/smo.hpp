@@ -1,12 +1,13 @@
 #pragma once
 #include "common.hpp"
+#include "alg-driver.hpp"
 #include <vector>
 
 /**
  * @brief Driver class for the Simple Multi-Objective (SMO) algorithm
  * 
  */
-class SMODriver {
+class SMODriver : public AlgDriver {
 private:
 	/**
 	 * @brief Directional route. Contains `inverted` bit determinining to which endpoint of the route we can add links.
@@ -27,6 +28,12 @@ private:
 	float best_so_far_fitness = 0;
 	RouteNet best_so_far_routenet;
 
+	// iteration number
+	int it = 0;
+
+	// total iterations
+	int niter;
+
 public:
 	/**
 	 * @brief Construct a new SMODriver object
@@ -34,7 +41,7 @@ public:
 	 * @param initial_population Initial population of route networks
 	 * @param settings Struct containing general settings for the algorithm
 	 */
-	SMODriver(Population initial_population, AlgSettings &settings);
+	SMODriver(Population initial_population, AlgSettings &settings, int niter);
 
 	/**
 	 * @brief Create a new generation of offspring and replace parents
@@ -48,7 +55,21 @@ public:
 	 */
 	Population get_population();
 
+	RouteNet get_best_routenet();
+
 private:
+
+	bool stopping_condition_met();
+
+	/**
+	 * @brief Check if a network exists in a population that contains the same routes as the query network
+	 * 
+	 * @param drn Query network
+	 * @param dp Population in which to look for duplicates
+	 * @return true 
+	 * @return false 
+	 */
+	bool is_duplicate(DRouteNet& drn, DPopulation& dp);
 
 	/**
 	 * @brief Check whether a route network is feasible. 
@@ -61,12 +82,20 @@ private:
 	bool is_feasible(DRouteNet& rn);
 
 	/**
+	 * @brief Evaluates fitness of route network
+	 * 
+	 * @param rn 
+	 * @return float 
+	 */
+	float objective_function(RouteNet& rn);
+
+	/**
 	 * @brief Convert directional route network to regular route network
 	 * 
 	 * @param drn 
 	 * @return RouteNet& 
 	 */
-	RouteNet& DRouteNet_to_RouteNet(DRouteNet &drn);
+	RouteNet DRouteNet_to_RouteNet(DRouteNet &drn);
 
 	/**
 	 * @brief Convert directional population to regular population
@@ -74,7 +103,7 @@ private:
 	 * @param dp 
 	 * @return Population& 
 	 */
-	Population& DPopulation_to_Population(DPopulation &dp);
+	Population DPopulation_to_Population(DPopulation &dp);
 
 	/**
 	 * @brief Applies procedure to a route network as described in the paper.

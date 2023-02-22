@@ -7,7 +7,7 @@
 #include <algorithm>
 using namespace std;
 
-SMODriver::SMODriver(Population initial_population, AlgSettings& settings): settings(settings) {
+SMODriver::SMODriver(Population initial_population, AlgSettings& settings, int niter): settings(settings), niter(niter) {
 	// convert Population to DPopulation (add `inverted` bit to represent which end of the route we are adding to)
 	for (RouteNet route_net: initial_population) {
 		DRouteNet d_route_net;
@@ -41,25 +41,24 @@ void SMODriver::step() {
 		DRouteNet &parent = population[i];
 		DRouteNet &child = offspring[i];
 
-		// ignore offspring if it's a duplicate
-		// TODO
-		bool is_duplicate = false;
-		if (is_duplicate)
+		if (is_duplicate(child, population))
 			continue;
 
 		// evaluate fitness of the child
-		// TODO
-		float fitness = 0;
+		RouteNet child_rn = DRouteNet_to_RouteNet(child);
+		float fitness = objective_function(child_rn);
 
 		// if offspring improves on best-so-far
 		if (fitness > best_so_far_fitness) {
 			best_so_far_fitness = fitness;
-			best_so_far_routenet = DRouteNet_to_RouteNet(child);
+			best_so_far_routenet = child_rn;
 		}
 
+		// if better than parent
 		// replace parent
 		if (fitness > parent_fitness[i]) {
 			population[i] = child;
+			parent_fitness[i] = fitness;
 		}
 
 		// paper also has a course of action if the fitness is the same.
@@ -67,6 +66,7 @@ void SMODriver::step() {
 		for (int j = 0; j < population.size(); j++) {
 			if (parent_fitness[j] < fitness) {
 				population[j] = child;
+				parent_fitness[j] = fitness;
 				break;
 			}
 		}
@@ -74,14 +74,30 @@ void SMODriver::step() {
 	}
 
 	if (verbose) {
-		cout << "Step complete. Best fitness so far: " << best_so_far_fitness << endl;
+		cout << "Step " << it << " complete. Best fitness so far: " << best_so_far_fitness << endl;
 	}
+
+	it++;
 
 
 }
 
+RouteNet SMODriver::get_best_routenet() {
+	return best_so_far_routenet;
+}
+
+bool SMODriver::stopping_condition_met() {
+	return it >= niter;
+}
+
+
 Population SMODriver::get_population() {
 	return DPopulation_to_Population(population);
+}
+
+bool SMODriver::is_duplicate(DRouteNet& drn, DPopulation& dp) {
+	// TODO
+	return false;
 }
 
 
@@ -91,15 +107,20 @@ bool SMODriver::is_feasible(DRouteNet& rn) {
 	return true;
 }
 
+float SMODriver::objective_function(RouteNet& rn) {
+	// TODO
+	return 0;
+}
 
-RouteNet& SMODriver::DRouteNet_to_RouteNet(DRouteNet &drn) {
+
+RouteNet SMODriver::DRouteNet_to_RouteNet(DRouteNet &drn) {
 	RouteNet rn;
 	for (DRoute dr: drn)
 		rn.push_back(dr.r);
 	return rn;
 }
 
-Population& SMODriver::DPopulation_to_Population(DPopulation &dp) {
+Population SMODriver::DPopulation_to_Population(DPopulation &dp) {
 	Population p;
 	for (DRouteNet drn: dp){
 		RouteNet rn = DRouteNet_to_RouteNet(drn);
@@ -130,9 +151,10 @@ void SMODriver::make_small_change(DRoute &route) {
 	if (!allowed_to_add_link)
 		remove_link(route);
 	
-	else if (!allowed_to_remove_link)
+	else if (!allowed_to_remove_link) {
 		if (!add_link(route))
 			invert_order(route);
+	}
 
 	else {
 		if (rand() > 0.5) {
