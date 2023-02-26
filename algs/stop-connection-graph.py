@@ -936,15 +936,15 @@ shortest_pfs = []
 # 	with open("shortest_paths.txt", "w") as f:
 # 		f.write(str(shortest_pfs))
 
-# for i, stopid in enumerate(stops):
-# 	shortest_pfs.extend(paths_from_stop_wrapper((i, stopid)))
+for i, stopid in enumerate(stops):
+	shortest_pfs.extend(paths_from_stop_wrapper((i, stopid)))
 
 # multiprocessing ver.
 # create a process pool that uses all cpus
-with multiprocessing.Pool() as pool:
-	# call the function for each item in parallel
-	for result in pool.map(paths_from_stop_wrapper, enumerate(stops), chunksize=1):
-		shortest_pfs.extend(result)
+# with multiprocessing.Pool() as pool:
+# 	# call the function for each item in parallel
+# 	for result in pool.map(paths_from_stop_wrapper, enumerate(stops), chunksize=1):
+# 		shortest_pfs.extend(result)
 
 
 

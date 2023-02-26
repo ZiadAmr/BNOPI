@@ -3,8 +3,5 @@
 nlohmann_json/3.11.2
 argparse/2.9
 
-[options]
-libpq:shared=False
-
 [generators]
 make
