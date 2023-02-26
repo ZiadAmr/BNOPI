@@ -6,6 +6,7 @@
 #include "stop.hpp"
 #include "link.hpp"
 #include "graph.hpp"
+#include "common.hpp"
 
 // Read in the stops and store them in a hashmap.
 int read_in_stops(std::ifstream &stops_file, std::map<int, Stop> &stops);
@@ -16,3 +17,6 @@ int read_in_links(std::ifstream &links_file, std::list<Link> &links, std::map<in
 
 // Create graph data structure from json files.
 int create_graph(std::ifstream &stops_fs, std::ifstream &links_fs, Graph **graph);
+
+// serialize a route network for file output
+std::string routenet_to_string(RouteNet& rn);
