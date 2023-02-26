@@ -31,23 +31,45 @@ CPPS=$(wildcard src/*.cpp)
 HPPS=$(wildcard src/*.hpp)
 OS=$(CPPS:src/%.cpp=build/%.o)
 
-all: build/genetic_alg
+# compiling tests
+CPPS_TEST=$(wildcard tests/*.cpp)
+BINS_TEST=$(CPPS_TEST:%.cpp=%.test)
+OS_TEST=$(CPPS_TEST:%.cpp=%.test.o)
+OS_MAIN_PROG=$(filter-out build/genetic-alg.o, $(OS))
+
+all: build/genetic_alg $(BINS_TEST)
 
 debug:
 	@echo CPPS: $(CPPS)
 	@echo HPPS: $(HPPS)
 	@echo OS: $(OS)
+	@echo CPPS_TEST: $(CPPS_TEST)
+	@echo BINS_TEST: $(BINS_TEST)
+	@echo OS_TEST: $(OS_TEST)
+	@echo OS_MAIN_PROG: $(OS_MAIN_PROG)
 
 build/genetic_alg: $(OS)
 	@mkdir -p $(@D)
 	$(COMPILER) $(GENERAL_FLAGS) $^ -o $@ $(LINKING_FLAGS)
 
+build/libgenetic_alg.a: $(OS_MAIN_PROG)
+	ar crf $@ $^
+
 build/%.o: src/%.cpp $(HPPS) Makefile
 	@mkdir -p $(@D)
 	$(COMPILER) -c $(GENERAL_FLAGS) $(INCLUDE_FLAGS) $< -o $@
 
+tests/%.test.o: tests/%.cpp Makefile
+	$(COMPILER) -c $(GENERAL_FLAGS) $(INCLUDE_FLAGS) $< -o $@
+
+tests/%.test: tests/%.test.o build/libgenetic_alg.a
+	$(COMPILER) $< -L./build -lgenetic_alg -o $@
+
 clean:
 	rm -rf build
+	rm -f $(BINS_TEST) $(OS_TEST)
+
+.PRECIOUS: $(OS_TEST)
 
 .PHONY: all clean debug
 
