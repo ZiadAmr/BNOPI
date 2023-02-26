@@ -71,11 +71,11 @@ int read_in_links(ifstream &links_file, list<Link> &links, map<int, Stop> &stops
 		Stop *end = &(end_it->second);
 
 		Link link(id, name, length, start, end);
-
-		start->out_edges.push_back(&link);
-		end->in_edges.push_back(&link);
-
 		links.push_back(link);
+
+		start->out_edges.push_back(&links.back());
+		end->in_edges.push_back(&links.back());
+
 	}
 
 	return 0;
@@ -121,7 +121,7 @@ std::string routenet_to_string(RouteNet& rn) {
 		if (r.size() == 0) {
 			route["name"] = std::to_string(id);
 		} else {
-			route["name"] = r.front()->name + r.back()->name;
+			route["name"] = r.front()->start->name + r.back()->end->name;
 		}
 		
 		// create list of stops and links
