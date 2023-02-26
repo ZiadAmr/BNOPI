@@ -121,7 +121,7 @@ std::string routenet_to_string(RouteNet& rn) {
 		if (r.size() == 0) {
 			route["name"] = std::to_string(id);
 		} else {
-			route["name"] = r.front()->start->name + r.back()->end->name;
+			route["name"] = r.front()->start->name + " => " + r.back()->end->name;
 		}
 		
 		// create list of stops and links
