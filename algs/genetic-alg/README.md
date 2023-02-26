@@ -5,7 +5,7 @@
 The compilation process is set up for Linux systems using the g++ compiler only. You may have to edit the Makefile for other systems.
 
 1. Install Conan package manager if not already installed.\
-```pip install conan```
+```pip install conan==1.59.0```
 
 2. Install dependencies.\
 ```cd [project directory]```\
