@@ -100,3 +100,52 @@ int create_graph(ifstream &stops_fs, ifstream &links_fs, Graph **graph)
 
 	return 0;
 }
+
+
+std::string routenet_to_string(RouteNet& rn) {
+
+	int id_counter = 0;
+
+	json j;
+
+	json routes = json::array();
+
+	for (Route &r : rn) {
+		
+		json route;
+
+		int id = id_counter++;
+		route["id"] = id;
+		// set the name of the route to firststop => laststop.
+		// if there are no stops in the route then just make it the id.
+		if (r.size() == 0) {
+			route["name"] = std::to_string(id);
+		} else {
+			route["name"] = r.front()->name + r.back()->name;
+		}
+		
+		// create list of stops and links
+		json stops = json::array();
+		json links = json::array();
+		for (Link* link: r) {
+			links.push_back(link->id);
+			stops.push_back(link->start->id);
+		};
+		// add the last stop.
+		if (r.size() != 0) {
+			stops.push_back(r.back()->end->id);
+		}
+
+		route["stops"] = stops;
+		route["links"] = links;
+
+		// add route to routes
+		routes.push_back(route);
+
+	}
+
+	j["routes"] = routes;
+
+	return j.dump();
+}
+
