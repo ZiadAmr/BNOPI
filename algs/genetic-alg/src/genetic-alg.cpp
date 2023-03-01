@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 #endif
 
 	// call algorithm
-	AlgSettings settings = {5, 2, 6, 3};
+	AlgSettings settings = {5, 2, 6, 4};
 
 	// generate population
 	Population initial_population = generatePopulation(settings,*graph);

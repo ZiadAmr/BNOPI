@@ -30,13 +30,13 @@ RouteNet generateRouteSet(AlgSettings setting, Graph &stop_connection)
     // Find the routes starting from the bus stops
     while(!finished && !non_exhausted_stops.empty()){
 
-        std::uniform_int_distribution<int> dist(0, non_exhausted_stops.size());
+        std::uniform_int_distribution<int> dist(0, non_exhausted_stops.size() - 1);
         int random_index = dist(rng);
-        Stop &random_stop = stop_connection.stops.find(non_exhausted_stops[random_index])->second;
+        Stop *random_stop = &stop_connection.stops.find(non_exhausted_stops[random_index])->second;
 
         Route temp = Route();
         // Attempt to generate a route starting from random_stop
-        Route* potential_route = generateRoute(setting.min_route_stops, stop_connection, &random_stop, temp, candidate_route_set);
+        Route* potential_route = generateRoute(setting.min_route_stops, stop_connection, random_stop, temp, candidate_route_set);
 
         // Check if we have successfully generated a route starting from the random stop
         if(potential_route != nullptr){
@@ -57,7 +57,7 @@ RouteNet generateRouteSet(AlgSettings setting, Graph &stop_connection)
 }
 
 Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route &history, RouteNet& candidate_route_set){
-    
+
     // Base case: When we have found a route that is of the given size
     if(size == 0){
 
@@ -71,6 +71,8 @@ Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route &histor
         return new Route();
     }
 
+    size--;
+
     // Exhaustively try out all possible out edges and see if there is a route that is feasible
     for(Link* l : stop->out_edges){
 
@@ -80,7 +82,7 @@ Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route &histor
         }
 
         history.push_back(l);
-        auto new_history = generateRoute(--size, stop_connection, l->end, history, candidate_route_set);
+        auto new_history = generateRoute(size, stop_connection, l->end, history, candidate_route_set);
 
         if(new_history != nullptr){
             return &history;
