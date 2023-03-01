@@ -3,7 +3,7 @@ using namespace std;
 
 // remember to do exception handling from the genetic-algorithm.cpp
 
-RouteNet generateRouteSet(AlgSettings setting, Graph stop_connection)
+RouteNet generateRouteSet(AlgSettings setting, Graph &stop_connection)
 {
     // Prints out the total number of bus stops we have loded
     if (verbose)
@@ -33,7 +33,7 @@ RouteNet generateRouteSet(AlgSettings setting, Graph stop_connection)
 
         std::uniform_int_distribution<int> dist(0, non_exhausted_stops.size());
         int random_index = dist(rng);
-        Stop random_stop = stop_connection.stops.find(non_exhausted_stops[random_index])->second;
+        Stop &random_stop = stop_connection.stops.find(non_exhausted_stops[random_index])->second;
         // Attempt to generate a route starting from random_stop
         Route* potential_route = generateRoute(setting.min_route_stops, stop_connection, &random_stop, Route(), candidate_route_set);
  
@@ -55,7 +55,7 @@ RouteNet generateRouteSet(AlgSettings setting, Graph stop_connection)
     return candidate_route_set;
 }
 
-Route* generateRoute(int size, Graph stop_connection, Stop* stop, Route history, RouteNet candidate_route_set){
+Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route history, RouteNet candidate_route_set){
     
     // Base case: When we have found a route that is of the given size
     if(size == 0){
@@ -92,7 +92,7 @@ Route* generateRoute(int size, Graph stop_connection, Stop* stop, Route history,
     return nullptr;
 }
 
-bool checkDuplicateRoute(RouteNet candidate_route_set, Route candidate_route){
+bool checkDuplicateRoute(RouteNet candidate_route_set, Route &candidate_route){
     bool dupl = false;
     for(auto i : candidate_route_set){
         dupl = true;
@@ -110,7 +110,7 @@ bool checkDuplicateRoute(RouteNet candidate_route_set, Route candidate_route){
     return dupl;
 }
 
-Population generatePopulation(AlgSettings setting, Graph stop_connection)
+Population generatePopulation(AlgSettings setting, Graph &stop_connection)
 {
 
     // Make sure to do some pre-processing steps to identify if the algorithm will fail

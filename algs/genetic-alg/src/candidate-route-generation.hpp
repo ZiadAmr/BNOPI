@@ -17,8 +17,8 @@ class Link;
  * @param population
  * @return RouteNet
  */
-RouteNet generateRouteSet(AlgSettings setting, Graph stop_connection);
-Population generatePopulation(AlgSettings setting, Graph stop_connection);
+RouteNet generateRouteSet(AlgSettings setting, Graph &stop_connection);
+Population generatePopulation(AlgSettings setting, Graph &stop_connection);
 
 /**
  * @brief Recursive function that generates a route starting from a stop
@@ -30,7 +30,7 @@ Population generatePopulation(AlgSettings setting, Graph stop_connection);
  * @param candidate_route_set The list of routes that we have already generated
  * @return Returns a route if a feasible one is found, otherwise returns null pointer
  */
-Route* generateRoute(int size, Graph stop_connection, Stop* stop, Route history, RouteNet candidate_route_set);
+Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route history, RouteNet candidate_route_set);
 
 /**
  * @brief Function to check if a route is a duplicate route that is already in the candidate route set
@@ -40,4 +40,4 @@ Route* generateRoute(int size, Graph stop_connection, Stop* stop, Route history,
  * @return true 
  * @return false 
  */
-bool checkDuplicateRoute(RouteNet candidate_route_set, Route candidate_route);
+bool checkDuplicateRoute(RouteNet candidate_route_set, Route &candidate_route);
