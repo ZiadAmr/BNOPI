@@ -84,19 +84,18 @@ int read_in_links(ifstream &links_file, list<Link> &links, map<int, Stop> &stops
 int create_graph(ifstream &stops_fs, ifstream &links_fs, Graph **graph)
 {
 
+	*graph = new Graph(map<int, Stop>(), list<Link>());
+
 	// call above functions
 	int err;
-	map<int, Stop> stops{};
-	if (read_in_stops(stops_fs, stops))
+	if (read_in_stops(stops_fs, (*graph)->stops))
 		return 1;
 	stops_fs.close();
 
 	list<Link> links;
-	if (read_in_links(links_fs, links, stops))
+	if (read_in_links(links_fs, (*graph)->links, (*graph)->stops))
 		return 1;
 	links_fs.close();
-
-	*graph = new Graph(stops, links);
 
 	return 0;
 }

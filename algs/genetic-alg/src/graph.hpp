@@ -10,7 +10,7 @@ public:
 std::map<int, Stop> stops;
 std::list<Link> links;
 
-Graph(std::map<int, Stop> &stops, std::list<Link> &links);
+Graph(std::map<int, Stop> stops, std::list<Link> links);
 
 ~Graph();
 
