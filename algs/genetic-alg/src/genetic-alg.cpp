@@ -126,19 +126,19 @@ int main(int argc, char **argv)
 #endif
 
 	// call algorithm
-	AlgSettings settings = {5, 7, 6, 3};
+	AlgSettings settings = {5, 2, 6, 3};
 
 	// generate population
 	Population initial_population = generatePopulation(settings,*graph);
 
 	// init algorithm
-	SMODriver smo_driver(initial_population, settings, /*niter=*/100);
+	//SMODriver smo_driver(initial_population, settings, /*niter=*/100);
 
 	// main loop
-	smo_driver.run();
+	//smo_driver.run();
 
 	// get output
-	RouteNet best_routenet = smo_driver.get_best_routenet();
+	//RouteNet best_routenet = smo_driver.get_best_routenet();
 
 	// TODO serialize this and write to outfile_file_fs 
 

@@ -1,4 +1,5 @@
 #include "candidate-route-generation.hpp"
+#include "read-in-data.hpp"
 using namespace std;
 
 // remember to do exception handling from the genetic-algorithm.cpp
@@ -24,8 +25,6 @@ RouteNet generateRouteSet(AlgSettings setting, Graph &stop_connection)
 
     // Flag to indicate whether we have found the required number of routes
     bool finished = false;
-    // Counter to keep track of how many routes have been generated
-    int count = 0;
     RouteNet candidate_route_set;
 
     // Find the routes starting from the bus stops
@@ -34,9 +33,11 @@ RouteNet generateRouteSet(AlgSettings setting, Graph &stop_connection)
         std::uniform_int_distribution<int> dist(0, non_exhausted_stops.size());
         int random_index = dist(rng);
         Stop &random_stop = stop_connection.stops.find(non_exhausted_stops[random_index])->second;
+
+        Route temp = Route();
         // Attempt to generate a route starting from random_stop
-        Route* potential_route = generateRoute(setting.min_route_stops, stop_connection, &random_stop, Route(), candidate_route_set);
- 
+        Route* potential_route = generateRoute(setting.min_route_stops, stop_connection, &random_stop, temp, candidate_route_set);
+
         // Check if we have successfully generated a route starting from the random stop
         if(potential_route != nullptr){
             candidate_route_set.push_back(*potential_route);
@@ -46,7 +47,7 @@ RouteNet generateRouteSet(AlgSettings setting, Graph &stop_connection)
         }
 
         // Stopping criterion - When we have generated the desired number of routes
-        if (count == setting.num_routes){
+        if (candidate_route_set.size() == setting.num_routes){
             finished = true;
         }
     }
@@ -55,7 +56,7 @@ RouteNet generateRouteSet(AlgSettings setting, Graph &stop_connection)
     return candidate_route_set;
 }
 
-Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route history, RouteNet candidate_route_set){
+Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route &history, RouteNet& candidate_route_set){
     
     // Base case: When we have found a route that is of the given size
     if(size == 0){
@@ -79,10 +80,10 @@ Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route history
         }
 
         history.push_back(l);
-        auto new_history = generateRoute(size--, stop_connection, l->end, history, candidate_route_set);
+        auto new_history = generateRoute(--size, stop_connection, l->end, history, candidate_route_set);
 
         if(new_history != nullptr){
-            return new_history;
+            return &history;
         }else{
             history.pop_back();
         }
@@ -128,6 +129,10 @@ Population generatePopulation(AlgSettings setting, Graph &stop_connection)
 
         population.push_back(candidate);
     }
+
+    // Temporary code - Write one of the population members to a file
+
+    cout << routenet_to_string(population[0]);
 
     return population;
 }

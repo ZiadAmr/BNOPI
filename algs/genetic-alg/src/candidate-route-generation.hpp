@@ -30,7 +30,7 @@ Population generatePopulation(AlgSettings setting, Graph &stop_connection);
  * @param candidate_route_set The list of routes that we have already generated
  * @return Returns a route if a feasible one is found, otherwise returns null pointer
  */
-Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route history, RouteNet candidate_route_set);
+Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route &history, RouteNet &candidate_route_set);
 
 /**
  * @brief Function to check if a route is a duplicate route that is already in the candidate route set

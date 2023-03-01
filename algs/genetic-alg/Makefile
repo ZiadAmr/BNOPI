@@ -37,7 +37,7 @@ BINS_TEST=$(CPPS_TEST:%.cpp=%.test)
 OS_TEST=$(CPPS_TEST:%.cpp=%.test.o)
 OS_MAIN_PROG=$(filter-out build/genetic-alg.o, $(OS))
 
-all: build/genetic_alg $(BINS_TEST)
+all: build/genetic_alg 
 
 debug:
 	@echo CPPS: $(CPPS)
