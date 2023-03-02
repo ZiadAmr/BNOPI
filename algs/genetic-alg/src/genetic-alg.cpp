@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 	if (create_graph(stops_fs, connection_graph_fs, &graph))
 	{
 		exit(1);
-	};
+	}
 
 #ifdef DEBUG
 	int x = 4;
@@ -126,21 +126,31 @@ int main(int argc, char **argv)
 #endif
 
 	// call algorithm
-	AlgSettings settings = {5, 2, 6, 4};
+	AlgSettings settings;
+	settings.max_route_stops = 20;
+	settings.min_route_stops = 2;
+	settings.num_routes = 6;
+	settings.population_size = 1;
 
 	// generate population
 	Population initial_population = generatePopulation(settings,*graph);
 
 	// init algorithm
-	//SMODriver smo_driver(initial_population, settings, /*niter=*/100);
+	SMODriver smo_driver(initial_population, settings, /*niter=*/10000);
 
 	// main loop
-	//smo_driver.run();
+	smo_driver.run();
 
 	// get output
-	//RouteNet best_routenet = smo_driver.get_best_routenet();
+	RouteNet best_routenet = smo_driver.get_best_routenet();
+#ifdef DEBUG
 
-	// TODO serialize this and write to outfile_file_fs 
+	// display one of the routenets
+	cout << "Routenet at the end: " << routenet_to_string(*smo_driver.get_population().begin()) << endl;
+
+#endif
+
+	// TODO serialize this and write to outfile_file_fs
 
 	stops_fs.close();
 	connection_graph_fs.close();

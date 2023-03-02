@@ -63,11 +63,13 @@ void SMODriver::step() {
 
 		// paper also has a course of action if the fitness is the same.
 		// find an individual in the population that is dominated by the offspring and replace it with the offspring.
-		for (int j = 0; j < population.size(); j++) {
-			if (parent_fitness[j] < fitness) {
-				population[j] = child;
-				parent_fitness[j] = fitness;
-				break;
+		else if (fitness == parent_fitness[i]) {
+			for (int j = 0; j < population.size(); j++) {
+				if (parent_fitness[j] < fitness) {
+					population[j] = child;
+					parent_fitness[j] = fitness;
+					break;
+				}
 			}
 		}
 
@@ -109,7 +111,7 @@ bool SMODriver::is_feasible(DRouteNet& rn) {
 
 float SMODriver::objective_function(RouteNet& rn) {
 	// TODO
-	return 0;
+	return rand()/((float)INT32_MAX);
 }
 
 
@@ -136,7 +138,7 @@ void SMODriver::make_small_change(DRouteNet &route_net) {
 	// keep making changes until we get a feasible network
 	do {
 		// choose one of the routes
-		int n = (int) rand() * route_net.size();
+		int n = (int) rand() % route_net.size();
 		make_small_change(route_net[n]);
 
 	} while (!is_feasible(route_net));
@@ -157,7 +159,7 @@ void SMODriver::make_small_change(DRoute &route) {
 	}
 
 	else {
-		if (rand() > 0.5) {
+		if (rand() % 2 == 1) {
 			remove_link(route);
 		} else {
 			if (!add_link(route))
@@ -179,7 +181,7 @@ bool SMODriver::add_link(DRoute &route)
 	// select an edge at random
 	// we don't need to check if the new route is a duplicate since we're assuming the current route is not a duplicate.
 	if (next_edges.size() == 0) return false;
-	int choice = (int)rand() * next_edges.size();
+	int choice = (int)rand() % next_edges.size();
 	Link* new_link = next_edges[choice];
 
 	// add to route
