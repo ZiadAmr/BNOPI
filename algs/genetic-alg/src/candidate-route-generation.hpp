@@ -3,8 +3,11 @@
 #include "common.hpp"
 #include "link.hpp"
 #include "graph.hpp"
+
 #include <algorithm>
 #include <random>
+#include <cstdlib>
+#include <ctime>
 
 class Link;
 

@@ -2,6 +2,9 @@
 #include "read-in-data.hpp"
 using namespace std;
 
+
+std::mt19937 rng(std::random_device{}());
+
 // remember to do exception handling from the genetic-algorithm.cpp
 
 RouteNet generateRouteSet(AlgSettings setting, Graph &stop_connection)
@@ -20,8 +23,6 @@ RouteNet generateRouteSet(AlgSettings setting, Graph &stop_connection)
     {
         non_exhausted_stops.push_back(stops.first);
     }
-
-    std::mt19937 rng(std::random_device{}());
 
     // Flag to indicate whether we have found the required number of routes
     bool finished = false;
@@ -72,9 +73,13 @@ Route* generateRoute(int size, Graph &stop_connection, Stop* stop, Route &histor
     }
 
     size--;
+    auto temporaryOrder = stop->out_edges;
+
+    // Shuffle the order of the out edges in a stop
+    shuffle(temporaryOrder.begin(), temporaryOrder.end(), rng);
 
     // Exhaustively try out all possible out edges and see if there is a route that is feasible
-    for(Link* l : stop->out_edges){
+    for(Link* l : temporaryOrder){
 
         // We assume that a route will never have duplicate links
         if(find(history.begin(), history.end(), l) != history.end()) {
