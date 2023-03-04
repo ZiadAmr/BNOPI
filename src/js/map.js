@@ -54,7 +54,7 @@ function initMap(){
 
     // check that we can convert the stops to json
     console.log(stopsToJson());
-    
+
 
     //Code used for using google maps api to get the bus stop location data
     //var service = new google.maps.places.PlacesService(map);
@@ -170,8 +170,8 @@ function stopsToJson() {
 
     for (let stop of busStops.values()) {
         
-        var lat = stop.position.lat;
-        var lon = stop.position.lon;
+        var lat = stop.position.lat();
+        var lon = stop.position.lng();
         var name = "";
         if (stop.name != undefined){
             name = stop.name;
