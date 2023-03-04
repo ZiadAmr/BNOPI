@@ -727,7 +727,7 @@ def paths_from_stop(stopid: int, maxdist: Number=max_search_distance) -> 'List[t
 	# edge case - check if there is another proceeding stop in the same line as this.
 	line = (stop["nodeid0"], stop["nodeid1"])
 	sol = stops_on_line[line]
-	if line in sol:
+	if line in stops_on_line: # should always be the case, but put check here anyway..
 		it = iter(sol[::1 if direction else -1])
 		while next(it) != stopid: pass
 		for next_stop_id in it:
@@ -795,10 +795,6 @@ def paths_from_node(nodeid: int, wayid: int, path_distance: Number, stopid: int,
 
 	# TODO at some point in this function we also need to look for barriers
 
-	# start traversing along this way in the correct direction to find the prev_node
-	# way_nodes_iter = iter(way["nodes"]) if direction else iter(way["nodes"][::-1])
-	# while next(way_nodes_iter) != nodeid: pass
-
 	way = ways[wayid]
 
 	path = path[:]
@@ -806,6 +802,23 @@ def paths_from_node(nodeid: int, wayid: int, path_distance: Number, stopid: int,
 
 	iter_nodes = way["nodes"] if direction else way["nodes"][::-1]
 	start_index = iter_nodes.index(nodeid)
+
+	# special case if this function is called at the end of a way
+	# (the other main loop loops over edges in the way, and this will fail if there are no edges at the start)
+	if start_index == len(iter_nodes) - 1:
+		# if there are multiple ways connected to the current node, recurr on those ways
+		if len(node_connections[nodeid]) > 1:
+			output = []
+			for onto_wayid, onto_direction in connections_from_node(nodeid, wayid, direction):
+				branch_paths = paths_from_node(nodeid, onto_wayid, path_distance, stopid, path, onto_direction, maxdist)
+				output.extend(branch_paths)
+			return output
+		# dead end.
+		return []
+
+
+
+
 	for this_node_id, next_node_id in zip(iter_nodes[start_index:], iter_nodes[start_index+1:]):
 		
 		# structure of this loop:
