@@ -56,6 +56,6 @@ for route, col, width in zip(routenet["routes"], cols, widths):
 
 		# draw circle where the stop is
 		plt.plot(stop["lon"], stop["lat"], marker="o", markersize=width,
-		         markeredgecolor=col, markerfacecolor=col)
+		         markeredgecolor="black", markerfacecolor=col)
 
 plt.show()
