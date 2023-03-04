@@ -43,9 +43,18 @@ function initMap(){
     // };
 
     //Getting the bus stop location data using openstreetmap api
-    fetch('https://www.overpass-api.de/api/interpreter?data=[out:json];node(around:2100, 52.52955, -1.22395)[highway=bus_stop];out;')
-        .then((response) => response.json())
-        .then((data) => createStopMarkers(data));
+    // fetch('https://www.overpass-api.de/api/interpreter?data=[out:json];node(around:2100, 52.52955, -1.22395)[highway=bus_stop];out;')
+    //     .then((response) => response.json())
+    //     .then((data) => createStopMarkers(data));
+
+
+    // get the stage format stop file
+    var broughtonStopsStgFmt = { stops: [{ name: "Warwick Road", id: 562724487, lat: 52.5386566, lon: -1.2370591 }, { name: "Warwick Road", id: 562724490, lat: 52.5387703, lon: -1.2365706 }, { name: "Leicester Road", id: 562724491, lat: 52.5386246, lon: -1.2335063 }, { name: "Leicester Road", id: 562724493, lat: 52.5385261, lon: -1.232181 }, { name: "Peregrine Road", id: 562724495, lat: 52.5377247, lon: -1.2292167 }, { name: "Condor Close", id: 562724498, lat: 52.5361496, lon: -1.2261923 }, { name: "Byre Crescent", id: 562724499, lat: 52.5260033, lon: -1.2185583 }, { name: "Byre Crescent", id: 562724501, lat: 52.5258834, lon: -1.2181035 }, { name: "Byre Crescent", id: 562724503, lat: 52.525166, lon: -1.2170107 }, { name: "Red Admiral PH", id: 562724504, lat: 52.5240478, lon: -1.2137879 }, { name: "Red Admiral PH", id: 562724507, lat: 52.5238472, lon: -1.213364 }, { name: "Orchard Place", id: 562724509, lat: 52.5222012, lon: -1.2105488 }, { name: "Orchard Place", id: 562724510, lat: 52.5217333, lon: -1.2104983 }, { name: "Old Mill Road", id: 562724512, lat: 52.5280303, lon: -1.2205566 }, { name: "Station Road", id: 562724513, lat: 52.5286564, lon: -1.22143 }, { name: "The White Horse Inn PH", id: 562724516, lat: 52.5295293, lon: -1.2242891 }, { name: "The White Horse Inn PH", id: 562724518, lat: 52.5295913, lon: -1.2241553 }, { name: "The Old Bulls Head PH", id: 562724519, lat: 52.5312288, lon: -1.2270896 }, { name: "Broughton House", id: 562724521, lat: 52.5314726, lon: -1.2272475 }, { name: "School Crescent", id: 562724523, lat: 52.532766, lon: -1.2284484 }, { name: "Main Street Post Office", id: 562724525, lat: 52.5330126, lon: -1.2290338 }, { name: "Main Street", id: 562724527, lat: 52.5337951, lon: -1.2304796 }, { name: "Main Street", id: 562724528, lat: 52.53399, lon: -1.2314198 }, { name: "Blenheim Crescent", id: 562724530, lat: 52.5364654, lon: -1.2360503 }, { name: "Blenheim Crescent", id: 562724531, lat: 52.5359664, lon: -1.2339654 }, { name: "Broughton Way", id: 562724533, lat: 52.5293123, lon: -1.2186323 }, { name: "Holbeck Drive", id: 562724536, lat: 52.5280087, lon: -1.2145574 }, { name: "Lea Close", id: 562724538, lat: 52.5256566, lon: -1.2123589 }, { name: "Red Admiral PH", id: 562724543, lat: 52.5243674, lon: -1.2131779 }, { name: "Peregrine Road", id: 562724546, lat: 52.5376084, lon: -1.2293072 }, { name: "The Fieldway", id: 562724548, lat: 52.5264411, lon: -1.2208648 }, { name: "Lea Close", id: 562724550, lat: 52.5253713, lon: -1.2127177 }, { name: "Holbeck Drive", id: 562724552, lat: 52.5276486, lon: -1.2144901 }] };
+    createMarkersFromStageFormat(broughtonStopsStgFmt);
+
+    // check that we can convert the stops to json
+    console.log(stopsToJson());
+    
 
     //Code used for using google maps api to get the bus stop location data
     //var service = new google.maps.places.PlacesService(map);
@@ -113,6 +122,72 @@ function createMarker(marker){
             busStops.delete(event.latLng);
         }
     });
+}
+
+/**
+ * 
+ * @param {Object} jsonData Parsed json from the stops stage format
+ */
+function createMarkersFromStageFormat(jsonData) {
+    jsonData.stops.forEach(stop => {
+
+        // create google maps marker.
+        // keep the stop id for now in case it needs to be assigned a new id,
+        // but note that the id will be reassigned when the stop stage instance is exported
+        const position = {lat:stop.lat, lng:stop.lon};
+        marker = new google.maps.Marker({
+            position: position,
+            map,
+            title: "Bus stop",
+            id: stop.id,
+            name: stop.name,
+            icon: {
+                size: new google.maps.Size(50, 50),
+                scaledSize: new google.maps.Size(50, 50),
+                url: "icons/bus-station.png"
+            }
+        })
+
+        // add the marker to the busStops hashmap
+        busStops.set(marker.position, marker);
+        google.maps.event.addListener(marker, 'click', function deleteMarker(event) {
+
+            //The user has clicked the delete markers button 
+            if (window.localStorage.getItem('mode') == 2) {
+                busStops.get(event.latLng).setMap(null);
+                busStops.delete(event.latLng);
+            }
+        });
+
+    });
+}
+
+function stopsToJson() {
+
+    var id_counter = 0;
+
+    var stops = [];
+
+    for (let stop of busStops.values()) {
+        
+        var lat = stop.position.lat;
+        var lon = stop.position.lon;
+        var name = "";
+        if (stop.name != undefined){
+            name = stop.name;
+        }
+        var id = id_counter++;
+
+        stops.push({
+            "lat": lat,
+            "lon": lon,
+            "name": name,
+            "id":id
+        });
+        
+    }
+
+    return {"stops":stops};
 }
 
 //Called when a button from the network toolkit is clicked
