@@ -24,5 +24,5 @@ Users are able to open these within the editor. The info.json file contains the 
 These are referenced using their IDs, such as `STOPS`. These must be added from API calls, rather than BNOPI searching folders. An example is shown at [/bnopi-stage-fmts/stops-format.js](/bnopi-stage-fmts/stops-format.js).
 
 ### Algorithms
-Referenced in the dependency graph. See [/bnopi-algs/](/bnopi-algs/)
+Referenced by the dependency graph. See [/bnopi-algs/](/bnopi-algs/)
 

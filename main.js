@@ -4,6 +4,8 @@ const fsp = require('fs/promises');
 const path = require('path');
 const { Template } = require('webpack');
 
+const file_handler = require("./file_handler.js");
+
 const isDev = !app.isPackaged;
 
 function createWindow() {
@@ -33,6 +35,10 @@ ipcMain.on('notify', (_, message) => {
 })
 
 app.whenReady().then(() => {
+  // ================================================================
+  // setup endpoints for front-end functions
+  // ================================================================
+
   ipcMain.handle('writeFile', async (event, fileName, data) => {
     const response = fs.writeFile(fileName, data, (err) => {
       if (err) {
@@ -58,6 +64,16 @@ app.whenReady().then(() => {
     // return response;
   }
   )
+
+  // ================================================================
+  // file_handler endpoints
+  // ================================================================
+  ipcMain.handle("openStageFormat", async (event, ...args) => file_handler.openStageFormat(...args));
+  ipcMain.handle("saveStageFormat", async (event, ...args) => file_handler.saveStageFormat(...args));
+  ipcMain.handle("getListOfStageFormat", async (event, ...args) => file_handler.getListOfStageFormat(...args));
+
+
+
   createWindow()
 }
 )
