@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Launch page</title>
+	<style>
+html,body, #st-full-pg {
+   height: 100%;
+   margin: 0;
+}
+		body {
+			background-color: lightgray;
+		}
+		.page {
+			vertical-align: middle;
+			align-items: center;
+			display: none;
+			margin-left: auto;
+			margin-right: auto;
+			max-width: 1000px;
+			margin-top: 0;
+			margin-bottom: 0;
+			position: relative;
+			top: 50%;
+			transform: translateY(-50%);
+		}
+		.page#main_page {
+			display:block;
+		}
+
+		.large_options {
+			display:flex;
+			flex-direction: row;
+			margin: auto;
+			font-family: sans-serif;
+			flex-wrap: wrap;
+		}
+		.large_options .option {
+			padding: 20px;
+			max-width: 200px;
+			height:max-content;
+			display:flex;
+			flex-direction: column;
+			flex-grow: 1;
+			flex-shrink: 0;
+			margin-top: auto;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.option h1 {
+			font-family: sans-serif;
+			font-size: large;
+			margin:auto;
+
+		}
+		.full_width_option h1 {
+			font-family: sans-serif;
+			font-size: large;
+			margin:auto;
+
+		}
+		.large_options .option .large_icon {
+			display: block;
+			height: 100px;
+			width: 100px;
+			padding: 10px;
+			margin: 10px;
+			background-color: gray;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.large_options .option .large_icon:hover {
+			background-color: rgb(143, 143, 143);
+			cursor:pointer;
+		}
+		.large_options .option .large_icon:active {
+			background-color: gray;
+			cursor:pointer;
+		}
+
+		.full_width_option {
+			width: 90%;
+			display: flex;
+			flex-direction: column;
+			margin: auto;
+		}
+		.full_width_option select {
+			margin: 10px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="page" id="main_page">
+
+		<div class="large_options">
+			<div class="option">
+				<h1>Start new project</h1>
+				<script>
+					async function startNewProject() {
+						const dir = await window.electron.createNewProjectDialog();
+						if (dir.cancelled) {
+							return;
+						}
+						// actually create the prooject
+						console.log("The project will be located at " + dir.filePath);
+
+					};
+				</script>
+				<div class="large_icon" onclick="startNewProject()">Plus icon</div>
+				
+			</div>
+			<div class="option">
+				<h1>Open existing project</h1>
+				<script>
+					async function openExistingProject() {
+						const project_loc = await window.electron.openProjectFolderDialog();
+						switch (project_loc.status) {
+							case "ok":
+								// call another electron function to actually load the project.
+								console.log("The project is located at " + project_loc.path)
+								break;
+							
+							case "not_project":
+							case "cancelled":
+							default: 
+								break;
+						}
+					}
+				</script>
+				<div class="large_icon" onclick="openExistingProject()">Folder icon</div>
+			</div>
+		</div>
+
+		<div class="full_width_option">
+			<h1>Recent projects</h1>
+			<select Name="Name_of_list_box" Size="7">
+				<option> List item 1 </option>
+				<option> List item 2 </option>
+				<option> List item 3 </option>
+				<option> List item N </option>
+			</select>
+		</div>
+
+
+	</div>
+
+	<div class="page" id="new_project">
+
+		Creating a new project
+	</div>
+
+</body>
+
+</html>

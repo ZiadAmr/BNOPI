@@ -1,6 +1,8 @@
 const fsp = require('fs/promises');
 const path = require('node:path');
 var glob = require("glob");
+const { BrowserWindow, app, ipcMain, Notification, dialog } = require('electron');
+const { title } = require('process');
 
 // may need to update this if this file is moved
 const projectsDir = path.resolve("./projects");
@@ -97,6 +99,54 @@ async function getListOfStageFormat(project) {
 	return stageInstances;
 }
 
+/**
+ * Opens a dialog box and returns a status, either "cancelled", "not_project", or "ok".
+ * If "ok", then it also returns a path.
+ * This function does not actually open the project, nor does it check to see if any errors would occur.
+ * 
+ */
+async function openProjectFolderDialog() {
+	
+	const dir = await dialog.showOpenDialog({properties: ["openDirectory"]});
+
+	if (dir.canceled === true) {
+		return {status: "cancelled"}
+	}
+
+	// check that the dir contains info.json
+	const lookFor = path.resolve(dir.filePaths[0], "info.json");
+	try {
+		await fsp.access(lookFor);
+	} catch {
+		// display error dialog
+		dialog.showErrorBox("Not a project", "This directory does not contain an info.json file.")
+		return { status: "not_project"}
+	}
+
+	return {status: "ok", path:dir.filePaths[0]}
+
+}
+
+/**
+ * Display dialog box to create a new project
+ * @returns {string | undefined} Path where the project directory will be created, or undefined if the user cancelled.
+ */
+async function createNewProjectDialog() {
+	const dir = await dialog.showSaveDialog({
+		title:"Create Project", 
+		defaultPath:projectsDir,
+		buttonLabel:"Create Project",
+		properties:["showOverwriteConfirmation"]
+	});
+
+	return dir;
+
+}
+
+async function createNewProject(projpath) {
+
+}
 
 
-module.exports = { openStageFormat, saveStageFormat, getListOfStageFormat};
+
+module.exports = { openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog };

@@ -1,10 +1,11 @@
-const { BrowserWindow, app, ipcMain, Notification } = require('electron');
+const { BrowserWindow, app, ipcMain, Notification, dialog } = require('electron');
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
 const { Template } = require('webpack');
 
 const file_handler = require("./file_handler.js");
+const { electron } = require('process');
 
 const isDev = !app.isPackaged;
 
@@ -22,6 +23,24 @@ function createWindow() {
   })
 
   win.loadFile('index.html');
+}
+
+function createLaunchPage() {
+  const win = new BrowserWindow({
+    width: 800,
+    height: 450,
+    resizable: true,
+    autoHideMenuBar: true,
+    backgroundColor: "white",
+    webPreferences: {
+      nodeIntegration: false,
+      worldSafeExecuteJavaScript: true,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
+
+  win.loadFile('launchwindow.html');
 }
 
 if (isDev) {
@@ -72,8 +91,13 @@ app.whenReady().then(() => {
   ipcMain.handle("saveStageFormat", async (event, ...args) => file_handler.saveStageFormat(...args));
   ipcMain.handle("getListOfStageFormat", async (event, ...args) => file_handler.getListOfStageFormat(...args));
 
+  // ================================================================
+  // getting user input (mainly for testing)
+  // ================================================================
+  ipcMain.handle("openProjectFolderDialog", async (event) => file_handler.openProjectFolderDialog());
+  ipcMain.handle("createNewProjectDialog", async (event) => file_handler.createNewProjectDialog());
 
-
-  createWindow()
+  createLaunchPage();
+  createWindow();
 }
 )

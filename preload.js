@@ -22,7 +22,13 @@ contextBridge.exposeInMainWorld('electron', {
   */
   openStageFormat: (project, stage, path) => ipcRenderer.invoke("openStageFormat", project, stage, path),
   saveStageFormat: (project, stage, path, data, metadata) => ipcRenderer.invoke("saveStageFormat", project, stage, path, data, metadata),
-  getListOfStageFormat: (project) => ipcRenderer.invoke("getListOfStageFormat", project)
+  getListOfStageFormat: (project) => ipcRenderer.invoke("getListOfStageFormat", project),
+
+  inputTextBox: (prompt) => ipcRenderer.invoke("inputTextBox", prompt),
+
+  // launch page
+  openProjectFolderDialog: () => ipcRenderer.invoke("openProjectFolderDialog"),
+  createNewProjectDialog: () => ipcRenderer.invoke("createNewProjectDialog")
 
 
 
