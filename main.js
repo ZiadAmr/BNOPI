@@ -96,6 +96,7 @@ app.whenReady().then(() => {
   // ================================================================
   ipcMain.handle("openProjectFolderDialog", async (event) => file_handler.openProjectFolderDialog());
   ipcMain.handle("createNewProjectDialog", async (event) => file_handler.createNewProjectDialog());
+  ipcMain.handle("createNewProject", async (event, ...args) => file_handler.createNewProject(...args));
 
   createLaunchPage();
   createWindow();

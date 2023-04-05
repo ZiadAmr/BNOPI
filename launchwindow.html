@@ -104,7 +104,8 @@ html,body, #st-full-pg {
 							return;
 						}
 						// actually create the prooject
-						console.log("The project will be located at " + dir.filePath);
+						await window.electron.createNewProject(dir.filePath);
+						// console.log("The project will be located at " + dir.filePath);
 
 					};
 				</script>

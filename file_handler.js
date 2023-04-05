@@ -143,10 +143,67 @@ async function createNewProjectDialog() {
 
 }
 
+/**
+ * Sets up the folder structure for a new project
+ * 
+ * @param {string} projpath Path of the new folder that we are going to create
+ */
 async function createNewProject(projpath) {
 
+	// check that the directory inside which we will create the new folder exists
+	// this would normally just resolve to the default projects folder
+	const workspaceFolder = path.resolve(projpath, "..");
+	const projName = path.basename(projpath);
+
+	try {
+		await fsp.access(workspaceFolder)
+	} catch (e) {
+		dialog.showErrorBox("Access denied", "You do not have access to the folder " + workspaceFolder);
+		return { status: "error" }
+	}
+
+
+	// create files
+	// maybe better to copy these from an external source? TODO
+
+	// info.json
+	const info = JSON.stringify({
+		title: projName,
+		description: "Project description",
+		dependencyGraph: "graph.dg.json",
+		stageInstances: ["stage_instances/"]
+	});
+
+	// graph.dg.json
+	const graph = JSON.stringify({
+		// TODO
+	});
+
+
+	// create the project folder and all necessary files
+	try {
+		await fsp.mkdir(projpath);
+	} catch {
+		dialog.showErrorBox("Cannot create project", "Unable to create folder " + projpath);
+		return { status: "error" }
+	}
+
+	await fsp.mkdir(path.resolve(projpath, "stage_instances"))
+	await fsp.writeFile(path.resolve(projpath, "info.json"), info);
+	await fsp.writeFile(path.resolve(projpath, "graph.dg.json"), graph);
+
+	return {status:"ok"}
+
+}
+
+/** Opens the project dependency graph, adds options to the stage tracker
+ * 
+ * @param {string} projPath 
+ */
+async function openProject(projPath) {
+	// TODO
 }
 
 
 
-module.exports = { openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog };
+module.exports = { openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog, createNewProject };
