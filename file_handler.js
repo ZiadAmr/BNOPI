@@ -14,9 +14,7 @@ const projectsDir = path.resolve("./projects");
  * @returns Object containing data (contents of the file) and metadata e.g. time created, created by what node. Metadata may be stored somewhere else by BNOPI, it's BNOPI's job to figure out where.
  */
 async function openStageFormat(project, stage, metadataLoc) {
-
 	// TODO: may want to add checks on project & stage, or remove these as parameters altogether.
-
 	// open metadata file
 	// TODO: might throw an error, deal with this later
 	const metadata_str = await fsp.readFile(metadataLoc, {encoding: "utf-8", flag: "r"});
