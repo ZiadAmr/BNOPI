@@ -127,7 +127,7 @@ async function openProjectFolderDialog() {
 
 /**
  * Display dialog box to create a new project
- * @returns {string | undefined} Path where the project directory will be created, or undefined if the user cancelled.
+ * @returns Path where the project directory will be created, or undefined if the user cancelled.
  */
 async function createNewProjectDialog() {
 	const dir = await dialog.showSaveDialog({
@@ -194,14 +194,60 @@ async function createNewProject(projpath) {
 
 }
 
-/** Opens the project dependency graph, adds options to the stage tracker
+/** returns contents of the info.json file and adds this project to the recents
  * 
- * @param {string} projPath 
+ * @param {string} projPath Location of the project we want to open (usually in the /projects folder)
  */
 async function openProject(projPath) {
-	// TODO
+
+	// TODO error checking
+
+	// get contents of the info.json file
+	const metadataLoc = path.resolve(projPath, "info.json");
+	const metadataString = await fsp.readFile(metadataLoc, { encoding: "utf-8", flag: "r" });
+	const metadata = JSON.parse(metadataString);
+
+	// add project to recents
+	const recentsLoc = path.resolve(app.getPath("userData"), "recents.txt");
+	await fsp.appendFile(recentsLoc, projPath + "\n");
+
+	return metadata;
+
+}
+
+/** Get some recently opened projects from recents.txt in appdata
+ * 
+ * @param {Number} n N most recents to return
+ * @returns 
+ */
+async function getRecents(n = 10) {
+	const recentsLoc = path.resolve(app.getPath("userData"), "recents.txt");
+
+	try {
+		await fsp.access(recentsLoc);
+	} catch {
+		return [];
+	}
+
+	const recentsTxt = await fsp.readFile(recentsLoc, { encoding: "utf-8", flag: "r" });
+	const recents = recentsTxt.split("\n");
+
+	var nMostRecent = [];
+	// loop backwards over the recents until we have n distinct projects or the finish the list
+	for (const recent of recents.slice().reverse()) {
+		if (recent == "") {
+			continue;
+		}
+		if (!nMostRecent.includes(recent)) {
+			nMostRecent.push(recent);
+		}
+		if (nMostRecent.length == n) {
+			break;
+		}
+	}
+	return nMostRecent;
 }
 
 
 
-module.exports = { openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog, createNewProject };
+module.exports = { openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog, createNewProject, openProject, getRecents };

@@ -29,7 +29,9 @@ contextBridge.exposeInMainWorld('electron', {
   // launch page
   openProjectFolderDialog: () => ipcRenderer.invoke("openProjectFolderDialog"),
   createNewProjectDialog: () => ipcRenderer.invoke("createNewProjectDialog"),
-  createNewProject: (projpath) => ipcRenderer.invoke("createNewProject", projpath)
+  createNewProject: (projpath) => ipcRenderer.invoke("createNewProject", projpath),
+  openProject: (projpath) => ipcRenderer.invoke("openProject", projpath),
+  getRecents: (...args) => ipcRenderer.invoke("getRecents", ...args)
 
 
 
