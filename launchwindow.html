@@ -88,6 +88,23 @@ html,body, #st-full-pg {
 			margin: 10px;
 		}
 	</style>
+
+	<script>
+		/** Opens a project and closes this window.
+		 * 
+		 * @param {string} projPath Path of the project to open
+		 */
+		async function openProject(projPath) {
+			console.log(await window.electron.openProject(projPath));
+
+			// send signal to main process to open the project and close this window
+			// await window.electron.openProject(projPath);
+			// await window.electron.close()
+			
+
+			// close this window TODO.
+		}
+	</script>
 </head>
 
 <body>
@@ -105,8 +122,7 @@ html,body, #st-full-pg {
 						}
 						// actually create the prooject
 						await window.electron.createNewProject(dir.filePath);
-						// console.log("The project will be located at " + dir.filePath);
-
+						await openProject(dir.filePath);
 					};
 				</script>
 				<div class="large_icon" onclick="startNewProject()">Plus icon</div>
@@ -121,6 +137,7 @@ html,body, #st-full-pg {
 							case "ok":
 								// call another electron function to actually load the project.
 								console.log("The project is located at " + project_loc.path)
+								await openProject(project_loc.path);
 								break;
 							
 							case "not_project":
@@ -134,21 +151,29 @@ html,body, #st-full-pg {
 			</div>
 		</div>
 
+
 		<div class="full_width_option">
 			<h1>Recent projects</h1>
-			<select Name="Name_of_list_box" Size="7">
-				<option> List item 1 </option>
-				<option> List item 2 </option>
-				<option> List item 3 </option>
-				<option> List item N </option>
+			<select Name="Recents" Size="7" id="recents">
+				<script>
+					// create an DOM <option> element for each of the recently opened projects
+					window.electron.getRecents().then((recents) => {
+						let select = document.getElementById("recents");
+						for (const recent of recents) {
+							const recentDir = recent.split('\\').pop().split('/').pop();
+							const optionNode = document.createElement("option");
+							optionNode.innerHTML = recentDir + " (" + recent + ")";
+							optionNode.addEventListener("dblclick", () => openProject(recent));
+							select.appendChild(optionNode);
+						}
+					});
+				</script>
 			</select>
 		</div>
-
 
 	</div>
 
 	<div class="page" id="new_project">
-
 		Creating a new project
 	</div>
 
