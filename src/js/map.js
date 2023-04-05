@@ -240,7 +240,7 @@ async function route_network_display_framework(network_path, dependency_graph_pa
             }
         }
         const color = "#" + Math.floor(Math.random() * 16777215).toString(16);
-        var routes = new google.maps.Polyline({
+        routes = new google.maps.Polyline({
             path: poly_points,
             strokeColor: color,
             strokeWeight: 8,
@@ -252,12 +252,16 @@ async function route_network_display_framework(network_path, dependency_graph_pa
         //Update the localstoreage
         window.localStorage.setItem("routeCounter", count);
         polyMap.set(count, routes);
+
         routes.addListener('click', function deleteRoute() {
+            let local_count = count;
             if (window.localStorage.getItem('mode') == 4) {
                 //Remember to remove it from the list of polylines as well
-                routes.setMap(null);
+                this.setMap(null);
+                //routes.setMap(null);
                 //Remove the polyline from the list
-                polyMap.delete(count);
+                polyMap.delete(local_count);
+                console.log(polyMap)
             } else if (window.localStorage.getItem('mode') == 5) {
                 this.setOptions({ editable: true });
 
