@@ -2,74 +2,54 @@
 /**
  * Display stops on the screen
  * 
- * @param {string} data Contents of the stage instance file in string form
+ * @param {Buffer} data Contents of the stage instance file in string form
  */
 function displayStops(data) {
 
-	JSON.parse(data).stops.forEach(stop => {
+	// convert buffer to string
+	const stopsString = decoder.decode(data.data);
 
-		// create google maps marker.
-		// keep the stop id for now in case it needs to be assigned a new id,
-		// but note that the id will be reassigned when the stop stage instance is exported
-		const position = { lat: stop.lat, lng: stop.lon };
-		marker = new google.maps.Marker({
-			position: position,
-			map,
-			title: "Bus stop",
+	// what we want to display
+	var stops = [];
+
+	// add each stop from the file
+	JSON.parse(stopsString).stops.forEach(stop => {
+		stops.push({
+			lat: stop.lat,
+			lon: stop.lon,
 			id: stop.id,
-			name: stop.name,
-			icon: {
-				size: new google.maps.Size(50, 50),
-				scaledSize: new google.maps.Size(50, 50),
-				url: "icons/bus-station.png"
-			}
-		})
-
-		// add the marker to the busStops hashmap
-		busStops.set(marker.position, marker);
-		google.maps.event.addListener(marker, 'click', function deleteMarker(event) {
-
-			//The user has clicked the delete markers button 
-			if (window.localStorage.getItem('mode') == 2) {
-				busStops.get(event.latLng).setMap(null);
-				busStops.delete(event.latLng);
-			}
+			user_attrs: {
+				name: stop.name
+			},
+			hidden_attrs: {}
 		});
-
 	});
+
+	return { stops: stops, routes: {} }
 }
 
 /**
- * Convert bus stops to JSON
  * 
- * @returns string containing the contents of the stage instance
+ * @param {Buffer} data Original version of the file
+ * @param {*} stops All stops open in the map
+ * @param {*} routes All routes open in the map
+ * @returns {Buffer} The new stage instance
  */
-function exportStops() {
+function exportStops(data, stops, routes) {
 
-	var id_counter = 0;
+	// BNOPI will assign new ids to each stop we add so we don't need to worry about that.
 
-	var stops = [];
-
-	for (let stop of busStops.values()) {
-
-		var lat = stop.position.lat();
-		var lon = stop.position.lng();
-		var name = "";
-		if (stop.name != undefined) {
-			name = stop.name;
-		}
-		var id = id_counter++;
-
-		stops.push({
-			"lat": lat,
-			"lon": lon,
-			"name": name,
-			"id": id
+	var exportStops = [];
+	stops.array.forEach(stop => {
+		exportStops.push({
+			name: stop.hidden_attrs.name,
+			id: stop.id,
+			lat: stop.lat,
+			lon: stop.lon
 		});
+	});
 
-	}
-
-	return JSON.stringify({ "stops": stops });
+	return Buffer.from(JSON.stringify(exportStops));
 
 }
 

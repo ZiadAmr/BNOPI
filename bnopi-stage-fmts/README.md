@@ -1,6 +1,6 @@
 # Stage Formats
 
-The user selects to open a stage instance, or something else opens a stage instance. At this point the stage tracker is displaying a list of .stg.json files which contains some metadata and point to the actual stage instance.
+The user selects to open a stage instance, or something else opens a stage instance. At this point the stage tracker is displaying a list of [.stg.json files](/projects/test_project/) which contains some metadata and point to the actual stage instance.
 
 BNOPI reads the .stg.json file to get 2 important bits of information, the stage format and the location of the stage instance.
 
