@@ -30,8 +30,12 @@ contextBridge.exposeInMainWorld('electron', {
   openProjectFolderDialog: () => ipcRenderer.invoke("openProjectFolderDialog"),
   createNewProjectDialog: () => ipcRenderer.invoke("createNewProjectDialog"),
   createNewProject: (projpath) => ipcRenderer.invoke("createNewProject", projpath),
-  openProject: (projpath) => ipcRenderer.invoke("openProject", projpath),
-  getRecents: (...args) => ipcRenderer.invoke("getRecents", ...args)
+  // openProject: (projpath) => ipcRenderer.invoke("openProject", projpath),
+  getRecents: (...args) => ipcRenderer.invoke("getRecents", ...args),
+
+  
+  // one way communication, main process to bnopi window renderer:
+  onOpenProject: (callback) => ipcRenderer.on("openProject", callback)
 
 
 

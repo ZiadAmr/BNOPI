@@ -194,26 +194,26 @@ async function createNewProject(projpath) {
 
 }
 
-/** returns contents of the info.json file and adds this project to the recents
- * 
- * @param {string} projPath Location of the project we want to open (usually in the /projects folder)
- */
-async function openProject(projPath) {
+// /** returns contents of the info.json file and adds this project to the recents
+//  * 
+//  * @param {string} projPath Location of the project we want to open (usually in the /projects folder)
+//  */
+// async function openProject(projPath) {
 
-	// TODO error checking
+// 	// TODO error checking
 
-	// get contents of the info.json file
-	const metadataLoc = path.resolve(projPath, "info.json");
-	const metadataString = await fsp.readFile(metadataLoc, { encoding: "utf-8", flag: "r" });
-	const metadata = JSON.parse(metadataString);
+// 	// get contents of the info.json file
+// 	const metadataLoc = path.resolve(projPath, "info.json");
+// 	const metadataString = await fsp.readFile(metadataLoc, { encoding: "utf-8", flag: "r" });
+// 	const metadata = JSON.parse(metadataString);
 
-	// add project to recents
-	const recentsLoc = path.resolve(app.getPath("userData"), "recents.txt");
-	await fsp.appendFile(recentsLoc, projPath + "\n");
+// 	// add project to recents
+// 	const recentsLoc = path.resolve(app.getPath("userData"), "recents.txt");
+// 	await fsp.appendFile(recentsLoc, projPath + "\n");
 
-	return metadata;
+// 	return metadata;
 
-}
+// }
 
 /** Get some recently opened projects from recents.txt in appdata
  * 
@@ -250,4 +250,4 @@ async function getRecents(n = 10) {
 
 
 
-module.exports = { openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog, createNewProject, openProject, getRecents };
+module.exports = { openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog, createNewProject, /*openProject,*/ getRecents };

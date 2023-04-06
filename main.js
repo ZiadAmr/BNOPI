@@ -9,6 +9,8 @@ const { electron } = require('process');
 
 const isDev = !app.isPackaged;
 
+var mainWindow; // BrowserWindow
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
@@ -21,6 +23,8 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js')
     }
   })
+
+  mainWindow = win;
 
   win.loadFile('index.html');
 }
@@ -99,6 +103,14 @@ app.whenReady().then(() => {
   ipcMain.handle("createNewProject", async (event, ...args) => file_handler.createNewProject(...args));
   ipcMain.handle("openProject", async (event, ...args) => file_handler.openProject(...args));
   ipcMain.handle("getRecents", async (event, ...args) => file_handler.getRecents(...args));
+
+  // ================================================================
+  // inter-window communication between the launch page and the main window
+  // ================================================================
+  // launch page tells the main page to open a project
+  ipcMain.handle("sendOpenProjectSignal", async (event, projPath) => {
+    mainWindow.webContents.send("openProject", projPath)
+  });
 
   createLaunchPage();
   createWindow();
