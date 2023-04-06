@@ -22,7 +22,7 @@ where each stop is of the form:
 ```
 `lat` and `lon` are required. If multiple stops have the same `id` then only the first is used and the rest are ignored by BNOPI. If any `id` is null then BNOPI assigns a new id that is different to all others. `hidden_attrs` stores any data needed by the editing framework to reconstruct the file, but is not displayed to the user. `user_attrs` contains information that is displayed to the user inside the interface when the stop is selected.
 
-.. and where each route is of the form:
+... and where each route is of the form:
 ```
 {
 	id:
@@ -42,4 +42,4 @@ When the user saves changes to the stage instance, the editing framework for the
 
 where `data` is the original unedited version of the file, and the function output is the new version of the data.
 
-BNOPI then writes the new stage instance to disk and creates an accompanying .stg.json file.
+BNOPI then writes the new stage instance to disk (at a location decided by BNOPI) and creates an accompanying .stg.json file.
