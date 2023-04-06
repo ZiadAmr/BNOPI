@@ -25,7 +25,7 @@ function displayStops(data) {
 		});
 	});
 
-	return { stops: stops, routes: {} }
+	return { stops: stops, routes: [] }
 }
 
 /** Convert the on-screen stops to a format to be written as a stage instance
