@@ -6,6 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import NetworkToolKit from './NetworkToolKit';
 import DependencyGraph from './DependencyGraph';
+import Description from './Description';
 
 export default function App() {
 
@@ -17,7 +18,9 @@ export default function App() {
             <div id="map"></div>
             <NetworkToolKit></NetworkToolKit>
           </Col>
-          <Col sm id="Description">description</Col>
+          <Col sm id="Description">
+            <Description></Description>
+          </Col>
         </Row>
 
         <Row id="secondRow">
