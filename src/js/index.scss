@@ -17,6 +17,7 @@ body {
 #firstRow {
   height: 75%;
   width: 100%;
+  margin:0;
 }
 #Network_toolkit {
   height: 50%;
@@ -27,6 +28,7 @@ body {
 }
 #mapContainer {
   position: relative;
+  padding:0;
 }
 #root {
   height: 100%;
@@ -35,6 +37,7 @@ body {
 #secondRow {
   height: 25%;
   width: 100%;
+  margin: 0;
 }
 #icon1,
 #icon2 {
@@ -87,7 +90,23 @@ body {
   right: 10%;
   bottom: 5%;
 }
-// #breakLogo{
-//   width: 7px;
-//   height: 7px;
-// }
+#Description{
+  // width: 100%;
+  padding:0;
+}
+.container{
+  overflow: hidden;
+}
+#Navigation{
+  padding:0;
+}
+#Dependency_graph{
+  padding:0;
+}
+#StageTracker{
+  padding:0;
+}
+#bar{
+  background-color: #ff0000;
+  padding:0;
+}

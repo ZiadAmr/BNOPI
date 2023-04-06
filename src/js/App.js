@@ -24,7 +24,7 @@ export default function App() {
         </Row>
 
         <Row id="secondRow">
-          <Col sm={10} id="Dependency graph">
+          <Col sm={10} id="Dependency_graph">
             <DependencyGraph></DependencyGraph>
           </Col>
           <Col sm id="StageTracker">Stage tracker</Col>
