@@ -28,11 +28,11 @@ function displayStops(data) {
 	return { stops: stops, routes: {} }
 }
 
-/**
+/** Convert the on-screen stops to a format to be written as a stage instance
  * 
  * @param {Buffer} data Original version of the file
- * @param {*} stops All stops open in the map
- * @param {*} routes All routes open in the map
+ * @param {Array} stops All stops open in the map
+ * @param {Array} routes All routes open in the map
  * @returns {Buffer} The new stage instance
  */
 function exportStops(data, stops, routes) {
