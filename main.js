@@ -103,6 +103,8 @@ app.whenReady().then(() => {
   ipcMain.handle("createNewProject", async (event, ...args) => file_handler.createNewProject(...args));
   ipcMain.handle("openProject", async (event, ...args) => file_handler.openProject(...args));
   ipcMain.handle("getRecents", async (event, ...args) => file_handler.getRecents(...args));
+  ipcMain.handle("getProjectMetadata", async (event, ...args) => file_handler.getProjectMetadata(...args));
+  ipcMain.handle("addToRecents", async (event, ...args) => file_handler.addToRecents(...args));
 
   // ================================================================
   // inter-window communication between the launch page and the main window

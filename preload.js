@@ -22,7 +22,7 @@ contextBridge.exposeInMainWorld('electron', {
   */
   openStageFormat: (project, stage, path) => ipcRenderer.invoke("openStageFormat", project, stage, path),
   saveStageFormat: (project, stage, path, data, metadata) => ipcRenderer.invoke("saveStageFormat", project, stage, path, data, metadata),
-  getListOfStageFormat: (project) => ipcRenderer.invoke("getListOfStageFormat", project),
+  getListOfStageFormat: (...args) => ipcRenderer.invoke("getListOfStageFormat", ...args),
 
   inputTextBox: (prompt) => ipcRenderer.invoke("inputTextBox", prompt),
 
@@ -30,8 +30,10 @@ contextBridge.exposeInMainWorld('electron', {
   openProjectFolderDialog: () => ipcRenderer.invoke("openProjectFolderDialog"),
   createNewProjectDialog: () => ipcRenderer.invoke("createNewProjectDialog"),
   createNewProject: (projpath) => ipcRenderer.invoke("createNewProject", projpath),
-  // openProject: (projpath) => ipcRenderer.invoke("openProject", projpath),
+  getProjectMetadata: (projpath) => ipcRenderer.invoke("getProjectMetadata", projpath),
   getRecents: (...args) => ipcRenderer.invoke("getRecents", ...args),
+  addToRecents: (...args) => ipcRenderer.invoke("addToRecents", ...args),
+  sendOpenProjectSignal: (...args) => ipcRenderer.invoke("sendOpenProjectSignal", ...args),
 
   
   // one way communication, main process to bnopi window renderer:
