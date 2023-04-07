@@ -34,6 +34,7 @@ contextBridge.exposeInMainWorld('electron', {
   getRecents: (...args) => ipcRenderer.invoke("getRecents", ...args),
   addToRecents: (...args) => ipcRenderer.invoke("addToRecents", ...args),
   sendOpenProjectSignal: (...args) => ipcRenderer.invoke("sendOpenProjectSignal", ...args),
+  loadStageInstance: (...args) => ipcRenderer.invoke("loadStageInstance", ...args),
 
   
   // one way communication, main process to bnopi window renderer:
