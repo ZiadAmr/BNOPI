@@ -27,7 +27,7 @@ export default function App() {
           <Col sm={10} id="Dependency_graph">
             <DependencyGraph></DependencyGraph>
           </Col>
-          <Col sm id="StageTracker">Stage tracker</Col>
+          <Col sm id="StageTracker" style={{backgroundColor:'#3e3e3e'}}>Stage tracker</Col>
         </Row>
       </Container>
     </>
