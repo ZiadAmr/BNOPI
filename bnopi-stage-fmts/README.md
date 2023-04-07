@@ -1,45 +1,66 @@
 # Stage Formats
 
-The user selects to open a stage instance, or something else opens a stage instance. At this point the stage tracker is displaying a list of [.stg.json files](/projects/test_project/) which contains some metadata and point to the actual stage instance.
+In this document stage instances will sometimes be refered to as just "instances", and likewise with stage formats being referred to as "formats".
 
-BNOPI reads the .stg.json file to get 2 important bits of information, the stage format and the location of the stage instance.
+## Procedure for displaying a stage instance
 
-BNOPI then checks if there exists a stage format that matches. Stage formats are stored in a single js file and are added to the main program via api call, which also passes the functions that handler display and editing frameworks.
+The stage tracker displays a list of [*.stg.json* files](/projects/test_project/) which contains some metadata and point to the actual stage instance. The user selects an item from this list, which will be referred to as the **primary instance**.
 
-If the stage format exists, then BNOPI reads the stage instance into a buffer and calls the display framework function. This will be of the type
+BNOPI then reads the *.stg.json* file of the selected primary instance. It contains the `format` property, which is the instance's stage format. It then tries to identify the stage format. If there is a *.fmt.js* for this stage in the directory [/bnopi-stage-formats/](/bnopi-stage-formats/), then this will have been loaded when BNOPI is opened.
 
-	displayX(data: buf) -> {stops:[...], routes:[...]}
+NOT IMPLEMENTED: In the future, projects will be able to add their own *.fmt.js* files.
 
-where each stop is of the form:
+In some cases, opening a stage format has some extra **requirements**; these are other stage instances that are needed in combination with the primary stage instance in order to display useful information of the map. For example, displaying a ROUTE_NETWORK instance requires access to a STOP_CONNECTION_GRAPH instance, as the route network references edges in the stop connection graph. If there are requirements, the user will be prompted to select the requirement stage instances (BNOPI can guess these from the dependency graph also).
+
+BNOPI then reads the primary instance (referenced in the *.stg.json* file) and the requirement instances into `Buffer` objects. It calls the **display framework** of the stage format, defined in the *.fmt.js*, which is of the form
+
+	DisplayFramework(data: Buffer, requirements: Buffer[]): {
+		stops: Stop[],
+		routes: Route[]
+	}
+
+`Stop` is typed as
 ```
-{
-	lat:
-	lon:
-	id:
-	hidden_attrs: {...},
-	user_attrs: {...}
+Stop: {
+	lat: float,
+	lon: float,
+	id: int,
+	hidden_attrs: Object,
+	user_attrs: Object
 }
 ```
-`lat` and `lon` are required. If multiple stops have the same `id` then only the first is used and the rest are ignored by BNOPI. If any `id` is null then BNOPI assigns a new id that is different to all others. `hidden_attrs` stores any data needed by the editing framework to reconstruct the file, but is not displayed to the user. `user_attrs` contains information that is displayed to the user inside the interface when the stop is selected.
+`lat` and `lon` are required. If multiple stops have the same `id` then only the first is used and the rest are ignored by BNOPI. If any `id` is `null` or `undefined` then BNOPI assigns a new id that is different to all others. `hidden_attrs` stores any data needed by the editing framework to reconstruct the primary instance after editing, but is not displayed to the user. `user_attrs` contains information that is displayed to the user and can be edited by the user.
 
-... and where each route is of the form:
+`Route` is typed as
 ```
-{
-	id:
-	points:[...],
-	hidden_attrs:
-	user_attrs,
+Route: {
+	id: int.
+	points: {lat: float, lon: float}[],
+	hidden_attrs: Object
+	user_attrs: Object,
 }
 ```
-each point in `points` is of the form `{lat:, lon:}`.
+where the `points` list is a list of geographical points that the route passes through.
 
+BNOPI then renders the stops and routes appropriately.
 
-BNOPI then renders these appropriately. Inside the interface stops/routes may be created/deleted, and any attribute in `user_attrs` may be edited.
+## Procedure for editing a stage instance
 
-When the user saves changes to the stage instance, the editing framework for the stage is called. This is of the form:
+Inside the interface stops/routes may be created/edited/deleted, and any attribute in `user_attrs` may be edited.
 
-	editX(data:buf, stops, routes) -> buf
+When the user saves changes to the stage instance, the **editing framework** for the stage is called. This is of the type:
 
-where `data` is the original unedited version of the file, and the function output is the new version of the data.
+	EditingFramework(data: Buffer, requirements: Buffer[], stops: Stop[], routes: Route[]): Buffer
+
+where `data` and `requirements` are original unedited versions of the instances, and the function output is the new version of the primary instance.
 
 BNOPI then writes the new stage instance to disk (at a location decided by BNOPI) and creates an accompanying .stg.json file.
+
+## *.fmt.js* structure
+A *.fmt.js* file is a module that exports the following values and functions:
+
++ `name: String` - The name of the stage format
++ `id: String` - An id by which the stage is referred to. Usually an uppercase string separated by underscores, e.g. `"STOP_CONNECTION_GRAPH"`.
++ `requirements: String[]` - A list of stage format ids corresponding to the requirements of the display framework, as defined above.
++ `displayFramework: DisplayFramework` - A function used to convert the instances something displayable by BNOPI (see above)
++ `editingFramework: EditingFramework` - A function used to convert the BNOPI representation back to a stage instance.
