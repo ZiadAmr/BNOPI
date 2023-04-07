@@ -5,7 +5,7 @@ const { BrowserWindow, app, ipcMain, Notification, dialog } = require('electron'
 const { title } = require('process');
 
 // may need to update this if this file is moved
-const projectsDir = path.resolve("./projects");
+const projectsDir = path.resolve("projects/");
 
 /**
  * @param {string} project String ID of the project
@@ -105,7 +105,10 @@ async function getListOfStageFormat(projPath) {
  */
 async function openProjectFolderDialog() {
 	
-	const dir = await dialog.showOpenDialog({properties: ["openDirectory"]});
+	const dir = await dialog.showOpenDialog({
+		properties: ["openDirectory"],
+		defaultPath: projectsDir,
+	});
 
 	if (dir.canceled === true) {
 		return {status: "cancelled"}

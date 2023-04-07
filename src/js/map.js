@@ -57,6 +57,10 @@ function initMap() {
 
     route_network_display_framework("E:/BNOPI/projects/test_project/stage_instances/temp.stg.json", "E:/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
 
+
+    // add open project event listener
+    window.electron.onOpenProject((_event, projPath) => openProject(projPath));
+
     //window.electron.writeFile('hello.json', JSON.stringify(broughtonStopsStgFmt));
     // window.electron.readFile('./hello.json')
     //     .then((result) => JSON.parse(result))
@@ -76,6 +80,38 @@ function initMap() {
 //         }
 //     }
 // }
+
+async function openProject(projPath) {
+    // save and close any prject that might already be open TODO.
+
+    console.log("xd");
+    console.log(projPath)
+
+    // add this project to the recents
+    await window.electron.addToRecents(projPath);
+
+    console.log("1");
+
+
+    // get the project metadata
+    const projMetadata = await window.electron.getProjectMetadata(projPath);
+    console.log("2");
+    // get list of stage instances
+    const stageInstances = await window.electron.getListOfStageFormat(projPath);
+    console.log("3");
+    // get dependency graph (not implemented TODO)
+
+
+
+    // actually display this stuff
+    // TODO
+    console.log(projMetadata);
+    console.log(stageInstances)
+
+    return null;
+
+
+}
 
 function createStopMarkers(results) {
     console.log(results.elements.length + " Bus stops loaded");

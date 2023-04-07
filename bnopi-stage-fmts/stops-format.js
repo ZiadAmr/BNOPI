@@ -54,10 +54,11 @@ function exportStops(data, stops, routes) {
 }
 
 
-addStageFormat({
-	"name": "Stops",
-	"id": "STOPS",
-	"description": "JSON file containing information about bus stops. See https://github.com/ZiadAmr/BNOPI/blob/main/stage-formats/2_generate_stops.json",
-	"display-framework": displayStops,
-	"editing-framework": exportStops
-})
+module.exports = {
+	name: "Stops",
+	id: "STOPS",
+	requirements: [],
+	description: "JSON file containing information about bus stops. See https://github.com/ZiadAmr/BNOPI/blob/main/stage-formats/2_generate_stops.json",
+	display_framework: displayStops,
+	editing_framework: exportStops
+}

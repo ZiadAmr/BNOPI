@@ -44,7 +44,7 @@ function createLaunchPage() {
     }
   })
 
-  win.loadFile('launchwindow.html');
+  win.loadFile(path.resolve('launchwindow.html'));
 }
 
 if (isDev) {
