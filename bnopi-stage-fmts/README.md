@@ -54,6 +54,8 @@ When the user saves changes to the stage instance, the **editing framework** for
 
 where `data` and `requirements` are original unedited versions of the instances, and the function output is the new version of the primary instance.
 
+Any stop or route that was added by the user will be given an new unique stop id or route id before the editing framework is called.
+
 BNOPI then writes the new stage instance to disk (at a location decided by BNOPI) and creates an accompanying .stg.json file.
 
 ## *.fmt.js* structure
@@ -62,5 +64,6 @@ A *.fmt.js* file is a module that exports the following values and functions:
 + `name: String` - The name of the stage format
 + `id: String` - An id by which the stage is referred to. Usually an uppercase string separated by underscores, e.g. `"STOP_CONNECTION_GRAPH"`.
 + `requirements: String[]` - A list of stage format ids corresponding to the requirements of the display framework, as defined above.
++ `description: String` - A helpful description of the stage format
 + `displayFramework: DisplayFramework` - A function used to convert the instances something displayable by BNOPI (see above)
 + `editingFramework: EditingFramework` - A function used to convert the BNOPI representation back to a stage instance.
