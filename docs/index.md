@@ -54,7 +54,7 @@ Continuing the execution, we generate a route network using a genetic algorithm.
 Documentation on how to create metadata files can be found below.
 
 + [Stage format documentation](/bnopi-stage-fmts/README.md)
-+ Algorithm documentation
++ [Algorithm documentation](/bnopi-algs/README.md)
 
 
 

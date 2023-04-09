@@ -43,7 +43,7 @@
 	],
 
 	"launch-script":{
-		"bash": "launch-bash",
+		"bash": "launch-gen-stop-connection-graph.sh",
 		"powershell": "launch-powershell.ps1"
 	} 
 }
