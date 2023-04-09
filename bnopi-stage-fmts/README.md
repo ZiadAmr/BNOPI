@@ -6,7 +6,7 @@ In this document stage instances will sometimes be refered to as just "instances
 
 The stage tracker displays a list of [*.stg.json* files](/projects/test_project/) which contains some metadata and point to the actual stage instance. The user selects an item from this list, which will be referred to as the **primary instance**.
 
-BNOPI then reads the *.stg.json* file of the selected primary instance. It contains the `format` property, which is the instance's stage format. It then tries to identify the stage format. If there is a *.fmt.js* for this stage in the directory [/bnopi-stage-formats/](/bnopi-stage-formats/), then this will have been loaded when BNOPI is opened.
+BNOPI then reads the *.stg.json* file of the selected primary instance. It contains the `format` property, which is the instance's stage format. It then tries to identify the stage format. If there is a *.fmt.js* for this stage in the directory [/bnopi-stage-fmts/](/bnopi-stage-fmts/), then this will have been loaded when BNOPI is opened.
 
 NOT IMPLEMENTED: In the future, projects will be able to add their own *.fmt.js* files.
 
