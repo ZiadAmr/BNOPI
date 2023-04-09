@@ -15,7 +15,7 @@ The role of BNOPI is to
 
 In the dependency graph, each node represents an **algorithm**. Algorithms are accessed by BNOPI using a metadata file, which contains information about the command-line parameters, input and output file formats, and a shell script to launch the algorithm.
 
-To transfer data between nodes, BNOPI uses **stage formats**. A stage format refers to the structure of some input, output, or intermediary file. The files themselves are referred to as **stage instances**, or instances of the stage format. An example of a stage format is `STOPS`, instances of which contain data about bus stops in a standardized JSON format. Each edge in a project's dependency graph represents the flow of a stage instance from one node to the next.
+To transfer data between nodes, BNOPI uses [**stage formats**](/bnopi-stage-fmts/README.md). A stage format refers to the structure of some input, output, or intermediary file. The files themselves are referred to as **stage instances**, or instances of the stage format. An example of a stage format is `STOPS`, instances of which contain data about bus stops in a standardized JSON format. Each edge in a project's dependency graph represents the flow of a stage instance from one node to the next.
 
 On a node, a **breakpoint** may be placed. This indicates that the resulting stage instances of that node should be visualized, and the user should be able to edit them before proceeding.
 
