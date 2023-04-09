@@ -65,5 +65,6 @@ A *.fmt.js* file is a module that exports the following values and functions:
 + `id: String` - An id by which the stage is referred to. Usually an uppercase string separated by underscores, e.g. `"STOP_CONNECTION_GRAPH"`.
 + `requirements: String[]` - A list of stage format ids corresponding to the requirements of the display framework, as defined above.
 + `description: String` - A helpful description of the stage format
++ `fileExtension: String` - The preferred file extension for instances of this stage (without a dot before, i.e. just `"json"` for JSON files).
 + `displayFramework: DisplayFramework` - A function used to convert the instances something displayable by BNOPI (see above)
 + `editingFramework: EditingFramework` - A function used to convert the BNOPI representation back to a stage instance.

@@ -73,9 +73,9 @@ class StageFormatHandler {
 		
 
 		// find the correct display framework
-		let stage = this.loadedStageFormats.find((x) => x.id == metadata.stage);
+		let stage = this.loadedStageFormats.find((x) => x.id == metadata.format);
 		if (typeof stage === "undefined") {
-			throw new Error("Stage with id \"" + metadata.stage + "\" not found");
+			throw new Error("Stage with id \"" + metadata.format + "\" not found");
 		}
 		if (typeof stage.displayFramework === "undefined") {
 			throw new Error("Stage \"" + stage.id + "\" is defined, but does not have a display framework");
@@ -95,6 +95,138 @@ class StageFormatHandler {
 		// todo could erro check
 		return stage.displayFramework(data, requirementBufs);
 
+
+	}
+
+
+	/** Save the contents of the screen by calling an editing framework
+	 * Creates a new stage instance, leaving the original intact.
+	 * The "generated-by" property must be "USER_EDIT", and the "parent-stage-instances" property must contain only the original stage instance.
+	 * 
+	 * @param {Object} newMetadata Contents of new .stg.json file
+	 */
+	async saveAs(projPath, oldMetadataPath, oldRequirementsMetadataPaths,  newMetadata, stops, routes, metadataDir=undefined) {
+
+		const oldMetadata = JSON.parse(await fsp.readFile(oldMetadataPath, { encoding: "utf-8", flag: "r" }));
+
+		if (typeof newMetadata.timeCreated === "undefined") {
+			newMetadata.timeCreated = (new Date()).toJSON();
+		}
+
+		if (typeof newMetadata.dependencyGraph === "undefined") {
+			newMetadata.dependencyGraph = oldMetadata.dependencyGraph;
+		}
+
+		if (typeof newMetadata.format === "undefined") {
+			newMetadata.format = oldMetadata.format;
+		}
+		if (newMetadata.format != oldMetadata.format) {
+			throw new Error(`Format of stage instance to be saved ("${newMetadata.format}") does not mach the format of the original stage instance ("${oldMetadata.format}") `);
+		}
+
+		let stageFormat = this.loadedStageFormats.find((x) => x.id == newMetadata.format);
+		if (typeof stageFormat === "undefined") {
+			throw new Error("Unable to save stage instance: the stage format \""+newMetadata.format + "\" is not loaded.")
+		}
+
+		if (newMetadata.generatedBy != "USER_EDIT") {
+			throw new Error("Unable to save stage instance: the \"generatedBy\" property is not \"USER_EDIT\"");
+		}
+
+		if (typeof newMetadata.nodeInGraph === "undefined") {
+			// null, as this was not created by a node
+			newMetadata.nodeInGraph = null;
+		}
+
+		// calculate relative path to old metadata file
+		var relativePathToOldMetadataFile = path.relative(metadataDir, oldMetadataPath);
+		relativePathToOldMetadataFile = relativePathToOldMetadataFile.split(path.sep).join(path.posix.sep);
+
+		if (typeof newMetadata.parentStageInstances === "undefined") {
+			newMetadata.parentStageInstances = [relativePathToOldMetadataFile];
+		} 
+
+		// decide where to save the metadata file. Use the project's default dir if metadataDir is undefined
+		if (typeof metadataDir === "undefined") {
+			metadataDir = path.resolve(projPath, JSON.parse(await fsp.readFile(path.resolve(projPath, "info.json"), { encoding: "utf-8", flag: "r" })).stageInstances[0]);
+		}
+
+		// check that value of newMetadata.parentStageInstances holds the correct value if it was already set in the input to this function,
+		// otherwise throw an error
+		if (!Array.isArray(newMetadata.parentStageInstances) ||
+			newMetadata.parentStageInstances.length != 1 ||
+			path.relative(path.resolve(metadataDir, newMetadata.parentStageInstances[0]), oldMetadataPath) != "") {
+			throw new Error(`Unable to save stage instance: the property \"parentStageInstances\" should contain a single item referring to the original version of this file. In this case this should be ["${relativePathToOldMetadataFile}"]; you can omit the parentStageInstances property from newMetadata and this will be added automatically.`);
+		}
+
+		// work out where to save the new metadata file
+		// give it a name the same as the old one with _USER_EDIT_{N} appended.
+		// If the old metadata file already has _USER_EDIT_.., then bump N.
+		const stageInstanceDir = metadataDir;
+		const oldMetadataBasename = path.basename(oldMetadataPath);
+		// find the name _USER_EDIT_{N} using a regular expression
+		const expr = /(.+?)(_USER_EDIT_([0-9]+))?\.stg\.json/;
+		const match = oldMetadataBasename.match(expr);
+		const nameStem = match[1];
+		var N = parseInt(match[3]);
+		// increase N until there is an available file name
+		while (await fsp.access(path.resolve(metadataDir, `${nameStem}_USER_EDIT_${N}.stg.json`))) {
+			N++;
+		}
+		const newMetadataPath = path.resolve(metadataDir, `${nameStem}_USER_EDIT_${N}.stg.json`);
+		
+
+		// // give it a name that does not collide with other names
+		// // look for all other formats of the form ${FORMAT}_${N}.stg.json
+		// var globPattern = path.resolve(path.dirname(stageInstanceDir), newMetadata.format + "_*.stg.json");
+		// // for glob, if we're using windows we need to replace all the path separators with /
+		// globPattern = globPattern.split(path.sep).join(path.posix.sep);
+		// const globOutput = await glob(globPattern);
+
+		// // increase N until there is a non colliding name
+		// var N = 1;
+		// while (globOutput.includes(path.resolve(stageInstanceDir, newMetadata.format + "_" + N + ".stg.json"))) {
+		// 	N++;
+		// }
+		
+		// find the file extension we will use for the data file
+		var dataFileExtension = stageFormat.fileExtension;
+		if (typeof dataFileExtension === "undefined") {
+			dataFileExtension = "dat";
+		}
+
+		// work out where to save the actual data file.
+		// if undefined, use the same file name and folder as the metadata path.
+		if (typeof newMetadata.datafile === "undefined") {
+			// remove .stg.json
+			const expr = /(.*)\.stg\.json/;
+			const nameStem = path.basename(newMetadataPath).match(expr)[1];
+			// relative path, and since this is in the same folder as the metadata file we don't need to worry.
+			newMetadata.datafile = nameStem + "." + dataFileExtension;
+		}
+
+		// open all necessary files for the editing framework
+
+		// original data file.
+		const oldData = await fsp.readFile(oldMetadata.datafile);
+
+		// original requirement data files
+		var oldRequirementsData = /*oldRequirementsMetadataPaths*/ [];
+		for (const oldRequirementMetadataPath of oldRequirementsMetadataPaths) {
+			const oldRequirementMetadata = JSON.parse(await fsp.readFile(oldRequirementMetadataPath, { encoding: "utf-8", flag: "r" }));
+			const oldRequirementData = fsp.readFile(oldRequirementMetadata.datafile);
+			oldRequirementsData.push(oldRequirementData);
+		}
+
+		// call the display framework
+		const newData = stageFormat.displayFramework(oldData, oldRequirementsData, stops, routes);
+
+		// write the new metadata
+		await fsp.writeFile(newMetadataPath, newMetadata);
+
+		// write the new data
+		const newDataPath = path.resolve(newMetadataPath, newMetadata.datafile);
+		await fsp.writeFile(newDataPath, newData);
 
 	}
 
