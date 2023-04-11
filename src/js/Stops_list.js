@@ -29,7 +29,13 @@ export default function Stops_list() {
                   <FontAwesomeIcon icon={faBusSimple} style={{color:'#ffffff'}}/>
               </ListItemIcon>
               <ListItemText id='route_list' primary={item.name} style={{color:'ffffff'}}/>
-              <IconButton>
+              <IconButton onClick={() => {
+                //console.log(busStops)
+                console.log(item);
+                item.setMap(null);
+                busStops.delete(key);
+                window.dispatchEvent(new Event('bus_stops_change'));
+              }}>
                   <FontAwesomeIcon icon={faTrash} style={{ color: '#ffffff', fontSize:17 }} />
               </IconButton>
           </ListItemButton>
