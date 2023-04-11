@@ -5,6 +5,7 @@ Front end
 	+ display info about project, algorithm, stage
 	+ Edit data
 	+ render forms for algorithm parameters
++ Tool to select region of map
 + Display speech bubbles above stops/routes on mouseover
 + GUI mechanism for snapping stops to routes (??)
 + Save/load project in main window
