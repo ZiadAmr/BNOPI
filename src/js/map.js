@@ -35,8 +35,8 @@ function initMap() {
             }
         });
 
-    route_network_display_framework("/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/temp.stg.json", "/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
-    // route_network_display_framework("E:/BNOPI/projects/test_project/stage_instances/temp.stg.json", "E:/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
+    //route_network_display_framework("/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/temp.stg.json", "/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
+    route_network_display_framework("E:/BNOPI/projects/test_project/stage_instances/temp.stg.json", "E:/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
 
 
     // add open project event listener
