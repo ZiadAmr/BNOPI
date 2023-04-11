@@ -30,8 +30,6 @@ export default function Stops_list() {
               </ListItemIcon>
               <ListItemText id='route_list' primary={item.name} style={{color:'ffffff'}}/>
               <IconButton onClick={() => {
-                //console.log(busStops)
-                console.log(item);
                 item.setMap(null);
                 busStops.delete(key);
                 window.dispatchEvent(new Event('bus_stops_change'));
