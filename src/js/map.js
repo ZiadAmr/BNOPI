@@ -35,19 +35,6 @@ function initMap() {
             }
         });
 
-    // var request = {
-    //     location: {lat:52.4128,lng:-1.5090},
-    //     radius: '500',
-    //     rankby: "distance",
-    //     type: ["bus_station"]
-    // };
-
-    //Getting the bus stop location data using openstreetmap api
-    // fetch('https://www.overpass-api.de/api/interpreter?data=[out:json];node(around:2100, 52.52955, -1.22395)[highway=bus_stop];out;')
-    //     .then((response) => response.json())
-    //     .then((data) => createStopMarkers(data));
-
-
     // get the stage format stop file
     window.electron.readFile('./algs/stops.json')
         .then((result) => JSON.parse(result))
@@ -55,31 +42,12 @@ function initMap() {
         .then(() => console.log(stopsToJson()))
         .catch(console.error)
 
-    route_network_display_framework("E:/BNOPI/projects/test_project/stage_instances/temp.stg.json", "E:/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
+    route_network_display_framework("/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/temp.stg.json", "/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
 
 
     // add open project event listener
     window.electron.onOpenProject((_event, projPath) => openProject(projPath));
-
-    //window.electron.writeFile('hello.json', JSON.stringify(broughtonStopsStgFmt));
-    // window.electron.readFile('./hello.json')
-    //     .then((result) => JSON.parse(result))
-    //     .then((json) => console.log(json))
-    //     .catch(console.error)
-
-    //Code used for using google maps api to get the bus stop location data
-    //var service = new google.maps.places.PlacesService(map);
-    //service.nearbySearch(request, placeStops)
 }
-
-// function placeStops(results, status){
-//     if(status == google.maps.places.PlacesServiceStatus.OK){
-//         console.log(results)
-//         for (var i = 0; i < results.length; i++){
-//             createGoogleMarker(results[i]);
-//         }
-//     }
-// }
 
 async function openProject(projPath) {
     // save and close any prject that might already be open TODO.
@@ -113,13 +81,6 @@ async function openProject(projPath) {
 
 }
 
-function createStopMarkers(results) {
-    console.log(results.elements.length + " Bus stops loaded");
-    for (var i = 0; i < results.elements.length; i++) {
-        createMarker(results.elements[i])
-    }
-}
-
 //Called when a marker is created by clicking on the map
 function createGoogleMarker(marker) {
     temp = new google.maps.Marker({
@@ -127,8 +88,8 @@ function createGoogleMarker(marker) {
         map: map,
         title: "Bus stop",
         icon: {
-            size: new google.maps.Size(50, 50),
-            scaledSize: new google.maps.Size(50, 50),
+            size: new google.maps.Size(30, 30),
+            scaledSize: new google.maps.Size(30, 30),
             url: "icons/bus-station.png"
         }
     })
@@ -139,32 +100,10 @@ function createGoogleMarker(marker) {
         if (window.localStorage.getItem('mode') == 2) {
             busStops.get(event.latLng).setMap(null);
             busStops.delete(event.latLng);
+            window.dispatchEvent(new Event('bus_stops_change'));
         }
     });
-
-}
-
-function createMarker(marker) {
-    var position = { lat: marker.lat, lng: marker.lon }
-    temp = new google.maps.Marker({
-        position: position,
-        map,
-        title: "Bus stop",
-        icon: {
-            size: new google.maps.Size(50, 50),
-            scaledSize: new google.maps.Size(50, 50),
-            url: "icons/bus-station.png"
-        }
-    })
-    busStops.set(temp.position, temp);
-    google.maps.event.addListener(temp, 'click', function deleteMarker(event) {
-
-        //The user has clicked the delete markers button 
-        if (window.localStorage.getItem('mode') == 2) {
-            busStops.get(event.latLng).setMap(null);
-            busStops.delete(event.latLng);
-        }
-    });
+    window.dispatchEvent(new Event('bus_stops_change'));
 }
 
 /**
@@ -199,10 +138,12 @@ function createMarkersFromStageFormat(jsonData) {
             if (window.localStorage.getItem('mode') == 2) {
                 busStops.get(event.latLng).setMap(null);
                 busStops.delete(event.latLng);
+                window.dispatchEvent(new Event('bus_stops_change'));
             }
         });
 
     });
+    window.dispatchEvent(new Event('bus_stops_change'));
 }
 
 function stopsToJson() {

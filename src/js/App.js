@@ -14,7 +14,7 @@ export default function App() {
     <>
       <Container fluid id="mainContainer">
         <Row id="firstRow">
-          <Col sm={8} id="mapContainer">
+          <Col sm={9} id="mapContainer">
             <div id="map"></div>
             <NetworkToolKit></NetworkToolKit>
           </Col>
@@ -24,7 +24,7 @@ export default function App() {
         </Row>
 
         <Row id="secondRow">
-          <Col sm={8} id="Dependency_graph">
+          <Col sm={9} id="Dependency_graph">
             <DependencyGraph></DependencyGraph>
           </Col>
           <Col sm id="StageTracker" style={{backgroundColor:'#3e3e3e'}}>Stage tracker</Col>

@@ -4,12 +4,37 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenNib, faBusSimple, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function Stops_list() { 
-  const items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6']
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
+  const [stops, setStops] = useState(false);
 
   const handleListItemClick = (event, index) => {
     setSelectedIndex(index);
   };
+
+  useEffect(() =>{
+    const handle_change = () => {
+      setStops(!stops)
+    }
+
+    window.addEventListener('bus_stops_change', handle_change);
+
+    return () => {
+      window.removeEventListener('bus_stops_change', handle_change);
+    }
+  }, [stops]);
+
+  var generate_listing = Array.from(busStops).map(([key, item], index) => {
+    return <ListItemButton style={selectedIndex === index ? {backgroundColor: '#c0c6c9a8', color: '#ffffff'} : null} key={index} selected={selectedIndex === index} onClick={(event) => handleListItemClick(event, index)}>
+              <ListItemIcon>
+                  <FontAwesomeIcon icon={faBusSimple} style={{color:'#ffffff'}}/>
+              </ListItemIcon>
+              <ListItemText id='route_list' primary={item.name} style={{color:'ffffff'}}/>
+              <IconButton>
+                  <FontAwesomeIcon icon={faTrash} style={{ color: '#ffffff', fontSize:17 }} />
+              </IconButton>
+          </ListItemButton>
+  });
+  
 
   return (
     <>
@@ -17,20 +42,7 @@ export default function Stops_list() {
                 List of stops
         </Typography>
         <List dense={true} style={{ maxHeight: 200, overflow: 'auto'}}>
-            {items.map((item, index) => (
-                <ListItemButton style={selectedIndex === index ? {backgroundColor: '#c0c6c9a8', color: '#ffffff'} : null} key={index} selected={selectedIndex === index} onClick={(event) => handleListItemClick(event, index)}>
-                    <ListItemIcon>
-                        <FontAwesomeIcon icon={faBusSimple} style={{color:'#ffffff'}}/>
-                    </ListItemIcon>
-                    <ListItemText id='route_list' primary={item} style={{color:'ffffff'}}/>
-                    <IconButton>
-                        <FontAwesomeIcon icon={faTrash} style={{ color: '#ffffff', fontSize:17 }} />
-                    </IconButton>
-                    <IconButton>
-                        <FontAwesomeIcon icon={faPenNib} style={{ color: '#ffffff', fontSize:17 }} />
-                    </IconButton>
-                </ListItemButton>
-        ))}
+            {generate_listing}
         </List>
     </>
   )
