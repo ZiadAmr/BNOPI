@@ -35,13 +35,6 @@ function initMap() {
             }
         });
 
-    // get the stage format stop file
-    // window.electron.readFile('./algs/stops.json')
-    //     .then((result) => JSON.parse(result))
-    //     .then((json) => createMarkersFromStageFormat(json))
-    //     .then(() => console.log(stopsToJson()))
-    //     .catch(console.error)
-
     route_network_display_framework("/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/temp.stg.json", "/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
     // route_network_display_framework("E:/BNOPI/projects/test_project/stage_instances/temp.stg.json", "E:/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
 
