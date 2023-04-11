@@ -35,9 +35,6 @@ function initMap() {
             }
         });
 
-    //route_network_display_framework("/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/temp.stg.json", "/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
-    route_network_display_framework("E:/BNOPI/projects/test_project/stage_instances/temp.stg.json", "E:/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
-
 
     // add open project event listener
     window.electron.onOpenProject((_event, projPath) => openProject(projPath));
@@ -156,6 +153,8 @@ function displayBNOPIStop(stop) {
         }
     });
 
+    window.dispatchEvent(new Event('bus_stops_change'));
+
 }
 
 /**
@@ -227,12 +226,6 @@ function displayBNOPIRoute(route) {
 
 }
 
-function createStopMarkers(results) {
-    console.log(results.elements.length + " Bus stops loaded");
-    for (var i = 0; i < results.elements.length; i++) {
-        createMarker(results.elements[i])
-    }
-}
 
 //Called when a marker is created by clicking on the map
 function createGoogleMarker(marker) {
@@ -256,46 +249,6 @@ function createGoogleMarker(marker) {
             busStops.delete(event.latLng);
             window.dispatchEvent(new Event('bus_stops_change'));
         }
-    });
-    window.dispatchEvent(new Event('bus_stops_change'));
-}
-
-/** 
- * @deprecated Instead bus stop markers are read from a file using a display framework. Then the function displayStageInstance in map.js is called, which within calls displayBNOPIStop.
- * @param {Object} jsonData Parsed json from the stops stage format
- */
-function createMarkersFromStageFormat(jsonData) {
-    jsonData.stops.forEach(stop => {
-
-        // create google maps marker.
-        // keep the stop id for now in case it needs to be assigned a new id,
-        // but note that the id will be reassigned when the stop stage instance is exported
-        const position = { lat: stop.lat, lng: stop.lon };
-        marker = new google.maps.Marker({
-            position: position,
-            map,
-            title: "Bus stop",
-            id: stop.id,
-            name: stop.name,
-            icon: {
-                size: new google.maps.Size(30, 30),
-                scaledSize: new google.maps.Size(30, 30),
-                url: "icons/bus-station.png"
-            }
-        })
-
-        // add the marker to the busStops hashmap
-        busStops.set(marker.position, marker);
-        google.maps.event.addListener(marker, 'click', function deleteMarker(event) {
-
-            //The user has clicked the delete markers button 
-            if (window.localStorage.getItem('mode') == 2) {
-                busStops.get(event.latLng).setMap(null);
-                busStops.delete(event.latLng);
-                window.dispatchEvent(new Event('bus_stops_change'));
-            }
-        });
-
     });
     window.dispatchEvent(new Event('bus_stops_change'));
 }
@@ -328,87 +281,6 @@ function stopsToJson() {
     return { "stops": stops };
 }
 
-/**
- * Note these are both metadata locations
- * @param {String} network_path Path to the network to be displayed
- * @param {String} dependency_graph_path Path to the dependency_graph 
- */
-async function route_network_display_framework(network_path, dependency_graph_path){
-    const points_map = new Map();
-    const links_map = new Map();
-
-    const decoder = new TextDecoder('utf-8')
-
-    // Read the dependency graph
-    const stp_conn = await window.electron.openStageFormat("temp", "stp", dependency_graph_path)
-    const stp = JSON.parse(decoder.decode(stp_conn.data))
-
-    // Read the generated network
-    const network = await window.electron.openStageFormat("temp", "network", network_path)
-    const netw = JSON.parse(decoder.decode(network.data))
-
-    // Create a Map object from the points
-    for (let i = 0; i < stp.points.length; i++){
-        points_map.set(stp.points[i].id, stp.points[i])
-    }
-
-    for (let i = 0; i <stp.links.length; i++){
-        links_map.set(stp.links[i].id, stp.links[i])
-    }
-
-    for(let i = 0; i < netw.routes.length;i++){
-        // List containing the points which needs to be drawn to display the route
-        poly_points = []
-        for(let j = 0; j < netw.routes[i].links.length; j++){
-            points = links_map.get(netw.routes[i].links[j]).points
-            for(let k = 0; k < points.length; k++){
-                current_point = points_map.get(points[k])
-                var latlng = new google.maps.LatLng(
-                    current_point.lat,
-                    current_point.lon
-                )
-                poly_points.push(latlng)
-            }
-        }
-        const color = "#" + Math.floor(Math.random() * 16777215).toString(16);
-        routes = new google.maps.Polyline({
-            path: poly_points,
-            strokeColor: color,
-            strokeWeight: 8,
-            strokeOpacity: 1,
-        });
-        routes.setMap(map);
-
-        var count = +window.localStorage.getItem('routeCounter') + 1;
-        //Update the localstoreage
-        window.localStorage.setItem("routeCounter", count);
-        polyMap.set(count, routes);
-
-        (function(){
-            let local_count = count;
-            routes.addListener('click', function() {
-                console.log(local_count)
-                if (window.localStorage.getItem('mode') == 4) {
-                    //Remember to remove it from the list of polylines as well
-                    this.setMap(null);
-                    //routes.setMap(null);
-                    //Remove the polyline from the list
-                    polyMap.delete(local_count);
-                    console.log(polyMap)
-                } else if (window.localStorage.getItem('mode') == 5) {
-                    this.setOptions({ editable: true });
-    
-                    //If the user had clicked on another polyline before (make that previous polyline uneditable)
-                    if (selectedPolyline != null) {
-                        selectedPolyline.setOptions({ editable: false });
-                    }
-                    selectedPolyline = this;
-                }
-            })
-        })()
-    }
-    
-}
 
 
 //Called when a button from the network toolkit is clicked
