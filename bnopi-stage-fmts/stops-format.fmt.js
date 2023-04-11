@@ -19,9 +19,8 @@ function displayStops(data, requirements) {
 			lat: stop.lat,
 			lon: stop.lon,
 			id: stop.id,
-			user_attrs: {
-				name: stop.name
-			},
+			name: stop.name,
+			user_attrs: {},
 			hidden_attrs: {}
 		});
 	});
@@ -44,7 +43,7 @@ function exportStops(data, requirements, stops, routes) {
 	var exportStops = [];
 	stops.array.forEach(stop => {
 		exportStops.push({
-			name: stop.hidden_attrs.name,
+			name: stop.name,
 			id: stop.id,
 			lat: stop.lat,
 			lon: stop.lon
