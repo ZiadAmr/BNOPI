@@ -84,7 +84,9 @@ class StageFormatHandler {
 		// open the supplied requirements and check that they match the expected ones
 		var requirementBufs = [];
 		for (let i = 0; i < stage.requirements.length; i++) {
-			const { requirementMetadata, requirementBuf } = file_handler.openStageFormat("", "", requirementsMetadataFilePaths[i]);
+			const fmt = await file_handler.openStageFormat("", "", requirementsMetadataFilePaths[i]);
+			const requirementMetadata = fmt.metadata;
+			const requirementBuf = fmt.data;
 			if (requirementMetadata.format != stage.requirements[i]) {
 				throw new Error("Requirement " + i + " for display framework \"" + stage.id + "\" does not match the expected stage format \"" + stage.requirements[i] + "\" (got \""+requirementMetadata.format+"\")");
 			}

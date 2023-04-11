@@ -1,9 +1,9 @@
 {
 	"timeCreated":"2012-04-23T18:25:43.511Z",
 	"dependencyGraph":"../test_dependency_graph.dg.json",
-	"format":"STOPS",
+	"format":"STOP_CONNECTION_GRAPH",
 	"generatedBy": "GEN_STOPS",
 	"nodeInGraph":null,
-	"parentStageInstances":[],
+	"parentStageInstances":["STOPS_1.stg.json"],
 	"datafile":"stop-connection-graph.json"
 }

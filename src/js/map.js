@@ -35,7 +35,7 @@ function initMap() {
             }
         });
 
-    route_network_display_framework("/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/temp.stg.json", "/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
+    route_network_display_framework("C:\\Users\\thoma\\Documents\\more homework\\fourth year project\\code\\BNOPI\\projects\\test_project\\stage_instances\\temp.stg.json", "/Users/danuk/Desktop/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
     // route_network_display_framework("E:/BNOPI/projects/test_project/stage_instances/temp.stg.json", "E:/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
 
 
@@ -66,11 +66,19 @@ async function openProject(projPath) {
     console.log(stageInstances)
     console.log(projMetadata);
 
-    // TODO hard code it to open one of the stage instances
-    // look for a file named STOPS_1.
-    const re = /STOPS_1/;
-    const stopsInstance = stageInstances.find((ins) => ins.path.match(re) != null);
-    displayStageInstance(stopsInstance.path);
+    // TODO hard code it to open the route network
+    const routesInstancePath = stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "temp.stg.json").path;
+    const requirementMetadataPaths = [
+        stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "stop_connection.stg.json").path,
+        stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "STOPS_1.stg.json").path, 
+    ];
+    displayStageInstance(routesInstancePath, requirementMetadataPaths);
+
+
+
+    // const re = /STOPS_1/;
+    // const stopsInstance = stageInstances.find((ins) => ins.path.match(re) != null);
+    // displayStageInstance(stopsInstance.path);
 
     return null;
 
@@ -85,10 +93,12 @@ async function displayStageInstance(instanceMetdataPath, requirementMetadataPath
     busStops.forEach(stop => {
         stop.setMap(null);
     });
+    polyMap.forEach(polyLine => {
+        polyLine.setMap(null);
+    });
     busStops.clear();
+    polyMap.clear();
 
-
-    /* clear routes as well TODO */
     
     const {stops, routes} = await window.electron.loadStageInstance(instanceMetdataPath, requirementMetadataPaths);
 
@@ -96,9 +106,9 @@ async function displayStageInstance(instanceMetdataPath, requirementMetadataPath
         displayBNOPIStop(stop);
     }
 
-    // TODO display route
-
-
+    for (const route of routes) {
+        displayBNOPIRoute(route);
+    }
 
 }
 
@@ -154,6 +164,66 @@ function displayBNOPIStop(stop) {
  * @param {{id: number; name: string | undefined; points: {lat: number; lon: number;}[]; hidden_attrs: any; user_attrs: any;}} route Route in BNOPI format
  */
 function displayBNOPIRoute(route) {
+
+    var name = route.name;
+    if (typeof name === "undefined") {
+        name = route.id;
+    }
+
+    // create google maps poly line
+    // first convert to google maps poly_points
+    poly_points = [];
+    for (const point of route.points) {
+        const latlng = new google.maps.LatLng(
+            point.lat,
+            point.lon
+        )
+        poly_points.push(latlng)
+    }
+
+    const color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    polyLine = new google.maps.Polyline({
+        id: route.id,
+        name: name,
+        bnopiUserAttrs: route.user_attrs,
+        bnopiHiddenAttrs: route.hidden_attrs,
+        path: poly_points,
+        strokeColor: color,
+        strokeWeight: 8,
+        strokeOpacity: 1,
+    });
+    polyLine.setMap(map);
+
+    var count = +window.localStorage.getItem('routeCounter') + 1;
+    //Update the localstoreage
+    window.localStorage.setItem("routeCounter", count);
+    polyMap.set(count, polyLine);
+
+    (function () {
+        let local_count = count;
+        polyLine.addListener('click', function () {
+            console.log(local_count)
+            if (window.localStorage.getItem('mode') == 4) {
+                //Remember to remove it from the list of polylines as well
+                this.setMap(null);
+                //polyLine.setMap(null);
+                //Remove the polyline from the list
+                polyMap.delete(local_count);
+                console.log(polyMap)
+            } else if (window.localStorage.getItem('mode') == 5) {
+                this.setOptions({ editable: true });
+
+                //If the user had clicked on another polyline before (make that previous polyline uneditable)
+                if (selectedPolyline != null) {
+                    selectedPolyline.setOptions({ editable: false });
+                }
+                selectedPolyline = this;
+            }
+        })
+    })()
+
+
+
 
 }
 
