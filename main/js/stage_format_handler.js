@@ -51,7 +51,7 @@ class StageFormatHandler {
 		}
 
 		// search for .fmt.js files
-		var globPattern = path.resolve(path.dirname(dirPath), "*.fmt.js");
+		var globPattern = path.resolve(dirPath, "*.fmt.js");
 		// for glob, if we're using windows we need to replace all the path separators with /
 		globPattern = globPattern.split(path.sep).join(path.posix.sep);
 		const stgFmtFilePaths = await glob(globPattern);
@@ -69,9 +69,8 @@ class StageFormatHandler {
 	async loadStageInstance(metadataFilePath, requirementsMetadataFilePaths=[]) {
 
 		// open metadata and data buffer
-		const {metadata, data} = file_handler.openStageFormat("", "", metadataFilePath);
+		const {data, metadata}  = await file_handler.openStageFormat("", "", metadataFilePath);
 		
-
 		// find the correct display framework
 		let stage = this.loadedStageFormats.find((x) => x.id == metadata.format);
 		if (typeof stage === "undefined") {

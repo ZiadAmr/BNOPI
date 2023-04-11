@@ -49,13 +49,13 @@ function initMap() {
 
 
     // get the stage format stop file
-    window.electron.readFile('./algs/stops.json')
-        .then((result) => JSON.parse(result))
-        .then((json) => createMarkersFromStageFormat(json))
-        .then(() => console.log(stopsToJson()))
-        .catch(console.error)
+    // window.electron.readFile('./algs/stops.json')
+    //     .then((result) => JSON.parse(result))
+    //     .then((json) => createMarkersFromStageFormat(json))
+    //     .then(() => console.log(stopsToJson()))
+    //     .catch(console.error)
 
-    route_network_display_framework("E:/BNOPI/projects/test_project/stage_instances/temp.stg.json", "E:/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
+    // route_network_display_framework("E:/BNOPI/projects/test_project/stage_instances/temp.stg.json", "E:/BNOPI/projects/test_project/stage_instances/stop_connection.stg.json")
 
 
     // add open project event listener
@@ -84,32 +84,112 @@ function initMap() {
 async function openProject(projPath) {
     // save and close any prject that might already be open TODO.
 
-    console.log("xd");
-    console.log(projPath)
-
     // add this project to the recents
     await window.electron.addToRecents(projPath);
 
-    console.log("1");
-
-
     // get the project metadata
     const projMetadata = await window.electron.getProjectMetadata(projPath);
-    console.log("2");
+    
     // get list of stage instances
     const stageInstances = await window.electron.getListOfStageFormat(projPath);
-    console.log("3");
-    // get dependency graph (not implemented TODO)
-
+    
+    // get dependency graph (not implemented)
+    // TODO
 
 
     // actually display this stuff
+    // clear the stage tracker and add the list of stages to it
     // TODO
-    console.log(projMetadata);
+
     console.log(stageInstances)
+    console.log(projMetadata);
+
+    // TODO hard code it to open one of the stage instances
+    // look for a file named STOPS_1.
+    const re = /STOPS_1/;
+    const stopsInstance = stageInstances.find((ins) => ins.path.match(re) != null);
+    displayStageInstance(stopsInstance.path);
 
     return null;
 
+
+}
+
+async function displayStageInstance(instanceMetdataPath, requirementMetadataPaths) {
+
+    // save the currently open stage instance TODO!
+
+    // clear any stage instance already diplaying
+    busStops.forEach(stop => {
+        stop.setMap(null);
+    });
+    busStops.clear();
+
+
+    /* clear routes as well TODO */
+    
+    const {stops, routes} = await window.electron.loadStageInstance(instanceMetdataPath, requirementMetadataPaths);
+
+    for (const stop of stops) {
+        displayBNOPIStop(stop);
+    }
+
+    // TODO display route
+
+
+
+}
+
+
+/** Display a bus stop from the BNOPI format (that which is received from the stage format handler).
+ * Converts the stop into a google maps marker.
+ * 
+ * @param {{lat: number; lon: number; id: number; name: string | undefined; hidden_attrs: any; user_attrs: any;}} stop Stop in BNOPI format
+ */
+function displayBNOPIStop(stop) {
+    // if the bus stop doesn't have a name just use the id
+    var name = stop.name;
+    if (typeof name === "undefined") {
+        name = stop.id;
+    }
+
+    marker = new google.maps.Marker({
+        position: {
+            lat: stop.lat,
+            lng: stop.lon
+        },
+        map,
+        title: "Bus stop",
+        id: stop.id,
+        name: name,
+        icon: {
+            size: new google.maps.Size(30, 30),
+            scaledSize: new google.maps.Size(30, 30),
+            url: "icons/bus-station.png"
+        }
+    });
+    marker.bnopiUserAttrs = stop.user_attrs;
+    marker.bnopiHiddenAttrs = stop.hidden_attrs;
+
+    // add the marker to the busStops hashmap
+    busStops.set(marker.position, marker);
+    google.maps.event.addListener(marker, 'click', function deleteMarker(event) {
+
+        //The user has clicked the delete markers button 
+        if (window.localStorage.getItem('mode') == 2) {
+            busStops.get(event.latLng).setMap(null);
+            busStops.delete(event.latLng);
+        }
+    });
+
+}
+
+/**
+ * Display a route from the BNOPI format (that which is received from the stage format handler).
+ * 
+ * @param {{id: number; name: string | undefined; points: {lat: number; lon: number;}[]; hidden_attrs: any; user_attrs: any;}} route Route in BNOPI format
+ */
+function displayBNOPIRoute(route) {
 
 }
 
@@ -167,8 +247,8 @@ function createMarker(marker) {
     });
 }
 
-/**
- * 
+/** 
+ * @deprecated Instead bus stop markers are read from a file using a display framework. Then the function displayStageInstance in map.js is called, which within calls displayBNOPIStop.
  * @param {Object} jsonData Parsed json from the stops stage format
  */
 function createMarkersFromStageFormat(jsonData) {

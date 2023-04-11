@@ -65,6 +65,9 @@ app.whenReady().then(() => {
   // instansiate objects from other files
   // ================================================================
   sfh = new StageFormatHandler(); 
+  // load all the default stage formats
+  // TODO in the future these directories will be listed in the project info.json file
+  sfh.loadStageFormatsFromDir("bnopi-stage-fmts");
 
   // ================================================================
   // setup endpoints for front-end functions

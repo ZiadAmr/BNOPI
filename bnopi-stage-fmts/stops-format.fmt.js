@@ -7,8 +7,10 @@
  */
 function displayStops(data, requirements) {
 
+	const decoder = new TextDecoder('utf-8')
+
 	// convert buffer to string
-	const stopsString = decoder.decode(data.data);
+	const stopsString = decoder.decode(data);
 
 	// what we want to display
 	var stops = [];
