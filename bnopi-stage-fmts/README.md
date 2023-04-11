@@ -25,6 +25,7 @@ Stop: {
 	lat: float,
 	lon: float,
 	id: int,
+	name: String,
 	hidden_attrs: Object,
 	user_attrs: Object
 }
@@ -34,7 +35,8 @@ Stop: {
 `Route` is typed as
 ```
 Route: {
-	id: int.
+	id: int,
+	name: String,
 	points: {lat: float, lon: float}[],
 	hidden_attrs: Object
 	user_attrs: Object,
