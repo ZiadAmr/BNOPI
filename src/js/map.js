@@ -76,7 +76,7 @@ async function openProject(projPath) {
     // const re = /STOPS_1/;
     // const stopsInstance = stageInstances.find((ins) => ins.path.match(re) != null);
     // displayStageInstance(stopsInstance.path);
-
+    console.log(polyMap);
     return null;
 
 
@@ -106,6 +106,8 @@ async function displayStageInstance(instanceMetdataPath, requirementMetadataPath
     for (const route of routes) {
         displayBNOPIRoute(route);
     }
+    
+    window.dispatchEvent(new Event('routes_change'));
 
 }
 
@@ -201,14 +203,12 @@ function displayBNOPIRoute(route) {
     (function () {
         let local_count = count;
         polyLine.addListener('click', function () {
-            console.log(local_count)
             if (window.localStorage.getItem('mode') == 4) {
                 //Remember to remove it from the list of polylines as well
                 this.setMap(null);
-                //polyLine.setMap(null);
                 //Remove the polyline from the list
                 polyMap.delete(local_count);
-                console.log(polyMap)
+                window.dispatchEvent(new Event('routes_change'));
             } else if (window.localStorage.getItem('mode') == 5) {
                 this.setOptions({ editable: true });
 
@@ -376,6 +376,10 @@ function processSnapToRoadResponse(data) {
 // Draws the snapped polyline (after processing snap-to-road response).
 function drawSnappedPolyline() {
     var snappedPolyline = new google.maps.Polyline({
+        id: 69,
+        name: 'custom_route',
+        bnopiUserAttrs: [],
+        bnopiHiddenAttrs: [],
         path: snappedCoordinates,
         strokeColor: '#00FF00',
         strokeWeight: 5,
@@ -387,6 +391,7 @@ function drawSnappedPolyline() {
     //Update the localstoreage
     window.localStorage.setItem("routeCounter", count);
     polyMap.set(count, snappedPolyline);
+    window.dispatchEvent(new Event('routes_change'));
 
     (function(){
         let local_count = count
@@ -397,7 +402,7 @@ function drawSnappedPolyline() {
                 this.setMap(null);
                 //Remove the polyline from the list
                 polyMap.delete(local_count);
-                console.log(polyMap)
+                window.dispatchEvent(new Event('routes_change'));
             } else if (window.localStorage.getItem('mode') == 5) {
                 this.setOptions({ editable: true });
     

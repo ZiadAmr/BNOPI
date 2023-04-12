@@ -28,7 +28,7 @@ export default function Stops_list() {
               <ListItemIcon>
                   <FontAwesomeIcon icon={faBusSimple} style={{color:'#ffffff'}}/>
               </ListItemIcon>
-              <ListItemText id='route_list' primary={item.name} style={{color:'ffffff'}}/>
+              <ListItemText id='stops_list' primary={item.name} style={{color:'ffffff'}}/>
               <IconButton onClick={() => {
                 item.setMap(null);
                 busStops.delete(key);

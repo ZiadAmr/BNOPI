@@ -26,13 +26,12 @@ export default function Description() {
           <Nav.Link eventKey="Routes_and_Stops" style={{ textAlign: 'center'}}>Map info</Nav.Link>
         </Nav.Item>
       </Nav>
-      <Tab.Content>
+      <Tab.Content id='routes_stops_content'>
         <Tab.Pane eventKey="Properties">
           
         </Tab.Pane>
         <Tab.Pane eventKey="Routes_and_Stops">
           <Routes_list></Routes_list>
-          
           <Stops_list></Stops_list>
         </Tab.Pane>
       </Tab.Content>
