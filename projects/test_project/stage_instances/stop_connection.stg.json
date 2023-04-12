@@ -2,8 +2,9 @@
 	"timeCreated":"2012-04-23T18:25:43.511Z",
 	"dependencyGraph":"../test_dependency_graph.dg.json",
 	"format":"STOP_CONNECTION_GRAPH",
-	"generatedBy": "GEN_STOPS",
+	"generatedBy": "GEN_STOP_CONNECTION_GRAPH",
 	"nodeInGraph":null,
 	"parentStageInstances":["STOPS_1.stg.json"],
+	"siblingStageInstances": [],
 	"datafile":"stop-connection-graph.json"
 }
