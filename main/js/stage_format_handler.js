@@ -18,7 +18,8 @@ class StageFormatHandler {
 	 * @param {string} filePath Location of .fmt.js file
 	 */
 	loadStageFormat(filePath) {
-		var fmt = require(filePath);
+		const {StageFormatImpl} = require(filePath);
+		const fmt = StageFormatImpl;
 		// check that the fmt contains the correct keys
 		if (! "id" in fmt) {
 			throw new Error("Stage format at " + filePath + " does not contain 'id' property");
@@ -70,6 +71,12 @@ class StageFormatHandler {
 
 		// open metadata and data buffer
 		const {data, metadata}  = await file_handler.openStageFormat("", "", metadataFilePath);
+
+		const primaryInstance = {
+			data: data,
+			metadata: metadata,
+			metadataFilePath: metadataFilePath
+		}
 		
 		// find the correct display framework
 		let stage = this.loadedStageFormats.find((x) => x.id == metadata.format);
@@ -82,7 +89,7 @@ class StageFormatHandler {
 
 
 		// open the supplied requirements and check that they match the expected ones
-		var requirementBufs = [];
+		var requirementInstances = [];
 		for (let i = 0; i < stage.requirements.length; i++) {
 			const fmt = await file_handler.openStageFormat("", "", requirementsMetadataFilePaths[i]);
 			const requirementMetadata = fmt.metadata;
@@ -90,11 +97,15 @@ class StageFormatHandler {
 			if (requirementMetadata.format != stage.requirements[i]) {
 				throw new Error("Requirement " + i + " for display framework \"" + stage.id + "\" does not match the expected stage format \"" + stage.requirements[i] + "\" (got \""+requirementMetadata.format+"\")");
 			}
-			requirementBufs.push(requirementBuf);
+			requirementInstances.push({
+				data: requirementBuf,
+				metadata: requirementMetadata,
+				metadataFilePath: requirementsMetadataFilePaths[i]
+			})
 		}
 
 		// todo could erro check
-		return stage.displayFramework(data, requirementBufs);
+		return stage.displayFramework(primaryInstance, requirementInstances, this);
 
 
 	}
@@ -106,7 +117,7 @@ class StageFormatHandler {
 	 * 
 	 * @param {Object} newMetadata Contents of new .stg.json file
 	 */
-	async saveAs(projPath, oldMetadataPath, oldRequirementsMetadataPaths,  newMetadata, stops, routes, metadataDir=undefined) {
+	async saveStageInstanceAs(projPath, oldMetadataPath, oldRequirementsMetadataPaths,  newMetadata, stops, routes, metadataDir=undefined) {
 
 		const oldMetadata = JSON.parse(await fsp.readFile(oldMetadataPath, { encoding: "utf-8", flag: "r" }));
 
@@ -235,4 +246,68 @@ class StageFormatHandler {
 
 }
 
-module.exports = {StageFormatHandler}
+/**
+ * A bus stop in the format used to communicate with the render
+ * @typedef {{lat: number; lon: number; id: number; name: string | undefined; hidden_attrs: any; user_attrs: any;}} BNOPIStop
+ */
+
+/**
+ * A bus rute in the format used to communicate with the renderer
+ * @typedef {{id: number; name: string | undefined; points: {lat: number; lon: number;}}} BNOPIRoute
+ */
+
+
+/**
+ * Interface for stage formats. Each *.fmt.json* file must export a class StageFormatImpl, with extends this.
+ */
+class StageFormat {
+
+
+	static get name() {
+		return "Untitled Stage";
+	}
+
+	static get id() {
+		return "NO_FORMAT"
+	}
+
+	static get requirements() {
+		return []
+	}
+
+	static get description() {
+		return "Stage with no name."
+	}
+
+	static get fileExtension() {
+		return "dat"
+	}
+
+	/** Convert a stage instance to bnopi stops and routes.
+	 * 
+	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}} primaryInstance Data and metadata about the primary instance
+	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}[]} requirementInstances Data and metadata about requirement instance.
+	 * @param {StageFormatHandler} stageFormatHandler The stage format handler, with method for accessing other stage formats
+	 * @returns {{stops:BNOPIStop[], routes:BNOPIRoute[]}}
+	 */
+	static displayFramework(primaryInstance, requirementInstances, stageFormatHandler) {
+		return {stops: [], routes: []}
+	}
+
+	/** Convert bnopi stops and routes to a stage instance
+	 * 
+	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}} primaryInstance Data and metadata about the original primary instance
+	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}[]} requirementInstances  Data and metadata about the original requirement instances
+	 * @param {BNOPIStop[]} stops All stops that were displaying in the BNOPI interface at the time of save
+	 * @param {BNOPIRoute[]} routes All routes that were displaying
+	 * @param {StageFormatHandler} stageFormatHandler The stage format handler, with method for accessing other stage formats
+	 * @returns {{primaryInstance: (Buffer | undefined), requirementInstances: (Buffer | undefined)[]}} New stage instances to write to disk. If undefined, BNOPI will continue to use the old stage instances.
+	 */
+	static editingFramework(primaryInstance, requirementInstances, stops, routes, stageFormatHandler) {
+
+		return {primaryInstance: undefined, requirementInstances: []}
+
+	}
+}
+
+module.exports = {StageFormatHandler, StageFormat}

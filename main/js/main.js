@@ -117,6 +117,7 @@ app.whenReady().then(() => {
   ipcMain.handle("getProjectMetadata", async (event, ...args) => file_handler.getProjectMetadata(...args));
   ipcMain.handle("addToRecents", async (event, ...args) => file_handler.addToRecents(...args));
   ipcMain.handle("loadStageInstance", async (event, ...args) => sfh.loadStageInstance(...args));
+  ipcMain.handle("saveStageInstanceAs", async (event, ...args) => sfh.saveStageInstanceAs(...args));
 
   // ================================================================
   // inter-window communication between the launch page and the main window

@@ -222,6 +222,34 @@ function displayBNOPIRoute(route) {
     })()
 
 
+}
+
+/** Collect all stops and routes from the interface, then pass arguments through to back end for the editing framework.
+ * 
+ * @param {String} projPath 
+ * @param {String} oldMetadataPath 
+ * @param {String[]} oldRequirementsMetadataPaths 
+ * @param {any} newMetadata 
+ * @param {String | undefined} metadataDir 
+ */
+function saveCurrentlyDisplayingStageInstance(projPath, oldMetadataPath, oldRequirementsMetadataPaths, newMetadata, metadataDir=undefined) {
+
+
+}
+
+function getCurrentlyDisplaying() {
+
+    var bnopiStops = [];
+    var bnopiRoutes = [];
+
+
+
+    busStops.forEach((marker) => {
+        const bnopiStop = {
+            lat:marker.position.latLng
+        };
+    });
+
 
 
 }
