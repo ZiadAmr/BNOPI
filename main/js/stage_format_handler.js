@@ -18,8 +18,7 @@ class StageFormatHandler {
 	 * @param {string} filePath Location of .fmt.js file
 	 */
 	loadStageFormat(filePath) {
-		const {StageFormatImpl} = require(filePath);
-		const fmt = StageFormatImpl;
+		const fmt = require(filePath);
 		// check that the fmt contains the correct keys
 		if (! "id" in fmt) {
 			throw new Error("Stage format at " + filePath + " does not contain 'id' property");

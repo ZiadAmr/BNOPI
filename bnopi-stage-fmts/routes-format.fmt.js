@@ -18,7 +18,7 @@ module.exports = class StageFormatImpl extends StageFormat {
 		const stopsData = requirementInstances[1].data;
 
 		// reuse the stops display framework to display the stops here
-		const { stops } = StopsFormat.displayFramework(stopsData, []);
+		const { stops } = StopsFormat.displayFramework(requirementInstances[1], []);
 
 		// parse the JSON files
 		const decoder = new TextDecoder('utf-8');
