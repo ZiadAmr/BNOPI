@@ -23,7 +23,7 @@ const file_handler = require("./file_handler")
 
 /**
  * A bus rute in the format used to communicate with the renderer
- * @typedef {{id: number; name: string | undefined; points: {lat: number; lon: number;}}} BNOPIRoute
+ * @typedef {{id: number; name: string | undefined; points: {lat: number; lon: number;}[], stops:number[], hidden_attrs: any, user_attrs: any}} BNOPIRoute
  */
 
 
@@ -392,8 +392,8 @@ class StageFormat {
 
 	/** Converts a stage instance to bnopi stops and routes.
 	 * 
-	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}} primaryInstance Data and metadata about the primary instance
-	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}[]} requirementInstances Data and metadata about requirement instance.
+	 * @param {BNOPIInstance} primaryInstance Data and metadata about the primary instance
+	 * @param {BNOPIInstance[]} requirementInstances Data and metadata about requirement instance.
 	 * @param {StageFormatHandler} stageFormatHandler The stage format handler, with methods for accessing other stage formats
 	 * @returns {{stops:BNOPIStop[], routes:BNOPIRoute[]}}
 	 */
@@ -403,8 +403,8 @@ class StageFormat {
 
 	/** Converts bnopi stops and routes to a stage instance
 	 * 
-	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}} primaryInstance Data and metadata about the original primary instance
-	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}[]} requirementInstances  Data and metadata about the original requirement instances
+	 * @param {BNOPIInstance} primaryInstance Data and metadata about the original primary instance
+	 * @param {BNOPIInstance[]} requirementInstances  Data and metadata about the original requirement instances
 	 * @param {BNOPIStop[]} stops All stops that were displaying in the BNOPI interface at the time of save
 	 * @param {BNOPIRoute[]} routes All routes that were displaying
 	 * @param {StageFormatHandler} stageFormatHandler The stage format handler, with method for accessing other stage formats

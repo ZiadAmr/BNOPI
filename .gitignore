@@ -84,3 +84,6 @@ build/
 
 # IDE files
 .vscode/
+
+# jsdoc
+out/

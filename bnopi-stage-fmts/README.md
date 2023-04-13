@@ -73,16 +73,19 @@ type BNOPIStop = {
 
 ```typescript
 type BNOPIRoute = {
-	id: number;
-	name: string | undefined;
-	points: {
-		lat: number;
-		lon: number;
-	};
+    id: number;
+    name: string | undefined;
+    points: {
+        lat: number;
+        lon: number;
+    }[];
+    stops: number[];
+    hidden_attrs: any;
+    user_attrs: any;
 }
 ```
 
-where the `points` list is a list of geographical points that the route passes through.
+where the `points` list is a list of geographical points that the route passes through, and `stops` is a list of stop ids, referencing `BNOPIStop`s.
 
 
 ## Procedure for editing a stage instance
