@@ -11,7 +11,7 @@ Front end
 + ~~Save/load project in main window~~
 + Display/editing frameworks
 	+ ~~Stops~~
-	+ Routes
+	+ ~~Routes~~
 	+ stop connection graph (??)
 	+ roads (??)
 + Automatically add new id to stops and routes
