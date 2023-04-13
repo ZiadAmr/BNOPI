@@ -4,6 +4,7 @@
 #include "common.hpp"
 #include <vector>
 #include <utility>
+#include <algorithm>
 
 // need time t for time required to transfer between routes, need theta to measure inconvenience of the transfer
 // transit edges have length t + theta
@@ -33,7 +34,13 @@ void djikstra(RouteNet routes, std::vector<Stop> stops, int source, int destinat
 
     int *neighbours = new int[stops.size()*stops.size()]();
     for(int i = 0; i < routes.size(); i++){
-        
+        for(int j = 0; j < routes[i].size(); j++){
+            int start = routes[i][j]->start->id;
+            int end = routes[i][j]->start->id;
+
+            auto start_loc = std::find_if(stops.begin(), stops.end(), [start](const Stop& st){return st.id == start;}) - stops.begin();
+            auto end_loc = std::find_if(stops.begin(), stops.end(), [end](const Stop& st){return st.id == end;}) - stops.begin();
+        }
     }
 
     std::vector<bool> visited;
