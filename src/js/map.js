@@ -1,3 +1,27 @@
+/**
+ * Instance type passed to display and editing frameworks
+ * @typedef {{data: Buffer, metadata: InstanceMetadata, metadataFilePath: String}} BNOPIInstance
+ */
+
+/**
+ * Contents of a stage instance metadata file
+ * @typedef {{timeCreated: string, dependencyGraph: string, format: string, generatedBy: string, nodeInGraph:(number|null), parentStageInstances:string[], siblingStageInstances:string[], datafile:string}} InstanceMetadata
+ */
+
+/**
+ * A bus stop in the format used to communicate with the render
+ * @typedef {{lat: number; lon: number; id: number; name: string | undefined; hidden_attrs: any; user_attrs: any;}} BNOPIStop
+ */
+
+
+/**
+ * A bus route in the format used to communicate with the renderer
+ * @typedef {{id: number; name: string | undefined; links: {lat: number; lon: number;}[][], stops:number[], hidden_attrs: any, user_attrs: any}} BNOPIRoute
+ */
+
+
+
+
 //Variable storing the google maps embedding
 var map;
 
@@ -197,7 +221,7 @@ function displayBNOPIStop(stop) {
 /**
  * Display a route from the BNOPI format (that which is received from the stage format handler).
  * 
- * @param {{id: number; name: string | undefined; points: {lat: number; lon: number;}[]; hidden_attrs: any; user_attrs: any;}} route Route in BNOPI format
+ * @param {BNOPIRoute} route Route in BNOPI format
  */
 function displayBNOPIRoute(route) {
 
@@ -209,18 +233,25 @@ function displayBNOPIRoute(route) {
     // create google maps poly line
     // first convert to google maps poly_points
     poly_points = [];
-    for (const point of route.points) {
-        const latlng = new google.maps.LatLng(
-            point.lat,
-            point.lon
-        )
-        poly_points.push(latlng)
+    for (const link of route.links) {
+        for (const point of link) {
+            const latlng = new google.maps.LatLng(
+                point.lat,
+                point.lon
+            )
+            poly_points.push(latlng)
+        }
     }
+
+    // TODO in future we should convert to a polyLine for each link.
+    // then each polyline is guaranteed to begin and end at a stop
 
     const color = "#" + Math.floor(Math.random() * 16777215).toString(16);
     polyLine = new google.maps.Polyline({
         id: route.id,
         name: name,
+        stops: route.stops,
+        links: route.links,
         bnopiUserAttrs: route.user_attrs,
         bnopiHiddenAttrs: route.hidden_attrs,
         path: poly_points,
@@ -287,8 +318,9 @@ function getCurrentlyDisplaying() {
         return {
             id: polyLine.id,
             name: polyLine.name,
-            points: points,
-            stops: polyLine.stops || [], // not implemented yet.
+            // points: points,
+            stops: polyLine.stops,
+            links: polyLine.links, // this needs to be updated by the front end. It needs to know which section of the polyline has been changed, and then make the changes within the polyLine.links property.
             hidden_attrs: polyLine.bnopiHiddenAttrs,
             user_attrs: polyLine.bnopiUserAttrs
         }

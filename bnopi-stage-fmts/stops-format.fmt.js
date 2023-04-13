@@ -12,7 +12,7 @@ module.exports = class StageFormatImpl extends StageFormat {
 	static get fileExtension() {return "json"}
 
 	/** 
-	 * @inheritdoc
+	 * @type {StageFormat.displayFramework}
 	 */
 	static displayFramework(primaryInstance) {
 
@@ -40,7 +40,7 @@ module.exports = class StageFormatImpl extends StageFormat {
 	}
 
 	/**
-	 * @inheritdoc
+	 * @type {StageFormat.editingFramework}
 	 */
 	static editingFramework(primaryInstance, requirementInstances, stops) {
 

@@ -21,9 +21,10 @@ const file_handler = require("./file_handler")
  * @typedef {{lat: number; lon: number; id: number; name: string | undefined; hidden_attrs: any; user_attrs: any;}} BNOPIStop
  */
 
+
 /**
- * A bus rute in the format used to communicate with the renderer
- * @typedef {{id: number; name: string | undefined; points: {lat: number; lon: number;}[], stops:number[], hidden_attrs: any, user_attrs: any}} BNOPIRoute
+ * A bus route in the format used to communicate with the renderer
+ * @typedef {{id: number; name: string | undefined; links: {lat: number; lon: number;}[][], stops:number[], hidden_attrs: any, user_attrs: any}} BNOPIRoute
  */
 
 
