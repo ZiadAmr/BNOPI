@@ -163,12 +163,12 @@ class StageFormatHandler {
 	 * 
 	 * 
 	 * @param {string} oldPrimaryMetadataPath 
-	 * @param {string[]} oldRequirementsMetadataPaths 
+	 * @param {string[]} oldRequirementsMetadataPaths
 	 * @param {BNOPIStop[]} stops 
 	 * @param {BNOPIRoute[]} routes 
 	 * @returns {Promise<{newestPrimaryMetadataPath: string, newestRequirementsMetadataPaths: string[]}>} Locations of the most up-to-date versions of the requirements, to reflect how some of them may have been updated.
 	 */
-	async saveStageInstanceAs(oldPrimaryMetadataPath, oldRequirementsMetadataPaths, stops, routes) {
+	async saveStageInstanceAs(oldPrimaryMetadataPath, oldRequirementsMetadataPaths=[], stops, routes) {
 
 		// load all old stage instances
 		const { primaryInstance, requirementInstances } = await this.openPrimaryAndRequirementInstances(oldPrimaryMetadataPath, oldRequirementsMetadataPaths);
@@ -199,11 +199,11 @@ class StageFormatHandler {
 		/** @type {BNOPIInstance | null} */
 		var newPrimaryInstance = null;
 		/** @type {(BNOPIInstance | null)[]} */
-		var newRequirementInstances;
+		var newRequirementInstances = [];
 
 		// decide where to save the new stage instance(s)
 		if (typeof edits.primaryData != "undefined") {
-			newPrimaryInstance = await editInstance(primaryInstance, edits.primaryData, "primary");
+			newPrimaryInstance = await this.editInstance(primaryInstance, edits.primaryData, "primary");
 			newPrimaryInstance.metadata.parentStageInstances = parents;
 			siblings.push(newPrimaryInstance.metadataFilePath);
 
@@ -217,7 +217,7 @@ class StageFormatHandler {
 			if (newData === null) {
 				newRequirementInstances.push(null);
 			} else {
-				const newInstance = await editInstance(oldInstance, newData, "requirement");
+				const newInstance = await this.editInstance(oldInstance, newData, "requirement");
 				newInstance.metadata.parentStageInstances = parents;
 				newRequirementInstances.push(newInstance);
 				siblings.push(newInstance.metadataFilePath);
@@ -303,9 +303,18 @@ class StageFormatHandler {
 			N = parseInt(match[3]);
 		}
 		// increase N until there is an available file name
-		while (await fsp.access(path.resolve(metadataDir, `${nameStem}_${alg}_${N}.stg.json`))) {
-			N++;
-		}
+		var newPathExists = true;
+		do {
+			try {
+				await fsp.access(path.resolve(metadataDir, `${nameStem}_${alg}_${N}.stg.json`))
+				N++;
+			} catch {
+				newPathExists = false;
+				// if there was an error then this file does not exist. then we can write to this location
+				// bad code. ought to make it not bad
+			}
+		} while (newPathExists);
+
 		const newMetadataPath = path.resolve(metadataDir, `${nameStem}_${alg}_${N}.stg.json`);
 
 
@@ -321,19 +330,21 @@ class StageFormatHandler {
 			const expr = /(.*)\.stg\.json/;
 			const nameStem = path.basename(newMetadataPath).match(expr)[1];
 			// relative path, and since this is in the same folder as the metadata file we don't need to worry.
-			newMetadata.datafile = nameStem + "." + dataFileExtension;
+			// get the data file extension
+			const fileExtension = this.loadedStageFormats.find((x) => x.id == oldInstance.metadata.format).fileExtension;
+			newMetadata.datafile = nameStem + "." + fileExtension;
 		}
 
 
 
 		// fill in rest of new metadata
 		newMetadata.timeCreated = (new Date()).toJSON();
-		newMetadata.dependencyGraph = primaryInstance.metadata.dependencyGraph;
-		newMetadata.format = primaryInstance.metadata.format;
+		newMetadata.dependencyGraph = oldInstance.metadata.dependencyGraph;
+		newMetadata.format = oldInstance.metadata.format;
 		newMetadata.generatedBy = alg;
-		newMetadata.nodeInGraph = primaryInstance.metadata.nodeInGraph;
+		newMetadata.nodeInGraph = oldInstance.metadata.nodeInGraph;
 		// parent stage instances refer to to stage instances that were used to create this, i.e. the data and requirements
-		newMetadata.parentStageInstances = [primaryInstance.metadataFilePath];
+		newMetadata.parentStageInstances = [oldInstance.metadataFilePath];
 		newMetadata.siblingStageInstances = []; // other stage instances that were generated at the same time (come back to this later)
 
 		return {

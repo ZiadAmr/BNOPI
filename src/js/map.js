@@ -7,6 +7,16 @@ var apiKey = 'AIzaSyAWmWHoyHgni9A2p4kYBloFIuTeE4linzo';
 var drawingManager;
 var snappedCoordinates = [];
 
+// keep track of the current stage instance
+/** Save automatically when opening a new stage instance */
+var autoSave = false;
+/** If there is a stage instance currently open */
+var isDisplayingStageInstance = false;
+/** If there is a stage instance currently open, what are the path(s) that were given to the display framework?
+ * @type {{instanceMetdataPath: string, requirementMetadataPaths: string[]}|null} */
+var currentStageInstance = null;
+
+
 
 //Elements relating to editing a polyline
 var selectedPolyline = null;    //When a user clicks on another polyline after editing one (instead of clicking save), this variable will be used to change the setting to editable = false
@@ -64,10 +74,10 @@ async function openProject(projPath) {
     console.log(projMetadata);
 
     // TODO hard code it to open the route network
-    const routesInstancePath = stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "temp.stg.json").path;
+    const routesInstancePath = stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "routes.stg.json").path;
     const requirementMetadataPaths = [
-        stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "stop_connection.stg.json").path,
-        stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "STOPS_1.stg.json").path, 
+        stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "stop-connection-graph.stg.json").path,
+        stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "stops.stg.json").path, 
     ];
     displayStageInstance(routesInstancePath, requirementMetadataPaths);
 
@@ -76,7 +86,7 @@ async function openProject(projPath) {
     // const re = /STOPS_1/;
     // const stopsInstance = stageInstances.find((ins) => ins.path.match(re) != null);
     // displayStageInstance(stopsInstance.path);
-    console.log(polyMap);
+    // console.log(polyMap);
     return null;
 
 
@@ -84,7 +94,10 @@ async function openProject(projPath) {
 
 async function displayStageInstance(instanceMetdataPath, requirementMetadataPaths) {
 
-    // save the currently open stage instance TODO!
+    // save the currently open stage instance
+    if (autoSave && isDisplayingStageInstance) {
+        await saveStageInstanceAs(currentStageInstance.instanceMetdataPath, currentStageInstance.requirementMetadataPaths);
+    }
 
     // clear any stage instance already diplaying
     busStops.forEach(stop => {
@@ -96,18 +109,40 @@ async function displayStageInstance(instanceMetdataPath, requirementMetadataPath
     busStops.clear();
     polyMap.clear();
 
-    
+    // call display framework
     const {stops, routes} = await window.electron.loadStageInstance(instanceMetdataPath, requirementMetadataPaths);
 
+    // render
     for (const stop of stops) {
         displayBNOPIStop(stop);
     }
-
     for (const route of routes) {
         displayBNOPIRoute(route);
     }
     
+    // store the metadata file paths
+    isDisplayingStageInstance = true;
+    currentStageInstance = {
+        instanceMetdataPath: instanceMetdataPath,
+        requirementMetadataPaths: requirementMetadataPaths
+    };
+
     window.dispatchEvent(new Event('routes_change'));
+}
+
+/**
+ * Save the currently displaying stage instance
+ * @param {string} oldPrimPath The path to the former primary instance (before the user made any edits) in the stage format that is currently display
+ * @param {string[]} oldReqPaths Paths to former requirement instances for the stage formats
+ */
+async function saveStageInstanceAs(oldPrimPath, oldReqPaths) {
+
+    // convert to bnopi stops and routes
+    const {BNOPIStops, BNOPIRoutes} = getCurrentlyDisplaying();
+
+    const { newestPrimaryMetadataPath, newestRequirementsMetadataPaths } = await window.electron.saveStageInstanceAs(oldPrimPath, oldReqPaths, BNOPIStops, BNOPIRoutes);
+
+    console.log("The newest versions of the stage instances are now ", newestPrimaryMetadataPath, newestRequirementsMetadataPaths);
 
 }
 
@@ -224,33 +259,42 @@ function displayBNOPIRoute(route) {
 
 }
 
-/** Collect all stops and routes from the interface, then pass arguments through to back end for the editing framework.
+
+/** Collects the stops and routes currently displaying on the screen
  * 
- * @param {String} projPath 
- * @param {String} oldMetadataPath 
- * @param {String[]} oldRequirementsMetadataPaths 
- * @param {any} newMetadata 
- * @param {String | undefined} metadataDir 
+ * @returns {BNOPIStop[], BNOPIRoute[]}
  */
-function saveCurrentlyDisplayingStageInstance(projPath, oldMetadataPath, oldRequirementsMetadataPaths, newMetadata, metadataDir=undefined) {
-
-
-}
-
 function getCurrentlyDisplaying() {
 
-    var bnopiStops = [];
-    var bnopiRoutes = [];
+    // convert to bnopi stops and routes
+    const BNOPIStops = Array.from(busStops.values()).map(marker => ({
+        lat: marker.getPosition().lat(),
+        lon: marker.getPosition().lng(),
+        id: marker.id,
+        name: marker.name,
+        hidden_attrs: marker.bnopiHiddenAttrs,
+        user_attrs: marker.bnopiUserAttrs
+    }));
 
-
-
-    busStops.forEach((marker) => {
-        const bnopiStop = {
-            lat:marker.position.latLng
-        };
+    const BNOPIRoutes = Array.from(polyMap.values()).map(polyLine => {
+        const points = [];
+        polyLine.getPath().forEach(googlePoint => {
+            points.push({
+                lat: googlePoint.lat(),
+                lon: googlePoint.lng()
+            });
+        });
+        return {
+            id: polyLine.id,
+            name: polyLine.name,
+            points: points,
+            stops: polyLine.stops || [], // not implemented yet.
+            hidden_attrs: polyLine.bnopiHiddenAttrs,
+            user_attrs: polyLine.bnopiUserAttrs
+        }
     });
 
-
+    return {BNOPIStops, BNOPIRoutes}
 
 }
 
