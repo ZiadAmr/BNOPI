@@ -7,6 +7,7 @@ export default function Properties() {
   const [prop, setProp] = useState('-1');
   const [value, setValue] = useState('');
   const [node, setNode] = useState('');
+  const [changed, setChanged] = useState('false');
 
   useEffect(() => {
     const handle_properties_change = (event) => {
@@ -14,7 +15,6 @@ export default function Properties() {
       const node_id = dpgraph.find(obj => obj.id === event.detail.id);
       setValue(node_id.name);
       setNode(node_id);
-      console.log(node_id)
     };
 
     window.addEventListener('showProperties', handle_properties_change);
@@ -25,11 +25,19 @@ export default function Properties() {
   }, []);
 
   const handleScriptLoad = (item) =>{
-    console.log(item)
+    node_to_update = dpgraph.find(obj => obj.id === prop);
+    node_to_update.description = item.meta.description
+    node_to_update.file = item.meta.launchScript
+    node_to_update.input_stage_formats = item.meta.inputStageFormats
+    node_to_update.output_stage_formats = item.meta.outputStageFormats 
+    node_to_update.name = item.meta.name
+    node_to_update.params = item.meta.params
+    
   }
+  
 
   let prop_node = null;
-
+  console.log("rendering");
   if (prop === '-1') {
     prop_node = <Typography>Select element to view properties</Typography>;
   } else {
@@ -49,7 +57,7 @@ export default function Properties() {
           />
         </div>
         {node.file === undefined ? 
-        <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '5px' }}>Script location: undefined</Typography>
+        <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '5px' }}>Script: undefined</Typography>
          : 
         <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px' }}>
           Script location: {node.file}

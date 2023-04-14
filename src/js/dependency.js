@@ -10,7 +10,9 @@ export function addStage(id, stageName, filename, parameters=[], parents=[]) {
         "file": filename,
         "params": parameters,
         "parents": parents,
-        "description": ""
+        "description": "",
+        "input_stage_formats":[],
+        "output_stage_formats":[],
     })
     return dpgraph;
 }
