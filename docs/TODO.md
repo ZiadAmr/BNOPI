@@ -14,7 +14,7 @@ Front end
 	+ ~~Routes~~
 	+ stop connection graph (??)
 	+ roads (??)
-+ Automatically add new id to stops and routes
++ ~~Automatically add new id to stops and routes~~
 
 Back end
 + Objective function algorithm (could do)
