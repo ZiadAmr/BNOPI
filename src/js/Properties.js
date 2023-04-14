@@ -7,7 +7,7 @@ export default function Properties() {
   const [prop, setProp] = useState('-1');
   const [value, setValue] = useState('');
   const [node, setNode] = useState('');
-  const [path, setPath] = useState('');
+  const [path, setPath] = useState('Unspecified');
 
   useEffect(() => {
     const handle_properties_change = (event) => {
@@ -15,7 +15,6 @@ export default function Properties() {
       const node_id = dpgraph.find(obj => obj.id === event.detail.id);
       setValue(node_id.name);
       setNode(node_id);
-      console.log(node_id);
       setPath(node_id.file.bash)
     };
 
