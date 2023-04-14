@@ -118,6 +118,7 @@ app.whenReady().then(() => {
   ipcMain.handle("addToRecents", async (event, ...args) => file_handler.addToRecents(...args));
   ipcMain.handle("loadStageInstance", async (event, ...args) => sfh.loadStageInstance(...args));
   ipcMain.handle("saveStageInstanceAs", async (event, ...args) => sfh.saveStageInstanceAs(...args));
+  ipcMain.handle("openBNOPIALG", async (event) => file_handler.openBNOPIAlg());
 
   // ================================================================
   // inter-window communication between the launch page and the main window

@@ -1,6 +1,4 @@
 const { memo } = require('react')
-
-let dpgraph = []
 let memory = {}
 
 // Add breakpoints
@@ -12,6 +10,7 @@ export function addStage(id, stageName, filename, parameters=[], parents=[]) {
         "file": filename,
         "params": parameters,
         "parents": parents,
+        "description": ""
     })
     return dpgraph;
 }

@@ -6,8 +6,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { faZ } from '@fortawesome/free-solid-svg-icons';
-import Routes_list from './routes_list';
+import Routes_list from './Routes_list';
 import Stops_list from './Stops_list';
+import Properties from './Properties';
 
 
 export default function Description() {
@@ -28,7 +29,7 @@ export default function Description() {
       </Nav>
       <Tab.Content id='routes_stops_content'>
         <Tab.Pane eventKey="Properties">
-          
+          <Properties></Properties>
         </Tab.Pane>
         <Tab.Pane eventKey="Routes_and_Stops">
           <Routes_list></Routes_list>
