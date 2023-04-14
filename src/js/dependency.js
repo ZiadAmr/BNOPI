@@ -3,14 +3,14 @@ let memory = {}
 
 // Add breakpoints
 
-export function addStage(id, stageName, filename, parameters=[], parents=[]) {
+export function addStage(id, stageName, filename, parameters=[], parents=[], description) {
     dpgraph.push({
         "id": id,
         "name": stageName,
         "file": filename,
         "params": parameters,
         "parents": parents,
-        "description": "",
+        "description": description,
         "input_stage_formats":[],
         "output_stage_formats":[],
     })
