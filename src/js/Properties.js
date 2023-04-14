@@ -35,8 +35,8 @@ export default function Properties() {
 
   const handle_desc_change = (event) => {
     setDescription(event.target.value);
-    const node_id = dpgraph.find(obj => obj.id === prop)
-    node_id.description = event.target.description
+    var node_id = dpgraph.find(obj => obj.id === prop)
+    node_id.description = event.target.value
   }
 
   const handleScriptLoad = useCallback(async (item) =>{
