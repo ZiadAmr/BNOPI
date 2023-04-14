@@ -17,6 +17,23 @@
       window.localStorage.setItem('mode', 0);
       window.localStorage.setItem("routeCounter", 0);
       var polyMap = new Map();
+
+      // path to folder of currently open project
+      var projectPath;
+
+      // list of stage instances of project
+      /** @type {{path: string, metadata: InstanceMetadata}[]} */
+      var stageInstances = [];
+
+      // keep track of the current stage instance
+      /** Save automatically when opening a new stage instance */
+      var autoSave = false;
+      /** If there is a stage instance currently open */
+      var isDisplayingStageInstance = false;
+      /** If there is a stage instance currently open, what are the path(s) that were given to the display framework?
+       * @type {{instanceMetdataPath: string, requirementMetadataPaths: string[]}|null} */
+      var currentStageInstance = null;
+
     </script>
 
     <!--Include JQuery for api calls-->
