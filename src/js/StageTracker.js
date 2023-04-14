@@ -83,7 +83,7 @@ export default function StageTracker() {
 			<Typography variant="h6" gutterBottom style={{ textAlign: 'center', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px' }}>
 				Stage Tracker
 			</Typography>
-			<List dense={true} style={{ maxHeight: 200, overflow: 'auto' }}>
+			<List dense={true} style={{ maxHeight: '100%', overflow: 'auto' }}>
 				{generate_listing}
 			</List>
 		</>
