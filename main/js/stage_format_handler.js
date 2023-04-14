@@ -27,6 +27,10 @@ const file_handler = require("./file_handler")
  * @typedef {{id: number; name: string | undefined; links: {lat: number; lon: number;}[][], stops:number[], hidden_attrs: any, user_attrs: any}} BNOPIRoute
  */
 
+/**
+ * @typedef {{name: string;id: string; requirements: string[]; description: string; fileExtension: string;}} StageFormatInfo
+ */
+
 
 class StageFormatHandler {
 
@@ -353,6 +357,27 @@ class StageFormatHandler {
 			metadata: newMetadata,
 			metadataFilePath: newMetadataPath
 		};
+	}
+
+
+	/**
+	 * 
+	 * @param {string} stageFormatID 
+	 * @returns Result of getters from the StageFormat class.
+	 */
+	getStageFormatInfo(stageFormatID) {
+		const stage = this.loadedStageFormats.find((x) => x.id == stageFormatID);
+		if (typeof stage == "undefined") {
+			return undefined;
+		}
+		return {
+			name: stage.name,
+			id: stage.id,
+			requirements: stage.requirements,
+			description: stage.description,
+			fileExtension: stage.fileExtension
+		}
+
 	}
 }
 

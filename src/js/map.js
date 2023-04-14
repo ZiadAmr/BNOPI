@@ -80,11 +80,21 @@ async function openProject(projPath) {
     const projMetadata = await window.electron.getProjectMetadata(projPath);
     
     // get list of stage instances
-    /** @type {{path: string, metadata: InstanceMetadata}[]} */
+    /**
+    * @typedef {{name: string;id: string; requirements: string[]; description: string; fileExtension: string;}} StageFormatInfo
+    * @type {{path: string, metadata: InstanceMetadata, stageFormatInfo: StageFormatInfo|undefined}[]} 
+    * */
     const newStageInstances = await window.electron.getListOfStageFormat(projPath);
+
+    // load any additional algorithms and formats specified in the info folder TODO
     
     // get dependency graph (not implemented)
     // TODO
+
+    // add info about the stage formats to each instance
+    for (const inst of newStageInstances) {
+        inst.stageFormatInfo = await window.electron.getStageFormatInfo(inst.metadata.format);
+    }
 
 
     // clear the stage tracker and add the list of stages to it
