@@ -21,9 +21,10 @@ const file_handler = require("./file_handler")
  * @typedef {{lat: number; lon: number; id: number; name: string | undefined; hidden_attrs: any; user_attrs: any;}} BNOPIStop
  */
 
+
 /**
- * A bus rute in the format used to communicate with the renderer
- * @typedef {{id: number; name: string | undefined; points: {lat: number; lon: number;}}} BNOPIRoute
+ * A bus route in the format used to communicate with the renderer
+ * @typedef {{id: number; name: string | undefined; links: {lat: number; lon: number;}[][], stops:number[], hidden_attrs: any, user_attrs: any}} BNOPIRoute
  */
 
 
@@ -163,12 +164,12 @@ class StageFormatHandler {
 	 * 
 	 * 
 	 * @param {string} oldPrimaryMetadataPath 
-	 * @param {string[]} oldRequirementsMetadataPaths 
+	 * @param {string[]} oldRequirementsMetadataPaths
 	 * @param {BNOPIStop[]} stops 
 	 * @param {BNOPIRoute[]} routes 
 	 * @returns {Promise<{newestPrimaryMetadataPath: string, newestRequirementsMetadataPaths: string[]}>} Locations of the most up-to-date versions of the requirements, to reflect how some of them may have been updated.
 	 */
-	async saveStageInstanceAs(oldPrimaryMetadataPath, oldRequirementsMetadataPaths, stops, routes) {
+	async saveStageInstanceAs(oldPrimaryMetadataPath, oldRequirementsMetadataPaths=[], stops, routes) {
 
 		// load all old stage instances
 		const { primaryInstance, requirementInstances } = await this.openPrimaryAndRequirementInstances(oldPrimaryMetadataPath, oldRequirementsMetadataPaths);
@@ -199,11 +200,11 @@ class StageFormatHandler {
 		/** @type {BNOPIInstance | null} */
 		var newPrimaryInstance = null;
 		/** @type {(BNOPIInstance | null)[]} */
-		var newRequirementInstances;
+		var newRequirementInstances = [];
 
 		// decide where to save the new stage instance(s)
 		if (typeof edits.primaryData != "undefined") {
-			newPrimaryInstance = await editInstance(primaryInstance, edits.primaryData, "primary");
+			newPrimaryInstance = await this.editInstance(primaryInstance, edits.primaryData, "primary");
 			newPrimaryInstance.metadata.parentStageInstances = parents;
 			siblings.push(newPrimaryInstance.metadataFilePath);
 
@@ -217,7 +218,7 @@ class StageFormatHandler {
 			if (newData === null) {
 				newRequirementInstances.push(null);
 			} else {
-				const newInstance = await editInstance(oldInstance, newData, "requirement");
+				const newInstance = await this.editInstance(oldInstance, newData, "requirement");
 				newInstance.metadata.parentStageInstances = parents;
 				newRequirementInstances.push(newInstance);
 				siblings.push(newInstance.metadataFilePath);
@@ -303,9 +304,18 @@ class StageFormatHandler {
 			N = parseInt(match[3]);
 		}
 		// increase N until there is an available file name
-		while (await fsp.access(path.resolve(metadataDir, `${nameStem}_${alg}_${N}.stg.json`))) {
-			N++;
-		}
+		var newPathExists = true;
+		do {
+			try {
+				await fsp.access(path.resolve(metadataDir, `${nameStem}_${alg}_${N}.stg.json`))
+				N++;
+			} catch {
+				newPathExists = false;
+				// if there was an error then this file does not exist. then we can write to this location
+				// bad code. ought to make it not bad
+			}
+		} while (newPathExists);
+
 		const newMetadataPath = path.resolve(metadataDir, `${nameStem}_${alg}_${N}.stg.json`);
 
 
@@ -321,19 +331,21 @@ class StageFormatHandler {
 			const expr = /(.*)\.stg\.json/;
 			const nameStem = path.basename(newMetadataPath).match(expr)[1];
 			// relative path, and since this is in the same folder as the metadata file we don't need to worry.
-			newMetadata.datafile = nameStem + "." + dataFileExtension;
+			// get the data file extension
+			const fileExtension = this.loadedStageFormats.find((x) => x.id == oldInstance.metadata.format).fileExtension;
+			newMetadata.datafile = nameStem + "." + fileExtension;
 		}
 
 
 
 		// fill in rest of new metadata
 		newMetadata.timeCreated = (new Date()).toJSON();
-		newMetadata.dependencyGraph = primaryInstance.metadata.dependencyGraph;
-		newMetadata.format = primaryInstance.metadata.format;
+		newMetadata.dependencyGraph = oldInstance.metadata.dependencyGraph;
+		newMetadata.format = oldInstance.metadata.format;
 		newMetadata.generatedBy = alg;
-		newMetadata.nodeInGraph = primaryInstance.metadata.nodeInGraph;
+		newMetadata.nodeInGraph = oldInstance.metadata.nodeInGraph;
 		// parent stage instances refer to to stage instances that were used to create this, i.e. the data and requirements
-		newMetadata.parentStageInstances = [primaryInstance.metadataFilePath];
+		newMetadata.parentStageInstances = [oldInstance.metadataFilePath];
 		newMetadata.siblingStageInstances = []; // other stage instances that were generated at the same time (come back to this later)
 
 		return {
@@ -392,8 +404,8 @@ class StageFormat {
 
 	/** Converts a stage instance to bnopi stops and routes.
 	 * 
-	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}} primaryInstance Data and metadata about the primary instance
-	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}[]} requirementInstances Data and metadata about requirement instance.
+	 * @param {BNOPIInstance} primaryInstance Data and metadata about the primary instance
+	 * @param {BNOPIInstance[]} requirementInstances Data and metadata about requirement instance.
 	 * @param {StageFormatHandler} stageFormatHandler The stage format handler, with methods for accessing other stage formats
 	 * @returns {{stops:BNOPIStop[], routes:BNOPIRoute[]}}
 	 */
@@ -403,8 +415,8 @@ class StageFormat {
 
 	/** Converts bnopi stops and routes to a stage instance
 	 * 
-	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}} primaryInstance Data and metadata about the original primary instance
-	 * @param {{data: Buffer, metadata:any, metadataFilePath:String}[]} requirementInstances  Data and metadata about the original requirement instances
+	 * @param {BNOPIInstance} primaryInstance Data and metadata about the original primary instance
+	 * @param {BNOPIInstance[]} requirementInstances  Data and metadata about the original requirement instances
 	 * @param {BNOPIStop[]} stops All stops that were displaying in the BNOPI interface at the time of save
 	 * @param {BNOPIRoute[]} routes All routes that were displaying
 	 * @param {StageFormatHandler} stageFormatHandler The stage format handler, with method for accessing other stage formats

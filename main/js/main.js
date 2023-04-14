@@ -10,7 +10,9 @@ const { electron } = require('process');
 
 const isDev = !app.isPackaged;
 
+/** @type {BrowserWindow} */
 var mainWindow; // BrowserWindow
+/** @type {StageFormatHandler} */
 var sfh; // StageFormatHandler
 
 function createWindow() {

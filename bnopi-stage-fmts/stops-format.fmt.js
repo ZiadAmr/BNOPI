@@ -12,7 +12,7 @@ module.exports = class StageFormatImpl extends StageFormat {
 	static get fileExtension() {return "json"}
 
 	/** 
-	 * @inheritdoc
+	 * @type {StageFormat.displayFramework}
 	 */
 	static displayFramework(primaryInstance) {
 
@@ -40,14 +40,14 @@ module.exports = class StageFormatImpl extends StageFormat {
 	}
 
 	/**
-	 * @inheritdoc
+	 * @type {StageFormat.editingFramework}
 	 */
 	static editingFramework(primaryInstance, requirementInstances, stops) {
 
 		// BNOPI will assign new ids to each stop we add so we don't need to worry about that.
 
 		var exportStops = [];
-		stops.array.forEach(stop => {
+		stops.forEach(stop => {
 			exportStops.push({
 				name: stop.name,
 				id: stop.id,
@@ -56,7 +56,7 @@ module.exports = class StageFormatImpl extends StageFormat {
 			});
 		});
 
-		return {primaryInstance: Buffer.from(JSON.stringify(exportStops))};
+		return { primaryData: Buffer.from(JSON.stringify(exportStops))};
 	}
 } 
 

@@ -2,9 +2,9 @@
 	"timeCreated":"2012-04-23T18:25:43.511Z",
 	"dependencyGraph":"../test_dependency_graph.dg.json",
 	"format":"STOPS",
-	"generatedBy": "GEN_ROUTES",
+	"generatedBy": "GEN_STOPS",
 	"nodeInGraph":null,
 	"parentStageInstances":[],
 	"siblingStageInstances": [],
-	"datafile":"broughton-stops.json"
+	"datafile":"stops.json"
 }

@@ -8,11 +8,12 @@ Front end
 + Tool to select region of map
 + Display speech bubbles above stops/routes on mouseover
 + GUI mechanism for snapping stops to routes (??)
-+ Save/~~load~~ project in main window
++ ~~Save/load project in main window~~
 + Display/editing frameworks
 	+ ~~Stops~~
-	+ Routes
+	+ ~~Routes~~
 	+ stop connection graph (??)
+	+ roads (??)
 + Automatically add new id to stops and routes
 
 Back end
