@@ -7,6 +7,7 @@ import Col from 'react-bootstrap/Col';
 import NetworkToolKit from './NetworkToolKit';
 import DependencyGraph from './DependencyGraph';
 import Description from './Description';
+import StageTracker from './StageTracker';
 
 export default function App() {
 
@@ -27,7 +28,9 @@ export default function App() {
           <Col sm={9} id="Dependency_graph">
             <DependencyGraph></DependencyGraph>
           </Col>
-          <Col sm id="StageTracker" style={{backgroundColor:'#3e3e3e'}}>Stage tracker</Col>
+          <Col sm id="StageTracker" >
+            <StageTracker></StageTracker>
+          </Col>
         </Row>
       </Container>
     </>

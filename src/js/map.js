@@ -22,6 +22,8 @@
 
 
 
+
+
 //Variable storing the google maps embedding
 var map;
 
@@ -31,14 +33,7 @@ var apiKey = 'AIzaSyAWmWHoyHgni9A2p4kYBloFIuTeE4linzo';
 var drawingManager;
 var snappedCoordinates = [];
 
-// keep track of the current stage instance
-/** Save automatically when opening a new stage instance */
-var autoSave = false;
-/** If there is a stage instance currently open */
-var isDisplayingStageInstance = false;
-/** If there is a stage instance currently open, what are the path(s) that were given to the display framework?
- * @type {{instanceMetdataPath: string, requirementMetadataPaths: string[]}|null} */
-var currentStageInstance = null;
+
 
 
 
@@ -72,6 +67,7 @@ function initMap() {
 
     // add open project event listener
     window.electron.onOpenProject((_event, projPath) => openProject(projPath));
+    window.addEventListener("displayStageInstance", (event) => displayStageInstance(event.detail.instanceMetdataPath, event.detail.requirementMetadataPaths));
 }
 
 async function openProject(projPath) {
@@ -84,15 +80,19 @@ async function openProject(projPath) {
     const projMetadata = await window.electron.getProjectMetadata(projPath);
     
     // get list of stage instances
-    const stageInstances = await window.electron.getListOfStageFormat(projPath);
+    /** @type {{path: string, metadata: InstanceMetadata}[]} */
+    const newStageInstances = await window.electron.getListOfStageFormat(projPath);
     
     // get dependency graph (not implemented)
     // TODO
 
 
-    // actually display this stuff
     // clear the stage tracker and add the list of stages to it
-    // TODO
+    stageInstances = newStageInstances;
+    // call something to update the react code
+    window.dispatchEvent(new Event('stage_instances_change'));
+    
+    
 
     console.log(stageInstances)
     console.log(projMetadata);
