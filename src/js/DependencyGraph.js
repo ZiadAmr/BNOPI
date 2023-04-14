@@ -26,7 +26,7 @@ const directed = {
   color: '#FFFFFF'
 }
 
-addStage("1", "Base node")
+addStage("1", "Base node", "Unspecified")
 
 const nodeTypes = { nodeAlg: AlgorithmNode, node: Node2 }
 
@@ -57,7 +57,7 @@ function DependencyGraph() {
 
 
     //When a new node is added we need to update our backend to hold this data
-    addStage(newNodeID, "New stage", "path", [], [prevNodeId]);
+    addStage(newNodeID, "New stage", {bash:'', powershell:''}, [], [prevNodeId]);
     console.log(getdpgraph());
 
   }, []);
