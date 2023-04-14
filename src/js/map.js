@@ -68,17 +68,17 @@ function initMap() {
     // add open project event listener
     window.electron.onOpenProject((_event, projPath) => openProject(projPath));
     window.addEventListener("displayStageInstance", (event) => displayStageInstance(event.detail.instanceMetdataPath, event.detail.requirementMetadataPaths));
+
+    window.addEventListener("bus_stops_change", event => { modifiedStageInstance = true});
+    window.addEventListener("routes_change", event => { modifiedStageInstance = true });
+
 }
 
-async function openProject(projPath) {
-    // save and close any prject that might already be open TODO.
-
-    // add this project to the recents
-    await window.electron.addToRecents(projPath);
-
-    // get the project metadata
-    const projMetadata = await window.electron.getProjectMetadata(projPath);
-    
+/** Update the global variable stageInstances, and update stage tracker
+ * 
+ * @param {string} projPath 
+ */
+async function reloadStageTracker(projPath) {
     // get list of stage instances
     /**
     * @typedef {{name: string;id: string; requirements: string[]; description: string; fileExtension: string;}} StageFormatInfo
@@ -87,7 +87,7 @@ async function openProject(projPath) {
     const newStageInstances = await window.electron.getListOfStageFormat(projPath);
 
     // load any additional algorithms and formats specified in the info folder TODO
-    
+
     // get dependency graph (not implemented)
     // TODO
 
@@ -101,11 +101,26 @@ async function openProject(projPath) {
     stageInstances = newStageInstances;
     // call something to update the react code
     window.dispatchEvent(new Event('stage_instances_change'));
+}
+
+async function openProject(projPath) {
+    // save and close any prject that might already be open TODO.
+
+    // add this project to the recents
+    await window.electron.addToRecents(projPath);
+
+    // get the project metadata
+    const projMetadata = await window.electron.getProjectMetadata(projPath);
     
+
+    await reloadStageTracker(projPath);
     
 
     console.log(stageInstances)
     console.log(projMetadata);
+
+    // set global variable
+    projectPath = projPath;
 
     // TODO hard code it to open the route network
     const routesInstancePath = stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "routes.stg.json").path;
@@ -129,7 +144,8 @@ async function openProject(projPath) {
 async function displayStageInstance(instanceMetdataPath, requirementMetadataPaths) {
 
     // save the currently open stage instance
-    if (autoSave && isDisplayingStageInstance) {
+    if (autoSave && isDisplayingStageInstance && modifiedStageInstance) {
+        // display confirmation dialog 
         await saveStageInstanceAs(currentStageInstance.instanceMetdataPath, currentStageInstance.requirementMetadataPaths);
     }
 
@@ -161,7 +177,9 @@ async function displayStageInstance(instanceMetdataPath, requirementMetadataPath
         requirementMetadataPaths: requirementMetadataPaths
     };
 
+    window.dispatchEvent(new Event("bus_stops_change"));
     window.dispatchEvent(new Event('routes_change'));
+    modifiedStageInstance = false;
 }
 
 /**
@@ -177,6 +195,13 @@ async function saveStageInstanceAs(oldPrimPath, oldReqPaths) {
     const { newestPrimaryMetadataPath, newestRequirementsMetadataPaths } = await window.electron.saveStageInstanceAs(oldPrimPath, oldReqPaths, BNOPIStops, BNOPIRoutes);
 
     console.log("The newest versions of the stage instances are now ", newestPrimaryMetadataPath, newestRequirementsMetadataPaths);
+
+    // reopen new version of instance
+    modifiedStageInstance = false; // prevent auto save
+    displayStageInstance(newestPrimaryMetadataPath, newestRequirementsMetadataPaths);
+
+    // update stageInstances variable and stage tracker
+    await reloadStageTracker(projectPath);
 
 }
 
@@ -343,9 +368,18 @@ function getCurrentlyDisplaying() {
 
 //Called when a marker is created by clicking on the map
 function createGoogleMarker(marker) {
+
+    // create a new id
+    var newID = 1;
+    if (busStops.size > 0) {
+        // one higher than highest existing id
+        newID = Math.max(...Array.from(busStops.values()).map(b => b.id)) + 1;
+    }
+
     temp = new google.maps.Marker({
         position: marker.latLng,
         map: map,
+        id: newID,
         title: "Bus stop",
         name: "Custom stop",
         icon: {
@@ -489,8 +523,17 @@ function processSnapToRoadResponse(data) {
 
 // Draws the snapped polyline (after processing snap-to-road response).
 function drawSnappedPolyline() {
+
+    // create a new id
+    var newID = 1;
+    if (polyMap.size > 0) {
+        // one higher than highest existing id
+        newID = Math.max(...Array.from(polyMap.values()).map(p => p.id)) + 1;
+    }
+    
+    
     var snappedPolyline = new google.maps.Polyline({
-        id: 69,
+        id: newID,
         name: 'custom_route',
         bnopiUserAttrs: [],
         bnopiHiddenAttrs: [],

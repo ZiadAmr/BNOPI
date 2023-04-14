@@ -56,7 +56,7 @@ module.exports = class StageFormatImpl extends StageFormat {
 			});
 		});
 
-		return { primaryData: Buffer.from(JSON.stringify(exportStops))};
+		return { primaryData: Buffer.from(JSON.stringify({stops:exportStops}))};
 	}
 } 
 

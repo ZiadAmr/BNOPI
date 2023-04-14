@@ -27,12 +27,14 @@
 
       // keep track of the current stage instance
       /** Save automatically when opening a new stage instance */
-      var autoSave = false;
+      var autoSave = true;
       /** If there is a stage instance currently open */
       var isDisplayingStageInstance = false;
       /** If there is a stage instance currently open, what are the path(s) that were given to the display framework?
        * @type {{instanceMetdataPath: string, requirementMetadataPaths: string[]}|null} */
       var currentStageInstance = null;
+      /** Whether the user has made any edits in the interface to the currently open stage instance.*/
+      var modifiedStageInstance = false;
 
     </script>
 

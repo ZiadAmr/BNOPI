@@ -79,6 +79,9 @@ module.exports = class RoutesFormat extends StageFormat {
 
 				bnopiRoute.links.push(bnopiLink);
 			}
+			// add last stop
+			if (route.links.length > 0)
+				bnopiRoute.stops.push(links_map.get(route.links[route.links.length-1]).endid)
 
 			routes.push(bnopiRoute);
 		}
@@ -90,7 +93,7 @@ module.exports = class RoutesFormat extends StageFormat {
 	/**
 	 * @type {StageFormat.editingFramework}
 	 */
-	editingFramework(primaryInstance, requirementInstances, stops, routes, stageFormatHandler) {
+	static editingFramework(primaryInstance, requirementInstances, stops, routes, stageFormatHandler) {
 
 		// TODO WIP!!
 
@@ -147,8 +150,8 @@ module.exports = class RoutesFormat extends StageFormat {
 		const newRoutesInstance = {routes: []};
 
 		// id numbers in case we need to add new links or points
-		var newLinkId = Math.max(links_map.keys()) + 1;
-		var newPointId = Math.max(points_map.keys()) + 1;
+		var newLinkId = Math.max(...links_map.keys()) + 1;
+		var newPointId = Math.max(...points_map.keys()) + 1;
 
 		var scgModified = false;
 
