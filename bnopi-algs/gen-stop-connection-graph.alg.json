@@ -19,7 +19,7 @@
 			"var": "MAX_SEARCH_DISTANCE"
 		}
 	],
-	"input-stage-formats":[
+	"inputStageFormats":[
 		{
 			"name": "Stops",
 			"help": "The stops between which to make the stop connection graph edges",
@@ -33,7 +33,7 @@
 			"stage-format": "ROADS"
 		}
 	],
-	"output-stage-formats":[
+	"outputStageFormats":[
 		{
 			"name": "Stop connection graph",
 			"help": "A json file containing the generated stops",
@@ -42,7 +42,7 @@
 		}
 	],
 
-	"launch-script":{
+	"launchScript":{
 		"bash": "launch-gen-stop-connection-graph.sh",
 		"powershell": "launch-powershell.ps1"
 	} 

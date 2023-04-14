@@ -31,6 +31,12 @@ addStage("1", "Base node")
 const nodeTypes = { nodeAlg: AlgorithmNode, node: Node2 }
 
 function DependencyGraph() {
+
+  const show_properties = useCallback((id) => {
+    var show_properties = new CustomEvent('showProperties', {detail: {id: id, type: 'dependency_node'}});
+    window.dispatchEvent(show_properties)
+  }, []);
+
   //Function used to create a new node when the user has clicked on the + button on a node
   const addNewNode = useCallback((prevNodeId, newNodeID) => {
 
@@ -39,7 +45,7 @@ function DependencyGraph() {
       return [...nodes, {
         id: newNodeID, type: 'nodeAlg',
         position: { x: nodes.filter((item) => item.id == prevNodeId)[0].position.x + 300, y: nodes.filter((item) => item.id == prevNodeId)[0].position.y + (Math.random() * 300) - 150 },
-        data: { label: newNodeID, addNewNode: addNewNode, removeNode: removeNode }
+        data: { label: newNodeID, addNewNode: addNewNode, removeNode: removeNode, propertyClick:show_properties, id:newNodeID, name:'New node'}
       }];
     });
 
@@ -72,7 +78,7 @@ function DependencyGraph() {
   }, []);
 
   const initialNodes = [
-    { id: '1', type: 'node', position: { x: 50, y: 50 }, data: { label: '1', addNewNode: addNewNode } }];
+    { id: '1', type: 'node', position: { x: 50, y: 50 }, data: { label: '1', addNewNode: addNewNode, propertyClick:show_properties, id:'1', name:'New node' } }];
 
   const initialEdges = [];
 

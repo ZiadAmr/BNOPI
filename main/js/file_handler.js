@@ -129,6 +129,35 @@ async function openProjectFolderDialog() {
 }
 
 /**
+ * 
+ * @returns Returns the path to a metadatafile (of an algorithm)
+ */
+async function openBNOPIAlg(){
+	const file = await dialog.showOpenDialog({
+		properties: ["openFile"],
+		defaultPath: projectsDir,
+		filters: [{name: 'Algorithm metadata files', extensions:['alg.json']}]
+	});
+
+	if (file.canceled === true) {
+		return {status: "cancelled"}
+	}
+
+	try {
+		await fsp.access(file.filePaths[0]);
+	} catch {
+		// display error dialog
+		dialog.showErrorBox("Not a algorithm metadata file", "This is not a metadata file for an algorithm")
+		return { status: "not_project"}
+	}
+
+	var meta = await fsp.readFile(file.filePaths[0], { encoding: "utf-8", flag: "r" });
+	meta = JSON.parse(meta);
+
+	return {status: "ok", meta}
+}
+
+/**
  * Display dialog box to create a new project
  * @returns Path where the project directory will be created, or undefined if the user cancelled.
  */
@@ -261,4 +290,4 @@ async function addToRecents(projPath) {
 
 
 
-module.exports = { openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog, createNewProject, /*openProject,*/ getRecents, getProjectMetadata, addToRecents};
+module.exports = { openBNOPIAlg, openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog, createNewProject, /*openProject,*/ getRecents, getProjectMetadata, addToRecents};
