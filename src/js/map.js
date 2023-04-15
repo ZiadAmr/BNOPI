@@ -19,6 +19,11 @@
  * @typedef {{id: number; name: string | undefined; links: {lat: number; lon: number;}[][], stops:number[], hidden_attrs: any, user_attrs: any}} BNOPIRoute
  */
 
+/**
+ * A bus route in the format used to display on the screen
+ * @typedef {{id: number; name: string | undefined; links: google.maps.Polyline[], continuityLinks: google.maps.Polyline[], stops:number[], hidden_attrs: any, user_attrs: any}} DisplayRoute
+ */
+
 
 
 
@@ -69,8 +74,8 @@ function initMap() {
     window.electron.onOpenProject((_event, projPath) => openProject(projPath));
     window.addEventListener("displayStageInstance", (event) => displayStageInstance(event.detail.instanceMetdataPath, event.detail.requirementMetadataPaths));
 
-    window.addEventListener("bus_stops_change", event => { modifiedStageInstance = true});
-    window.addEventListener("routes_change", event => { modifiedStageInstance = true });
+    window.addEventListener("bus_stops_change", event => { setModified() });
+    window.addEventListener("routes_change", event => { setModified() });
 
 }
 
@@ -153,11 +158,11 @@ async function displayStageInstance(instanceMetdataPath, requirementMetadataPath
     busStops.forEach(stop => {
         stop.setMap(null);
     });
-    polyMap.forEach(polyLine => {
-        polyLine.setMap(null);
-    });
+    Array.from(routeMap.keys()).forEach(displayRoute => {
+        deleteDisplayRoute(displayRoute);
+    })
     busStops.clear();
-    polyMap.clear();
+    routeMap.clear();
 
     // call display framework
     const {stops, routes} = await window.electron.loadStageInstance(instanceMetdataPath, requirementMetadataPaths);
@@ -179,7 +184,7 @@ async function displayStageInstance(instanceMetdataPath, requirementMetadataPath
 
     window.dispatchEvent(new Event("bus_stops_change"));
     window.dispatchEvent(new Event('routes_change'));
-    modifiedStageInstance = false;
+    setUnmodified();
 }
 
 /**
@@ -190,14 +195,24 @@ async function displayStageInstance(instanceMetdataPath, requirementMetadataPath
 async function saveStageInstanceAs(oldPrimPath, oldReqPaths) {
 
     // convert to bnopi stops and routes
-    const {BNOPIStops, BNOPIRoutes} = getCurrentlyDisplaying();
+    let {BNOPIStops, BNOPIRoutes} = getCurrentlyDisplaying();
+
+    // remove routes that contain null stops
+    BNOPIRoutes = BNOPIRoutes.filter(bnopiRoute => {
+        if (bnopiRoute.stops.some(stop => stop === null)) {
+            console.warn(`Route with id ${bnopiRoute.id} and name \"${bnopiRoute.name}\" contained a null stop and was deleted.`);
+            return false;
+        }
+        return true;
+    });
+
 
     const { newestPrimaryMetadataPath, newestRequirementsMetadataPaths } = await window.electron.saveStageInstanceAs(oldPrimPath, oldReqPaths, BNOPIStops, BNOPIRoutes);
 
     console.log("The newest versions of the stage instances are now ", newestPrimaryMetadataPath, newestRequirementsMetadataPaths);
 
     // reopen new version of instance
-    modifiedStageInstance = false; // prevent auto save
+    setUnmodified(); // prevent auto save
     displayStageInstance(newestPrimaryMetadataPath, newestRequirementsMetadataPaths);
 
     // update stageInstances variable and stage tracker
@@ -265,70 +280,156 @@ function displayBNOPIRoute(route) {
         name = route.id;
     }
 
-    // create google maps poly line
-    // first convert to google maps poly_points
-    poly_points = [];
-    for (const link of route.links) {
-        for (const point of link) {
-            const latlng = new google.maps.LatLng(
-                point.lat,
-                point.lon
-            )
-            poly_points.push(latlng)
-        }
-    }
-
-    // TODO in future we should convert to a polyLine for each link.
-    // then each polyline is guaranteed to begin and end at a stop
-
     const color = "#" + Math.floor(Math.random() * 16777215).toString(16);
-    polyLine = new google.maps.Polyline({
-        id: route.id,
-        name: name,
-        stops: route.stops,
-        links: route.links,
-        bnopiUserAttrs: route.user_attrs,
-        bnopiHiddenAttrs: route.hidden_attrs,
-        path: poly_points,
-        strokeColor: color,
-        strokeWeight: 8,
-        strokeOpacity: 1,
-    });
-    polyLine.setMap(map);
 
-    var count = +window.localStorage.getItem('routeCounter') + 1;
-    //Update the localstoreage
-    window.localStorage.setItem("routeCounter", count);
-    polyMap.set(count, polyLine);
+    /** @type {google.maps.Polyline[]} */
+    const links = route.links.map(link => {
 
-    (function () {
-        let local_count = count;
-        polyLine.addListener('click', function () {
-            if (window.localStorage.getItem('mode') == 4) {
-                //Remember to remove it from the list of polylines as well
-                this.setMap(null);
-                //Remove the polyline from the list
-                polyMap.delete(local_count);
-                window.dispatchEvent(new Event('routes_change'));
-            } else if (window.localStorage.getItem('mode') == 5) {
+        // create poly line
+        polyLine = new google.maps.Polyline({
+            path: link.map(pt => new google.maps.LatLng(pt.lat,pt.lon)),
+            strokeColor: color,
+            strokeWeight: 8,
+            strokeOpacity: 1,
+        });
+        polyLine.setMap(map);
+
+        // add event listeners
+        polyLine.addListener("click", function() {
+
+            if (window.localStorage.getItem('mode') == 4 /*delete route*/) {
+                // delete entire route
+                deleteDisplayRoute(route.id);
+
+            } else if (window.localStorage.getItem('mode') == 5 /*edit route*/) {
                 this.setOptions({ editable: true });
-
                 //If the user had clicked on another polyline before (make that previous polyline uneditable)
                 if (selectedPolyline != null) {
                     selectedPolyline.setOptions({ editable: false });
                 }
                 selectedPolyline = this;
             }
-        })
-    })()
+        });
+
+        // listeners for edits.
+        polyLine.getPath().addListener('insert_at', function () {
+            setModified();
+        });
+        polyLine.getPath().addListener('set_at', function () {
+            setModified();
+        });
+        polyLine.getPath().addListener('remove_at', function () {
+            setModified();
+        });
+        polyLine.getPath().addListener('dragend', function () {
+            setModified();
+        });
+
+        return polyLine;
+
+    });
+
+    // dashed line to use for continuity lines
+    const lineSymbol = {
+        path: "M 0,-1 0,1",
+        strokeOpacity: 1,
+        strokeColor: color,
+        strokeWeight: 8,
+        scale: 4,
+    };
 
 
+    /** @type {google.maps.Polyline[]} */
+    const continuityLinks = [];
+    for (let i = 0; i < links.length-1; i++) {
+        const thisLink = links[i];
+        const nextLink = links[i+1];
+
+        // create continuity poly line between each link of the route
+        const polyLine = new google.maps.Polyline({
+            path: [
+                thisLink.getPath().getAt(thisLink.getPath().getLength()-1),
+                nextLink.getPath().getAt(0)
+            ],
+            strokeColor: color,
+            strokeWeight: 8,
+            strokeOpacity: 0,
+            icons: [
+                {
+                    icon: lineSymbol,
+                    offset: "10px",
+                    repeat: "20px",
+                },
+            ],
+
+        });
+
+        polyLine.setMap(map);
+
+        // add listeners to move this line if the links change
+        thisLink.getPath().addListener('set_at', function () {
+            polyLine.getPath().setAt(0, 
+                thisLink.getPath().getAt(thisLink.getPath().getLength() - 1)
+            )
+        });
+        nextLink.getPath().addListener('set_at', function () {
+            polyLine.getPath().setAt(1,
+                nextLink.getPath().getAt(0)
+            )
+        });
+
+        // listener to delete route
+        polyLine.addListener("click", function () {
+            if (window.localStorage.getItem('mode') == 4 /*delete route*/) {
+                // delete entire route
+                deleteDisplayRoute(route.id);
+            } 
+        });
+
+        continuityLinks.push(polyLine);
+        
+    }
+
+    // convert to DisplayRoute - this is how it is stored
+    /** @type {DisplayRoute} */
+    const newRoute = {
+        id:route.id,
+        name:route.name,
+        stops:route.stops,
+        links: links,
+        continuityLinks: continuityLinks,
+        hidden_attrs: route.hidden_attrs,
+        user_attrs: route.user_attrs
+    }
+
+    routeMap.set(route.id, newRoute);
+    window.dispatchEvent(new Event('routes_change'));
+
+
+}
+
+/**
+ * Deletes a route from the map
+ * @param {number} id 
+ */
+function deleteDisplayRoute(id) {
+    /** @type {DisplayRoute} */
+    const thisDisplayRoute = routeMap.get(id);
+    thisDisplayRoute.links.forEach(pL => {
+        pL.setMap(null);
+    });
+    thisDisplayRoute.continuityLinks.forEach(pL => {
+        pL.setMap(null);
+    });
+    routeMap.delete(id);
+    setModified();
+    window.dispatchEvent(new Event('routes_change'));
 }
 
 
 /** Collects the stops and routes currently displaying on the screen
  * 
- * @returns {BNOPIStop[], BNOPIRoute[]}
+ * @returns {{BNOPIStops: BNOPIStop[], BNOPIRoutes: BNOPIRoute[]}}
  */
 function getCurrentlyDisplaying() {
 
@@ -342,24 +443,44 @@ function getCurrentlyDisplaying() {
         user_attrs: marker.bnopiUserAttrs
     }));
 
-    const BNOPIRoutes = Array.from(polyMap.values()).map(polyLine => {
-        const points = [];
-        polyLine.getPath().forEach(googlePoint => {
-            points.push({
-                lat: googlePoint.lat(),
-                lon: googlePoint.lng()
+    // const BNOPIRoutes = Array.from(polyMap.values()).map(polyLine => {
+    //     const points = [];
+    //     polyLine.getPath().forEach(googlePoint => {
+    //         points.push({
+    //             lat: googlePoint.lat(),
+    //             lon: googlePoint.lng()
+    //         });
+    //     });
+    //     return {
+    //         id: polyLine.id,
+    //         name: polyLine.name,
+    //         // points: points,
+    //         stops: polyLine.stops,
+    //         links: polyLine.links, // this needs to be updated by the front end. It needs to know which section of the polyline has been changed, and then make the changes within the polyLine.links property.
+    //         hidden_attrs: polyLine.bnopiHiddenAttrs,
+    //         user_attrs: polyLine.bnopiUserAttrs
+    //     }
+    // });
+
+    /** @type {BNOPIRoute[]}*/
+    const BNOPIRoutes = Array.from(routeMap.values()).map(displayRoute => ({
+        hidden_attrs: displayRoute.hidden_attrs,
+        id: displayRoute.id,
+        links: displayRoute.links.map(polyLine => {
+            // convert PolyLine to list of {lat, lon}
+            const bnopiLink = [];
+            polyLine.getPath().forEach(googlePoint => {
+                bnopiLink.push({
+                    lat: googlePoint.lat(),
+                    lon: googlePoint.lng()
+                });
             });
-        });
-        return {
-            id: polyLine.id,
-            name: polyLine.name,
-            // points: points,
-            stops: polyLine.stops,
-            links: polyLine.links, // this needs to be updated by the front end. It needs to know which section of the polyline has been changed, and then make the changes within the polyLine.links property.
-            hidden_attrs: polyLine.bnopiHiddenAttrs,
-            user_attrs: polyLine.bnopiUserAttrs
-        }
-    });
+            return bnopiLink;
+        }),
+        name: displayRoute.name,
+        stops: displayRoute.stops,
+        user_attrs: displayRoute.user_attrs
+    }));
 
     return {BNOPIStops, BNOPIRoutes}
 
@@ -526,49 +647,32 @@ function drawSnappedPolyline() {
 
     // create a new id
     var newID = 1;
-    if (polyMap.size > 0) {
+    if (routeMap.size > 0) {
         // one higher than highest existing id
-        newID = Math.max(...Array.from(polyMap.values()).map(p => p.id)) + 1;
+        newID = Math.max(...Array.from(routeMap.values()).map(p => p.id)) + 1;
     }
-    
-    
-    var snappedPolyline = new google.maps.Polyline({
+
+    displayBNOPIRoute({
+        user_attrs: {},
+        hidden_attrs: {},
         id: newID,
-        name: 'custom_route',
-        bnopiUserAttrs: [],
-        bnopiHiddenAttrs: [],
-        path: snappedCoordinates,
-        strokeColor: '#00FF00',
-        strokeWeight: 5,
-        strokeOpacity: 1,
-    });
+        stops: [null, null], // TODO currently routes are not tied to any stops
+        links: [snappedCoordinates.map(latLng => ({
+            lat: latLng.lat(),
+            lon: latLng.lng()
+        }))], // only 1 link.
+        name: "Custom Route"
+    })
 
-    snappedPolyline.setMap(map);
-    var count = +window.localStorage.getItem('routeCounter') + 1;
-    //Update the localstoreage
-    window.localStorage.setItem("routeCounter", count);
-    polyMap.set(count, snappedPolyline);
-    window.dispatchEvent(new Event('routes_change'));
-
-    (function(){
-        let local_count = count
-        snappedPolyline.addListener('click', function() {
-            console.log(local_count)
-            if (window.localStorage.getItem('mode') == 4) {
-                //Remember to remove it from the list of polylines as well
-                this.setMap(null);
-                //Remove the polyline from the list
-                polyMap.delete(local_count);
-                window.dispatchEvent(new Event('routes_change'));
-            } else if (window.localStorage.getItem('mode') == 5) {
-                this.setOptions({ editable: true });
     
-                //If the user had clicked on another polyline before (make that previous polyline uneditable)
-                if (selectedPolyline != null) {
-                    selectedPolyline.setOptions({ editable: false });
-                }
-                selectedPolyline = this;
-            }
-        })
-    })()
+}
+
+function setModified() {
+    modifiedStageInstance = true;
+    document.getElementById("title").innerHTML = "* BNOPI *";
+}
+
+function setUnmodified() {
+    modifiedStageInstance = false;
+    document.getElementById("title").innerHTML = "BNOPI";
 }
