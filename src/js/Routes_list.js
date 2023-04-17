@@ -31,7 +31,7 @@ export default function Routes_list() {
     setSelectedIndex(index);
   };
 
-  var generate_listing = Array.from(polyMap).map(([key, item], index) => {
+  var generate_listing = Array.from(routeMap).map(([key, item], index) => {
     return <ListItemButton style={selectedIndex === index ? {backgroundColor: '#c0c6c9a8', color: '#ffffff'} : null} key={index} selected={selectedIndex === index} onClick={(event) => handleListItemClick(event, index)}>
               <ListItemIcon>
                   <FontAwesomeIcon icon={faRoute} style={{color:'#ffffff'}}/>
@@ -41,8 +41,7 @@ export default function Routes_list() {
                 <FontAwesomeIcon icon={faPen} style={{ color: '#ffffff', fontSize:17 }} />
               </IconButton>
               <IconButton onClick={() => {
-                item.setMap(null);
-                polyMap.delete(key);
+                deleteDisplayRoute(key);
                 window.dispatchEvent(new Event('routes_change'));
               }}>
                   <FontAwesomeIcon icon={faTrash} style={{ color: '#ffffff', fontSize:17 }} />
