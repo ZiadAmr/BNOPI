@@ -9,7 +9,6 @@ export default function Routes_list() {
 
   useEffect(() =>{
     const handle_change_routes = () => {
-      console.log(routes);
       setRoutes(!routes)
     }
 

@@ -13,13 +13,13 @@ export default function App() {
 
   return (
     <>
-      <Container fluid id="mainContainer">
+      <Container fluid id="mainContainer" style={{overflow:"hidden"}}>
         <Row id="firstRow">
           <Col sm={9} id="mapContainer">
             <div id="map"></div>
             <NetworkToolKit></NetworkToolKit>
           </Col>
-          <Col sm id="Description">
+          <Col sm id="Description" style={{overflow:'auto'}}>
             <Description></Description>
           </Col>
         </Row>
