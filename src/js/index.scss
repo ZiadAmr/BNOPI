@@ -78,7 +78,7 @@ body {
 #executeGraph {
   position: absolute;
   top: 93%;
-  right: 20%;
+  right: 27%;
 }
 
 #addNode2 {
@@ -136,4 +136,13 @@ body {
   --bs-nav-link-color: #ffffff;
   --bs-nav-link-hover-color: #a3a3a3;
   --bs-nav-link-disabled-color: #6c757d;
+}
+
+.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-pa0tud-MuiAutocomplete-root .MuiOutlinedInput-root {
+  padding-right: 65px;
+  color: white;
+}
+
+.css-l3ln04-MuiAutocomplete-root .MuiOutlinedInput-root .MuiAutocomplete-input {
+  color: white;
 }

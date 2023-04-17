@@ -105,7 +105,7 @@ export default function StageTracker() {
 
 
 	return (
-		<>
+		<div>
 			<Typography variant="h6" gutterBottom style={{ textAlign: 'center', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px' }}>
 				Stage Tracker
 			</Typography>
@@ -113,8 +113,7 @@ export default function StageTracker() {
 				{generate_listing}
 			</List>
 			<OpenStageDialog onCancel={cancelDialog} onClose={closeDialog} mdPath={dialogPath} />
-
-		</>
+		</div>
 	)
 }
 
