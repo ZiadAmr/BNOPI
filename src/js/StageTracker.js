@@ -1,12 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { List, ListItem, ListItemButton, ListItemText, Typography, ListItemIcon, IconButton, Tooltip } from '@mui/material';
+import { List, ListItem, ListItemButton, ListItemText, Typography, ListItemIcon, IconButton, Tooltip, Dialog, DialogContent } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenNib, faBusSimple, faTrash, faFileLines } from '@fortawesome/free-solid-svg-icons';
+import OpenStageDialog from './OpenStageDialog';
+
+/**
+ * Contents of a stage instance metadata file
+ * @typedef {{timeCreated: string, dependencyGraph: string, format: string, generatedBy: string, nodeInGraph:(number|null), parentStageInstances:string[], siblingStageInstances:string[], datafile:string}} InstanceMetadata
+ */
+
+
+// called on successful + uncancelled open.
+function dispatchOpenEvent(instanceMetdataPath, requirementMetadataPaths) {
+	window.dispatchEvent(new CustomEvent("displayStageInstance", {
+		detail: {
+			instanceMetdataPath: instanceMetdataPath,
+			requirementMetadataPaths: requirementMetadataPaths
+		}
+	}));
+}
+
+
 
 
 export default function StageTracker() {
 	const [selectedIndex, setSelectedIndex] = React.useState(-1);
 	const [stages, setStages] = useState(false);
+	// const [dialogOpen, setDialogOpen] = React.useState(false);
+	const [dialogPath, setDialogPath] = React.useState(null);
+
+	// for OpenStageDialog
+	function cancelDialog() {
+		setDialogPath(null)	}
+
+	function closeDialog(selectedRequirements) {
+		dispatchOpenEvent(dialogPath, selectedRequirements);
+		setDialogPath(null)
+	}
+
 
 	const handleListItemClick = (event, index) => {
 		setSelectedIndex(index);
@@ -24,13 +55,13 @@ export default function StageTracker() {
 		}
 	}, [stages]);
 
-	/**
-	 * Contents of a stage instance metadata file
-	 * @typedef {{timeCreated: string, dependencyGraph: string, format: string, generatedBy: string, nodeInGraph:(number|null), parentStageInstances:string[], siblingStageInstances:string[], datafile:string}} InstanceMetadata
-	 */
+
 
 
 	var generate_listing = Array.from(stageInstances).map(({ path, /** @type {InstanceMetadata} */ metadata, stageFormatInfo }, index) => {
+
+
+
 
 		// if there is no stage format for this loaded make it a different color.
 		const disabled = (typeof stageFormatInfo == "undefined");
@@ -43,19 +74,14 @@ export default function StageTracker() {
 			}}
 			key={index}
 			onDoubleClick={async (event) => {
-				// click button to load stage instance. needs to:
-				// 1. if there are any requirements, get the user to select those too. (speech bubble)
-				// first look for the requirement in the metadata file. Recurr until one is found.	
-
-
-				// 2. load the stage instance
-				const requirementMetadataPaths = []; // TODO
-				window.dispatchEvent(new CustomEvent("displayStageInstance", {
-					detail: {
-						instanceMetdataPath: path,
-						requirementMetadataPaths: requirementMetadataPaths
-					}
-				}));
+				// click button to load stage instance.
+				// if there are any requirements open a dialog box
+				if (stageFormatInfo.requirements.length > 0) {
+					setDialogPath(path);
+				} else {
+					dispatchOpenEvent(path, []);
+				}
+				
 			}}>
 			<ListItemIcon>
 				<FontAwesomeIcon icon={faFileLines} style={{ color: '#ffffff' }} />
@@ -71,7 +97,7 @@ export default function StageTracker() {
 				</span>
 			</Tooltip>
 		} else {
-			return stageInstanceButton;
+			return <span>{stageInstanceButton}</span>;
 		}
 
 
@@ -86,6 +112,8 @@ export default function StageTracker() {
 			<List dense={true} style={{ maxHeight: '100%', overflow: 'auto' }}>
 				{generate_listing}
 			</List>
+			<OpenStageDialog onCancel={cancelDialog} onClose={closeDialog} mdPath={dialogPath} />
+
 		</>
 	)
 }
