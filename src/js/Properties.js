@@ -137,6 +137,12 @@ export default function Properties() {
       </div>
     }
   };
+
+  function construct_input_stage(item, index, info){
+    return <Typography key= {index.toString() + " " + info.toString()} variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px' }}>
+      Input
+  </Typography>
+  }
   
 
   let prop_node = null;
@@ -205,11 +211,18 @@ export default function Properties() {
           <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px' }}>
             Input stage instances
           </Typography>
+          <div>
+            {
+              node.input_stage_formats != undefined &&
+              node.input_stage_formats.map((item, index) => {
+                return construct_input_stage(item, index, node);
+            })}
+          </div>
 
 
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', overflow:'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
           <Button variant="contained" onClick={async () => {handleScriptLoad(await window.electron.openBNOPIALG())}}>Select Script</Button>
         </div>
 

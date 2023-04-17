@@ -8,6 +8,7 @@ import NetworkToolKit from './NetworkToolKit';
 import DependencyGraph from './DependencyGraph';
 import Description from './Description';
 import StageTracker from './StageTracker';
+import { Hidden } from '@mui/material';
 
 export default function App() {
 
@@ -19,7 +20,7 @@ export default function App() {
             <div id="map"></div>
             <NetworkToolKit></NetworkToolKit>
           </Col>
-          <Col sm id="Description" style={{overflow:'auto'}}>
+          <Col sm id="Description" style={{ overflow: "auto", maxHeight:'100%' }}>
             <Description></Description>
           </Col>
         </Row>
@@ -28,7 +29,7 @@ export default function App() {
           <Col sm={9} id="Dependency_graph">
             <DependencyGraph></DependencyGraph>
           </Col>
-          <Col sm id="StageTracker" >
+          <Col sm id="StageTracker" style={{ overflow: "auto", maxHeight:'100%' }}>
             <StageTracker></StageTracker>
           </Col>
         </Row>
