@@ -112,6 +112,7 @@ export function runScript(id, script, params) {
     // var python = require('child_process').spawn(script, args);
 
     var python = window.electron.spawn_child(script, "arguments");
+    console.log("Output: ", python)
     return ""
     // python.stdout.on('data',function(data){
     //     console.log("data: ",data.toString());
