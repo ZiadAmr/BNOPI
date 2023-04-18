@@ -31,15 +31,121 @@ BNOPI provides some standard stage formats and algorithm implementations. Open t
 
 The dependency graph's execution begins by downloading information about bus stops and roads from OpenStreetMap, then creating a "stop connection graph". This representation of the road network represents a connection between 2 bus stops as a single directed edge, weighted on the road distance between them. We then use a genetic algorithm to generate a fitting route network.
 
-<!-- Explanation of different files in the project folder -->
+### Preliminary steps
 
-In order to run the dependency graph you will need to compile the genetic algorithm for your machine, which was written in C++. Find the metadata file for the genetic algorithm (located in [/bnopi-algs/](/bnopi-algs/)), referenced within which is the path to the executable which needs to be compiled. Navigate to that folder and follow the compilation instructions in the README.
+In order to run the dependency graph you will need to compile the genetic algorithm, written in C++. Find the metadata file for the genetic algorithm (located in [/bnopi-algs/](/bnopi-algs/)), referenced within which is the path to the executable which needs to be compiled. Navigate to that folder and follow the compilation instructions in the README.
 
-The other algorithms used in this project are implemented in Python 3. You may need to install some modules for these to work.
+The other algorithms used in this project are implemented in Python 3, and also referenced from [/bnopi-algs/](/bnopi-algs/). You may need to install some modules for these to work.
 
-After these steps, you should be able to run the project. Click the play button to execute until the first breakpoint. The `import-stops-from-osm` and `import-roads-from-osm` algorithms should run. You will be able to edit the bus stops that were downloaded from OpenSteetMap in the interface.
+### Project directory structure
 
-<!-- interface tutorial on adding bus stops -->
+The main entry point for the project is `info.json`, located in the top level of the project. This contains information information about the project and links to other files and folders. Projects are structured so that all the project data is referenced from the *info.json* file, and there are no other fixed file names. Below shows the contents of the info.json file.
+
+```json
+{
+	"title": "Test Project",
+	"description": "Project used for testing.",
+	"dependencyGraph": "test_dependency_graph.dg.json",
+	"stageInstances": ["stage_instances/"]
+}
+```
+
+`dependencyGraph` references a *.dg.json* file containing information about the structure of the nodes in the project. `stageInstances` contains a list of directories within which BNOPI will look for [stage instance metadata (*.stg.json*) files](/bnopi-stage-fmts/README.md), which are used to keep track of generated stage instances. Generally the stage instances are stored in the same folder alongside the *.stg.json* files.
+
+### Dependency Graph
+
+**TODO the coding for this is not finished - this section might be incorrect.** The example project dependency graph references several algorithms by their string **id**s, such as `"GEN_STOP_CONNECTION_GRAPH"`. 
+
+### Algorithms
+
+The aforementioned GEN_STOP_CONNECTION_GRAPH algorithm has an algorithm metadata (*.alg.json*) file, which can be found [here](/bnopi-algs/gen-stop-connection-graph.alg.json). Inside the BNOPI interface, clicking on the cog icon in the GEN_STOP_CONNECTION_GRAPH node on the dependency graph allows us to view some of this information in the Properties tab to the right.
+
+Looking at the *alg.json* file directly, it contains a `name` and `description`, as well as information concerning the algorithm's inputs and outputs. An algorithm can have 2 types of input:
++ The **parameters** - These are settings for the algorithm that can be set by the user before the algorithm is run. For GEN_STOP_CONNECTION_GRAPH the parameters are:
+
+```json
+"params": [
+	{
+		"name": "Left-side drive",
+		"type": "dropdown",
+		"choices":["left", "right"],
+		"default": "left",
+		"help": "Specifies that road users should on the left. If omitted, it is assumed road users drive on the right.",
+		"var": "DRIVE_ON_LEFT"
+	},
+	{
+		"name": "Max search distance",
+		"type": "posint",
+		"default": 1000,
+		"help": "Specifies the maximum distance to search for neighboring stops, in meters. Defaults to 1000.",
+		"var": "MAX_SEARCH_DISTANCE"
+	}
+]
+```
+
+In the Properties tab each parameter generates an input for the user of the type `type`. Later, the values that the user inputs are referenced by the name in the `var` property.
+
++ The **input stage instances**. This is how BNOPI passes data between nodes. Since algorithms require stage instances in specific format, we specify these formats. This affects which algorithms can be chained together. For GEN_STOP_CONNECTION_GRAPH the input stage formats are:
+
+```json
+"inputStageFormats":[
+	{
+		"name": "Stops",
+		"help": "The stops between which to make the stop connection graph edges",
+		"var": "STOPS_FILELOC",
+		"stage-format": "STOPS"
+	},
+	{
+		"name": "Roads",
+		"help": "Roads between the stops",
+		"var": "ROADS_FILELOC",
+		"stage-format": "ROADS"
+	}
+]
+```
+
+When the GEN_STOP_CONNECTION_GRAPH node is about to run, with the absence of a breakpoint on any parent node, BNOPI will automatically select instances of these formats generated by the parents. If, as is the case in the example project, there *is* a breakpoint, then the user will be allowed to edit the instances generated by previous nodes, and manually select which ones to use for the GEN_STOP_CONNECTION_GRAPH node. The file paths of the selected instances are later referenced by the name in the `var` property.
+
+Algorithms only have 1 type of output:
++ The **output stage instances**. In the *alg.json* file, the `outputStageFormats` refer to the formats of these outputs, in the same way as with the input stage intances:
+
+```json
+"outputStageFormats":[
+	{
+		"name": "Stop connection graph",
+		"help": "A json file containing the generated stops",
+		"var": "OUTPUT_FILELOC",
+		"stage-format": "STOP_CONNECTION_GRAPH"
+	}
+]
+```
+
+When the STOP_CONNECTION_GRAPH node runs, BNOPI automatically assgins a new file location for each output stage instance and generates a corresponding stage instance metadata (*.stg.json*) file.
+
++ The final part of the *.alg.json* file is the **launch script**. This links to a bash and/or powershell script that launches the algorithm. The bash script for GEN_STOP_CONNECTION_GRAPH is as follows:
+
+```bash
+#!/bin/bash
+
+if [[ $DRIVE_ON_LEFT == "left" ]]; then
+	DOL_FLAG="--drive-on-left"
+else
+	DOL_FLAG=""
+fi
+
+../../algs/stop-connection-graph.py $DOL_FLAG -d $MAX_SEARCH_DISTANCE -o $OUTPUT_FILELOC $STOPS_FILELOC $ROADS_FILELOC
+```
+
+The launch script is called with the environment variables `DRIVE_ON_LEFT`, `MAX_SEARCH_DISTANCE`, `STOPS_FILELOC`, `ROADS_FILELOC`, and `OUTPUT_FILELOC` set as required. These variable names are those set from the `var` properties in the *alg.json* file. The launch script then runs the command to launch the algorithm.
+
+### Running the project
+
+
+After these steps, you should be able to run the project. Click the play button to execute until the first breakpoint. The `import-stops-from-osm` and `import-roads-from-osm` algorithms should run. You will be able to edit the bus stops that were downloaded from OpenSteetMap in the interface. 
+
+The "create bus stop" and "delete bus stop" tools in the left-hand-side toolbar can be used to edit the STOPS stage instance. You can also see a list of the current bus stops in the "Map info" tab on the right-hand-side sidebar under the "List of stops" heading. From there you can click the trash can icon to delete the stop or the crayon icon to edit info such as the stop's name.
+
+**TODO coding not finished**
 
 Clicking the play button again will continue the execution and create the stop connection graph.
 
