@@ -58,6 +58,8 @@ The main entry point for the project is `info.json`, located in the top level of
 
 ### Algorithms
 
+**TODO Maybe move this section to another file?**
+
 The aforementioned GEN_STOP_CONNECTION_GRAPH algorithm has an algorithm metadata (*.alg.json*) file, which can be found [here](/bnopi-algs/gen-stop-connection-graph.alg.json). Inside the BNOPI interface, clicking on the cog icon in the GEN_STOP_CONNECTION_GRAPH node on the dependency graph allows us to view some of this information in the Properties tab to the right.
 
 Looking at the *alg.json* file directly, it contains a `name` and `description`, as well as information concerning the algorithm's inputs and outputs. An algorithm can have 2 types of input:
