@@ -1,17 +1,20 @@
 const { memo } = require('react')
-
-let dpgraph = []
 let memory = {}
 
 // Add breakpoints
 
-export function addStage(id, stageName, filename, parameters=[], parents=[]) {
+export function addStage(id, stageName, filename, parameters=[], parents=[], description, script) {
+    console.log("Adding new stage", stageName)
     dpgraph.push({
         "id": id,
         "name": stageName,
         "file": filename,
         "params": parameters,
         "parents": parents,
+        "description": description,
+        "input_stage_formats":[],
+        "output_stage_formats":[],
+        "script": script
     })
     return dpgraph;
 }
@@ -83,8 +86,8 @@ export function runGraph() {
                 run.push(x)
             }
         });
-        // console.log(run)
-        run.forEach((x,i) => runScript(x.id, x.file, x.params))
+        console.log(run)
+        run.forEach((x,i) => runScript(x.id, x.script.bash, x.params))
         run.forEach((x,i) => stages_run.push(x.id))
         console.log("loop", stages_run)
         // console.log("Stages Run: ", stages_run)
@@ -93,25 +96,31 @@ export function runGraph() {
     console.log("Stages Run: ", stages_run)
 }
 
-export function runScript(id, filename, params) {
+export function runScript(id, script, params) {
     /*...*/
-    let args = [filename]
+    // let args = [filename]
+    let args = []
     console.log("Params = ", params)
     for (var i = 0; i < params.length; i++){
+        print(params)
         args.push(memory[params[i]])
     }
-    console.log(args, memory["param1"], memory["param2"])
+    console.log("Script: ", script)
+    console.log("Arguments: ", args)
 
     //BUG 1 - Require causing issues
-    var python = require('child_process').spawn('python', args);
-    python.stdout.on('data',function(data){
-        console.log("data: ",data.toString());
-        memory[id] = data.toString()
-        
-        console.log("after:", memory)
+    // var python = require('child_process').spawn(script, args);
 
-        return data.toString()
-    });
+    var python = window.electron.spawn_child(script, "arguments");
+    return ""
+    // python.stdout.on('data',function(data){
+    //     console.log("data: ",data.toString());
+    //     memory[id] = data.toString()
+        
+    //     console.log("after:", memory)
+
+    //     return data.toString()
+    // });
 }
 
 

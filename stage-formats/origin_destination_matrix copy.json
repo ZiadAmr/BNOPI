@@ -1,0 +1,29 @@
+
+
+{
+	"points" : [
+		{
+			"id": 0,
+			"lat": 3,
+			"lon": 5
+		}, ...
+		{
+
+		}
+	],
+
+	"snapshots":[
+			{
+				"time": "06:00",
+				"demands": [
+					"[from id] [count]\n [to id] [demand]\n [to id] [demand] ...", // store it like this. might be a bit more difficult to parse than pure json but saves space
+					"[from id] [count]\n [to id] [demand]\n [to id] [demand] ..."
+				]
+			},
+			{
+				"time": "07:00",
+				"demands": ...
+			}
+		]
+	}
+}

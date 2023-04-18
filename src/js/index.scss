@@ -1,41 +1,47 @@
 h1 {
   color: blue;
 }
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
+  color:#ffffff;
 }
 #map {
   height: 100%;
 }
-#mainContainer{
+#mainContainer {
   height: 100%;
   padding: 0;
 }
-#firstRow{
+#firstRow {
   height: 75%;
-  width:100%;
+  width: 100%;
+  margin:0;
 }
-#Network_toolkit{
+#Network_toolkit {
   height: 50%;
   z-index: 99;
   position: absolute;
   top: 28%;
   left: 2%;
 }
-#mapContainer{
+#mapContainer {
   position: relative;
+  padding:0;
 }
-#root{
-  height:100%;
-  width:100%;
+#root {
+  height: 100%;
+  width: 100%;
 }
-#secondRow{
-  height:25%;
-  width:100%;
+#secondRow {
+  height: 25%;
+  width: 100%;
+  margin: 0;
 }
-#icon1,#icon2{
+#icon1,
+#icon2 {
   color: indianred;
 }
 .depNode {
@@ -54,27 +60,89 @@ html, body {
 .react-flow {
   background: rgb(62, 62, 62);
 }
-#breakPoint{
+#breakPoint {
   position: absolute;
   right: 5%;
-  bottom: 5%; 
+  bottom: 5%;
 }
-#deleteNode{
+#deleteNode {
   position: absolute;
   right: 20%;
-  bottom: 5%; 
+  bottom: 5%;
 }
-#addNode{
+#addNode {
   position: absolute;
   right: 36%;
-  bottom: 5%; 
+  bottom: 5%;
 }
-#executeGraph{
+#executeGraph {
   position: absolute;
-  top:95%;
-  right:20%
+  top: 93%;
+  right: 27%;
 }
-// #breakLogo{
-//   width: 7px;
-//   height: 7px;
-// }
+
+#addNode2 {
+  position: absolute;
+  right: 25%;
+  bottom: 5%;
+}
+#breakPoint2 {
+  position: absolute;
+  right: 10%;
+  bottom: 5%;
+}
+#Description{
+  padding:0;
+  background-color: #3e3e3e;
+}
+#StageTracker {
+  padding: 0;
+  background-color: #3e3e3e;
+}
+.container{
+  overflow: hidden;
+}
+#Navigation{
+  padding:0;
+}
+#Dependency_graph{
+  padding:0;
+}
+#StageTracker{
+  padding:0;
+}
+#bar{
+  background-color: #ff0000;
+  padding:0;
+}
+.Navigation{
+  display: flex;
+  flex-wrap: nowrap;
+  margin: 0;
+  padding: 0;
+}
+.nav-tabs {
+  background-color: #646464;
+  --bs-nav-tabs-border-width: 0px;
+  --bs-nav-tabs-border-color: #dee2e6;
+  --bs-nav-tabs-link-hover-border-color: #ffffff #ffffff #ffffff;
+  --bs-nav-tabs-link-active-color: #ffffff;
+  --bs-nav-tabs-link-active-bg: #3e3e3e;
+  --bs-nav-tabs-link-active-border-color: #dee2e6 #dee2e6 #fff;
+  --bs-nav-tabs-border-radius: 0rem;
+}
+
+.nav {
+  --bs-nav-link-color: #ffffff;
+  --bs-nav-link-hover-color: #a3a3a3;
+  --bs-nav-link-disabled-color: #6c757d;
+}
+
+.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-pa0tud-MuiAutocomplete-root .MuiOutlinedInput-root {
+  padding-right: 65px;
+  color: white;
+}
+
+.css-l3ln04-MuiAutocomplete-root .MuiOutlinedInput-root .MuiAutocomplete-input {
+  color: white;
+}

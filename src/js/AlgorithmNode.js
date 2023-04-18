@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBus, faPenToSquare, faRoute, faStop, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { faGear, faStop, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'react-bootstrap';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -18,6 +18,7 @@ export default function AlgorithmNode({ data }) {
       <div>
         <label htmlFor="text" className='nodeLabel'>Algorithm name:</label>
         <label htmlFor="text" className='nodeLabel'>Script path:</label>
+        <Button variant ='secondary' id="setting" size= 'sm' onClick={() => data.propertyClick(data.id)}><FontAwesomeIcon icon={faGear}/></Button>
         <Button variant ='danger' id="breakPoint" size= 'sm'><FontAwesomeIcon icon={faStop}/></Button>
         <Button variant ='secondary' id="addNode" onClick={() => data.addNewNode(data.label, uuidv4())} size= 'sm'><FontAwesomeIcon icon={faPlus}/></Button>
         <Button variant ='secondary' id="deleteNode" onClick={()=> data.removeNode(data.label)} size= 'sm'><FontAwesomeIcon icon={faMinus}/></Button>

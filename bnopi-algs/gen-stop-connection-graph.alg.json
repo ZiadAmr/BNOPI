@@ -1,0 +1,49 @@
+{
+	"name": "Generate Stop Connection Graph",
+	"id": "GEN_STOP_CONNECTION_GRAPH",
+	"description": "Create a graph on bus stops and connections between them. Converts connections in the road network to a single edge.",
+	"params": [
+		{
+			"name": "Left-side drive",
+			"type": "dropdown",
+			"choices":["left", "right"],
+			"default": "left",
+			"help": "Specifies that road users should on the left. If omitted, it is assumed road users drive on the right.",
+			"var": "DRIVE_ON_LEFT"
+		},
+		{
+			"name": "Max search distance",
+			"type": "posint",
+			"default": 1000,
+			"help": "Specifies the maximum distance to search for neighboring stops, in meters. Defaults to 1000.",
+			"var": "MAX_SEARCH_DISTANCE"
+		}
+	],
+	"inputStageFormats":[
+		{
+			"name": "Stops",
+			"help": "The stops between which to make the stop connection graph edges",
+			"var": "STOPS_FILELOC",
+			"stage-format": "STOPS"
+		},
+		{
+			"name": "Roads",
+			"help": "Roads between the stops",
+			"var": "ROADS_FILELOC",
+			"stage-format": "ROADS"
+		}
+	],
+	"outputStageFormats":[
+		{
+			"name": "Stop connection graph",
+			"help": "A json file containing the generated stops",
+			"var": "OUTPUT_FILELOC",
+			"stage-format": "STOP_CONNECTION_GRAPH"
+		}
+	],
+
+	"launchScript":{
+		"bash": "launch-gen-stop-connection-graph.sh",
+		"powershell": "launch-powershell.ps1"
+	} 
+}

@@ -1,8 +1,11 @@
 {
 	"routes":[
-		"id":...,
-		"name":...,
-		"stops":[...], // n stops, n-1 links. The links should be appropriate for the stops. The links can also be left blank, and the algorithms should be able to handle this as an input.
-		"links":[...],
+		{
+			"id":...,
+			"name":...,
+			"stops":[...], // n stops, n-1 links. The links should be appropriate for the stops. The links can also be left blank, and the algorithms should be able to handle this as an input.
+			"links":[...],
+		},
+		...
 	]
 }

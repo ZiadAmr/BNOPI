@@ -1,0 +1,10 @@
+{
+	"timeCreated":"2012-04-23T18:25:43.511Z",
+	"dependencyGraph":"../test_dependency_graph.dg.json",
+	"format":"ROUTES",
+	"generatedBy": "GEN_ROUTES",
+	"nodeInGraph":null,
+	"parentStageInstances":["stop-connection-graph.stg.json"],
+	"siblingStageInstances": [],
+	"datafile":"routes.json"
+}

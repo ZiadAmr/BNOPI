@@ -2,25 +2,30 @@
   "name": "electron-react-app",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "main/js/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack --config webpack.common.js",
     "watch": "webpack --config webpack.common.js --watch",
-    "start": "electron ."
+    "start": "electron --trace-warnings ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
+    "@mui/material": "^5.11.16",
     "bootstrap": "^5.2.3",
     "electron": "^21.2.2",
+    "glob": "^9.3.4",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.10.0",
     "reactflow": "^11.4.0",
     "uuid": "^9.0.0"
   },
@@ -31,10 +36,13 @@
     "babel-loader": "^8.1.0",
     "css-loader": "^4.3.0",
     "electron-reload": "^1.5.0",
+    "geocoordinate": "^2.0.31",
+    "jsdoc": "^4.0.2",
+    "jsdoc-to-markdown": "^8.0.0",
     "sass": "^1.26.11",
     "sass-loader": "^10.0.2",
     "style-loader": "^1.2.1",
-    "webpack": "^5.75.0",
+    "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   }
 }

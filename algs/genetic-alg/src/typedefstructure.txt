@@ -1,0 +1,7 @@
+Link - edge in the stop connection graph
+	(has pointers to stops at either end)
+stop - A stop in the stop connection graph
+	(has links coming into it, and going out of it)
+Route - Vector of links pointers
+RouteNet - Vector of routes
+Population - Vector of RouteNets

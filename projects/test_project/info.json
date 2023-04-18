@@ -1,0 +1,6 @@
+{
+	"title": "Test Project",
+	"description": "Project used for testing.",
+	"dependencyGraph": "test_dependency_graph.dg.json",
+	"stageInstances": ["stage_instances/"]
+}

@@ -6,25 +6,32 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import NetworkToolKit from './NetworkToolKit';
 import DependencyGraph from './DependencyGraph';
+import Description from './Description';
+import StageTracker from './StageTracker';
+import { Hidden } from '@mui/material';
 
 export default function App() {
 
   return (
     <>
-      <Container fluid id="mainContainer">
+      <Container fluid id="mainContainer" style={{overflow:"hidden"}}>
         <Row id="firstRow">
-          <Col sm={10} id="mapContainer">
+          <Col sm={9} id="mapContainer">
             <div id="map"></div>
             <NetworkToolKit></NetworkToolKit>
           </Col>
-          <Col sm id="Description">description</Col>
+          <Col sm id="Description" style={{ overflow: "auto", maxHeight:'100%' }}>
+            <Description></Description>
+          </Col>
         </Row>
 
         <Row id="secondRow">
-          <Col sm={10} id="Dependency graph">
+          <Col sm={9} id="Dependency_graph">
             <DependencyGraph></DependencyGraph>
           </Col>
-          <Col sm id="StageTracker">Stage tracker</Col>
+          <Col sm id="StageTracker" style={{ overflow: "auto", maxHeight:'100%' }}>
+            <StageTracker></StageTracker>
+          </Col>
         </Row>
       </Container>
     </>
