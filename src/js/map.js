@@ -72,6 +72,11 @@ function initMap() {
 
     // add open project event listener
     window.electron.onOpenProject((_event, projPath) => openProject(projPath));
+    window.electron.onSave(() => {
+        if (modifiedStageInstance) {
+            saveStageInstanceAs(currentStageInstance.instanceMetdataPath, currentStageInstance.requirementMetadataPaths);
+        }
+    })
     window.addEventListener("displayStageInstance", (event) => displayStageInstance(event.detail.instanceMetdataPath, event.detail.requirementMetadataPaths));
 
     window.addEventListener("bus_stops_change", event => { setModified() });
@@ -150,8 +155,30 @@ async function displayStageInstance(instanceMetdataPath, requirementMetadataPath
 
     // save the currently open stage instance
     if (autoSave && isDisplayingStageInstance && modifiedStageInstance) {
-        // display confirmation dialog 
-        await saveStageInstanceAs(currentStageInstance.instanceMetdataPath, currentStageInstance.requirementMetadataPaths);
+        // display confirmation dialog
+        const choice = await window.electron.showMessageBox({
+            type: "question",
+            buttons: ["Save", "Don't save", 'Cancel'],
+            message: 'The stage instance has been edited. Save changes?',
+            // detail: "",
+            defaultId: 0,
+            cancelId: 2,
+        });
+
+        switch (choice.response) {
+            case 0 /*save*/:
+                await saveStageInstanceAs(currentStageInstance.instanceMetdataPath, currentStageInstance.requirementMetadataPaths);
+                break;
+            
+            case 1 /*don't save*/:
+                break;
+        
+            default:
+                return; // don't display the new stage instance.
+        }
+
+
+
     }
 
     // clear any stage instance already diplaying

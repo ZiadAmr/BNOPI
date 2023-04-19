@@ -91,7 +91,7 @@ export default function StageTracker() {
 
 
 		if (disabled) {
-			return <Tooltip title="Unrecognized stage format" placement="top" key={index} >
+			return <Tooltip title="Unrecognized stage format" placement="left" key={index} >
 				<span>
 					{stageInstanceButton}
 				</span>

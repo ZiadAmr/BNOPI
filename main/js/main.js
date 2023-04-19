@@ -1,4 +1,4 @@
-const { BrowserWindow, app, ipcMain, Notification, dialog } = require('electron');
+const { BrowserWindow, app, ipcMain, Notification, dialog, Menu} = require('electron');
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
@@ -8,49 +8,18 @@ const child = require('child_process')
 const file_handler = require("./file_handler.js");
 const { StageFormatHandler } = require("./stage_format_handler");
 const { electron } = require('process');
+const {createLaunchPage} = require("./launch_page")
+const { createWindow } = require("./main_window")
 
 const isDev = !app.isPackaged;
 
 /** @type {BrowserWindow} */
 var mainWindow; // BrowserWindow
+/** @type {BrowserWindow} */
+var launchPage;
 /** @type {StageFormatHandler} */
 var sfh; // StageFormatHandler
 
-function createWindow() {
-  const win = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    backgroundColor: "white",
-    webPreferences: {
-      nodeIntegration: false,
-      worldSafeExecuteJavaScript: true,
-      contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
-    }
-  })
-
-  mainWindow = win;
-
-  win.loadFile('index.html');
-}
-
-function createLaunchPage() {
-  const win = new BrowserWindow({
-    width: 800,
-    height: 450,
-    resizable: true,
-    autoHideMenuBar: true,
-    backgroundColor: "white",
-    webPreferences: {
-      nodeIntegration: false,
-      worldSafeExecuteJavaScript: true,
-      contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
-    }
-  })
-
-  win.loadFile(path.resolve('launchwindow.html'));
-}
 
 if (isDev) {
   require('electron-reload')(__dirname, {
@@ -71,6 +40,55 @@ app.whenReady().then(() => {
   // load all the default stage formats
   // TODO in the future these directories will be listed in the project info.json file
   sfh.loadStageFormatsFromDir("bnopi-stage-fmts");
+
+
+  // application menu
+  const isMac = process.platform === "darwin";
+
+  const template = [
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        { role: "about" },
+        { type: "separator" },
+        { role: "quit" }
+      ]
+    }] : []),
+    {
+      label: "File",
+      submenu: [
+        {
+          label: "Open project",
+          click: async () => {
+            if (launchPage == null) {
+              launchPage = createLaunchPage();
+              launchPage.on("close", () => launchPage = null);
+            }
+          },
+          accelerator: "CmdOrCtrl+O"
+        },
+        {
+          label: "Save",
+          click: async () => {
+            mainWindow.webContents.send("save");
+            console.log("save");
+          },
+          accelerator: "CmdOrCtrl+S"
+        },
+        { role: "quit" }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' }
+      ]
+    }
+  ];
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
   // ================================================================
   // setup endpoints for front-end functions
@@ -151,14 +169,38 @@ app.whenReady().then(() => {
   ipcMain.handle("getStageFormatInfo", async (event, ...args) => sfh.getStageFormatInfo(...args));
 
   // ================================================================
+  // dialog boxes
+  // ================================================================
+  ipcMain.handle("showMessageBox", async (event, ...args) => dialog.showMessageBox(...args));
+
+  // ================================================================
   // inter-window communication between the launch page and the main window
   // ================================================================
   // launch page tells the main page to open a project
   ipcMain.handle("sendOpenProjectSignal", async (event, projPath) => {
-    mainWindow.webContents.send("openProject", projPath)
+
+    // close the launch page
+    if (launchPage != null) {
+      launchPage.close();
+    }
+
+    // open the project
+    // open a new main window, if necessary.
+    if (mainWindow == null) {
+      mainWindow = createWindow(projPath);
+      mainWindow.on("close", function() {
+        app.quit();
+      })
+    } else {
+      mainWindow.webContents.send("openProject", projPath)
+    }
   });
 
-  createLaunchPage();
-  createWindow();
+
+  mainWindow = createWindow();
+
+  launchPage = createLaunchPage();
+  launchPage.on("close", () => launchPage = null);
+  // createWindow();
 }
 )
