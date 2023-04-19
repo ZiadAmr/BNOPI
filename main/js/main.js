@@ -107,17 +107,20 @@ app.whenReady().then(() => {
   // ================================================================
   ipcMain.handle('spawn_child', async (event, script, args) => {
     try {
-      const data = await child.spawn("./print.sh");
-      // python.stdout.on('data',function(data){
-      //   console.log("data: ",data.toString());
-      //   memory[id] = data.toString()
+      const data = await child.spawn("powershell -file", ["print.ps1"]);
+      let output = ""
+      await data.stdout.on('data',function(data){
+        console.log("data: ",data.toString());
+        // memory[id] = data.toString()
         
-      //   console.log("after:", memory)
+        // console.log("after:", memory)
+        
+        output += data.toString()
 
-      //   return data.toString()
-      // });
-      console.log("success!")
-      return "return";
+        return data.toString()
+      });
+      console.log("success!", output)
+      return true;
     } catch (err) {
       console.log("Spawn child isn't working!\n", err);
     }
