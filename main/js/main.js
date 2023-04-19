@@ -107,7 +107,7 @@ app.whenReady().then(() => {
   // ================================================================
   ipcMain.handle('spawn_child', async (event, script, args) => {
     try {
-      const data = await child.spawn("powershell -file", ["print.ps1"]);
+      const data = await child.spawn("python", ["--version"]);
       let output = ""
       await data.stdout.on('data',function(data){
         console.log("data: ",data.toString());
