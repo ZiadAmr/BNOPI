@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, ListItem, ListItemText, ListItemButton, Typography, ListItemIcon, IconButton, TextField, Button, Autocomplete } from '@mui/material';
+import { List, ListItem, ListItemText, ListItemButton, Typography, ListItemIcon, IconButton, TextField, Button, Autocomplete, Select, MenuItem } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faPenNib, faRoute, faTrash } from '@fortawesome/free-solid-svg-icons';
 
@@ -7,10 +7,11 @@ export default function Properties() {
   const [prop, setProp] = useState('-1');
   const [value, setValue] = useState('');
   const [node, setNode] = useState('');
-  const [path, setPath] = useState('Unspecified');
   const [description, setDescription] = useState('');
   const [autocompletevalues, setautocompletevalues] = useState({});
   const [positiveIntegers, setpositiveintegers] = useState({});
+  const [path, setPath] = useState('');
+  const [stages, setStages] = useState({});
 
   useEffect(() => {
     const handle_properties_change = (event) => {
@@ -51,10 +52,12 @@ export default function Properties() {
     node_to_update.params = item.meta.params
 
     // Add new field to parameters
-    let val = dpgraph.find(element => element.id === prop).params
+    let val = dpgraph.find(element => element.id === prop)
     const new_parameter_update = {...autocompletevalues}
     const new_posint_update = {...positiveIntegers}
-    val.forEach((x,i) =>{
+    const new_selections = {...stages}
+
+    val.params.forEach((x,i) =>{
         x.setVal = x.default
         if(x.type === "dropdown"){
           const options = x.choices
@@ -63,6 +66,13 @@ export default function Properties() {
           new_posint_update[node_to_update.id.toString() + " " + i.toString()] = x.default
         }
     })
+
+    val.input_stage_formats.forEach((x,i) =>{
+      x.setStage = undefined
+      new_selections[x.name.toString() + " " + i.toString() + " " + node_to_update.id.toString() + " " + "Stage_instance_select"] = ''
+    })
+
+    setStages(new_selections);
     setpositiveintegers(new_posint_update);
     setautocompletevalues(new_parameter_update);
     setValue(node_to_update.name);
@@ -86,6 +96,15 @@ export default function Properties() {
       objToChange.params[index].setVal = value
     }else{
       objToChange.params[index].setVal = null
+    }
+  };
+
+  const handleSelectionChange = (info, index, value) => {
+    const objToChange = dpgraph.find(obj => obj.id === info)
+    if(value != null){
+      objToChange.input_stage_formats[index].setStage = value
+    }else{
+      objToChange.input_stage_formats[index].setStage = null
     }
   };
 
@@ -139,9 +158,36 @@ export default function Properties() {
   };
 
   function construct_input_stage(item, index, info){
-    return <Typography key= {index.toString() + " " + info.toString()} variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px' }}>
-      Input
-  </Typography>
+    const possible_stages = stageInstances.filter(stage => stage.stageFormatInfo !== undefined && stage.stageFormatInfo.id === item.stage_format);
+
+    return <div key= {index.toString() + " " + info.toString() + " stage_instance"} style={{ display: 'flex', alignItems: 'center', paddingTop:'15px'}}>
+      <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '6px', paddingLeft: '10px', paddingRight:'4px' }}>
+        {item.name} :
+      </Typography>
+
+      <Select
+        labelId="selection"
+        id="selection_prompt"
+        value={stages[item.name.toString() + " " + index.toString() + " " + info.id.toString() + " " + "Stage_instance_select"]}
+        label={item.name}
+        onChange={(event, value) => {
+          const values = {...stages};
+          values[item.name.toString() + " " + index.toString() + " " + info.id.toString() + " " + "Stage_instance_select"] = value.props.children;
+          setStages(values);
+          handleSelectionChange(info.id, index.toString(), value.props.children)
+        }}
+        inputProps={{ style: { color: 'white', textAlign:'center' } }}
+        style={{ width: '70%', height: '15%', backgroundColor: '#7aa2bd33', borderRadius: '8px', color:'white' }}
+        >
+          {possible_stages.map((element, i) => (
+            <MenuItem key={"Random_key" + " " + i.toString() + " "+ index.toString() + " Menu item"}
+            value={element.stageFormatInfo.name.toString() + " " + element.metadata.generatedBy.toString()}>
+              {element.stageFormatInfo.name.toString() + " " + element.metadata.generatedBy.toString()}
+            </MenuItem>
+          ))}
+
+      </Select>
+    </div>
   }
   
 
@@ -174,7 +220,7 @@ export default function Properties() {
               label={"Script"}
               variant="outlined"
               style={{ width: '90%', height: '15%', backgroundColor: '#7aa2bd33', borderRadius: '8px'}}
-              value={path}
+              value={path || ''}
               inputProps={{ style: { color: 'white', textAlign:'center' } }}
               InputProps={{ style: { borderColor: 'white' }, readOnly: true }}
               InputLabelProps={{style: { color: "#ffffff94" }}}
@@ -207,7 +253,6 @@ export default function Properties() {
             })}
           </div>
 
-          {/* Input stage instances for the algorithm */}
           <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px' }}>
             Input stage instances
           </Typography>
