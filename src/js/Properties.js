@@ -34,6 +34,8 @@ export default function Properties() {
       setValue(event.target.value);
       const node_id = dpgraph.find(obj => obj.id === prop)
       node_id.name = event.target.value
+      var stage_change = new CustomEvent('change_state', {detail: {id: prop, name:event.target.value, script:path}});
+      window.dispatchEvent(stage_change);
   }
 
   const handle_desc_change = (event) => {
@@ -78,6 +80,8 @@ export default function Properties() {
     setValue(node_to_update.name);
     setPath(node_to_update.file.bash);
     setDescription(node_to_update.description);
+    var stage_change = new CustomEvent('change_state', {detail: {id: prop, name:node_to_update.name, script:node_to_update.file.bash}});
+    window.dispatchEvent(stage_change);
   }, [prop]);
 
 
