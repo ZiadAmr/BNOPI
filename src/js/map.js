@@ -38,6 +38,12 @@ var apiKey = 'AIzaSyAWmWHoyHgni9A2p4kYBloFIuTeE4linzo';
 var drawingManager;
 var snappedCoordinates = [];
 
+// Variables used in the draw route tool
+var current_route_draw = [];    // Information about the current route that is being drawn
+var display_polyline = null;  // Information on the current polyline that is being rendered whilst a route is being drawn
+var current_link = [];  // Information on the latlng points of the current pair of bus stops  
+var stops_track = [];   // Information on the stops that have been placed during route draw
+var links_track = [];   //Information on the links that have been generated during the route draw
 
 
 
@@ -62,10 +68,24 @@ function initMap() {
     //Ensures the map only displays roads
     map.setOptions({ styles: styleArray });
 
+    // Create a bus stop when the bus stop tool is selected
     google.maps.event.addListener(map, 'click',
         function (event) {
             if (window.localStorage.getItem('mode') == 1) {
                 createGoogleMarker(event);
+            }else if(window.localStorage.getItem('mode') == 3){
+                var new_click = new CustomEvent('mapClick', {detail: {type:'path_point', values:event}});
+                window.dispatchEvent(new_click)
+            }
+        });
+
+    // Adds a bus stop when right clicked on the map whilst the route draw tool is selected
+    google.maps.event.addListener(map, 'rightclick',
+        function (event) {
+            if (window.localStorage.getItem('mode') == 3) {
+                const temp = createGoogleMarker(event);
+                var new_click = new CustomEvent('mapClick', {detail: {type:'bus_stop', values:event, ID:temp}});
+                window.dispatchEvent(new_click)
             }
         });
 
@@ -538,7 +558,7 @@ function createGoogleMarker(marker) {
     })
     busStops.set(temp.position, temp);
     google.maps.event.addListener(temp, 'click', function deleteMarker(event) {
-
+        console.log("Clicked");
         //The user has clicked the delete markers button 
         if (window.localStorage.getItem('mode') == 2) {
             busStops.get(event.latLng).setMap(null);
@@ -547,6 +567,7 @@ function createGoogleMarker(marker) {
         }
     });
     window.dispatchEvent(new Event('bus_stops_change'));
+    return newID;
 }
 
 function stopsToJson() {
@@ -606,39 +627,100 @@ function changeMode(newMode) {
     }
 }
 
+// Function used for drawing bus stops and routes on the map
+function draw_tool(event){
+    const lat = event.detail.values.latLng.lat()
+    const lon = event.detail.values.latLng.lng()
+
+    // Initial click should always be a stop
+    if(current_route_draw.length === 0){
+        if(event.detail.type === "bus_stop"){
+            stops_track.push(event.detail.ID)
+        }else{
+            const temp = createGoogleMarker(event.detail.values)
+            stops_track.push(temp)
+        }
+        current_link.push({lat, lon})
+    }else{
+        if(event.detail.type === "bus_stop"){
+            stops_track.push(event.detail.ID);
+            current_link.push({lat, lon});
+            links_track.push(current_link);
+            current_link = []
+            current_link.push({lat, lon})
+        }else{
+            current_link.push({lat,lon});
+        }
+    }
+
+    current_route_draw.push(event.detail.values.latLng);
+
+    // Dynamically draw the polyline whilst in the draw tool
+    if(current_route_draw.length > 1){
+        if(display_polyline != null){
+            display_polyline.setMap(null)
+        }
+        
+        display_polyline = new google.maps.Polyline({
+            path: current_route_draw,
+            geodesic: true,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 4
+        });
+
+        display_polyline.setMap(map);
+    }
+}
 
 //This code is part of google maps stick to road documentation (include that in the report references)
 //Once the draw a route button is clicked, this function will be called
 function enableRouteDraw() {
-    // Enables the polyline drawing control. Click on the map to start drawing a
-    // polyline. Each click will add a new vertice. Double-click to stop drawing.
-    drawingManager = new google.maps.drawing.DrawingManager({
-        drawingMode: google.maps.drawing.OverlayType.POLYLINE,
-        drawingControl: true,
-        drawingControlOptions: {
-            position: google.maps.ControlPosition.TOP_CENTER,
-            drawingModes: [
-                google.maps.drawing.OverlayType.POLYLINE
-            ]
-        },
-        polylineOptions: {
-            strokeColor: '#696969',
-            strokeWeight: 4,
-            strokeOpacity: 1,
-        }
-    });
-    drawingManager.setMap(map);
-
-    // Snap-to-road when the polyline is completed.
-    drawingManager.addListener('polylinecomplete', function (poly) {
-        var path = poly.getPath();
-        poly.setMap(null);
-        runSnapToRoad(path);
-    });
+    window.addEventListener('mapClick', draw_tool);
 }
 
 function disableRouteDraw() {
-    drawingManager.setMap(null);
+    if(current_route_draw.length > 1){
+        // If the last point is not a stop, manually add a stop at the last point
+        if(current_link.length > 1){
+            const temp = createGoogleMarker({latLng:new google.maps.LatLng(current_link[current_link.length - 1].lat, current_link[current_link.length - 1].lon)})
+            // Add the new stop to the list of stops in the route
+            stops_track.push(temp)
+            // Add the link to the list of links
+            links_track.push(current_link)
+        }
+
+        // Remove the event listener
+        window.removeEventListener('mapClick', draw_tool);
+
+        // Remove the temporary polyline which was drawn to give the user a reference
+        if(display_polyline != null){
+            display_polyline.setMap(null);
+        }
+
+        // Construct an actual route from the data gathered from the drawing tool
+        // Generate a unique ID by adding 1 to the route with highest route ID
+        var newID = 1;
+        if(routeMap.size > 0){
+            newID = Math.max(...Array.from(routeMap.values()).map(b => b.id)) + 1;
+        }
+
+        const new_route = {id:newID, name:"custom_route-" + newID.toString(), links:links_track, stops:stops_track, hidden_attrs:[], user_attrs: []}
+        displayBNOPIRoute(new_route)
+
+    }else if(current_route_draw.length === 1){
+        // If the user has clicked once on the map in the draw tool and then finishes we have to delete the bus stop created
+        busStops.get(current_route_draw[current_route_draw.length - 1]).setMap(null);
+        busStops.delete(current_route_draw[current_route_draw.length - 1]);
+        window.dispatchEvent(new Event('bus_stops_change'));
+    }
+
+    // Reset the variables used so the next time tool is selected it work correctly
+    current_route_draw = [];
+    display_polyline = null;
+    current_link = []
+    stops_track = [];
+    links_track = [];
 }
 
 // Snap a user-created polyline to roads and draw the snapped path

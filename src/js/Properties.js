@@ -12,15 +12,21 @@ export default function Properties() {
   const [positiveIntegers, setpositiveintegers] = useState({});
   const [path, setPath] = useState('');
   const [stages, setStages] = useState({});
+  const [type, setType] = useState('');
 
   useEffect(() => {
     const handle_properties_change = (event) => {
-      setProp(event.detail.id);
-      const node_id = dpgraph.find(obj => obj.id === event.detail.id);
-      setValue(node_id.name);
-      setNode(node_id);
-      setPath(node_id.file.bash);
-      setDescription(node_id.description);
+      if(event.detail.type === 'dependency_node'){
+        setProp(event.detail.id);
+        const node_id = dpgraph.find(obj => obj.id === event.detail.id);
+        setValue(node_id.name);
+        setNode(node_id);
+        setPath(node_id.file.bash);
+        setDescription(node_id.description);
+        setType('dependency_node');
+      }else if(event.detail.type === 'Route_draw'){
+        setType('Route_draw');
+      }
     };
 
     window.addEventListener('showProperties', handle_properties_change);
@@ -197,9 +203,11 @@ export default function Properties() {
 
   let prop_node = null;
 
-  if (prop === '-1') {
+  if (type === '') {
     prop_node = <Typography>Select element to view properties</Typography>;
-  } else {
+  }else if(type === 'Route_draw'){
+    
+  }else {
 
     prop_node = (
       <div>
