@@ -324,68 +324,70 @@ function displayBNOPIStop(stop) {
     marker.bnopiHiddenAttrs = stop.hidden_attrs;
 
     // add the marker to the busStops hashmap
-    busStops.set(marker.position, marker);
+    busStops.set(marker.id, marker);
     window.dispatchEvent(new Event('bus_stops_change'));
-    google.maps.event.addListener(marker, 'click', function deleteMarker(event) {
+    google.maps.event.addListener(marker, 'click', () => deleteDisplayStop(marker.id));
 
-        //The user has clicked the delete markers button 
-        if (window.localStorage.getItem('mode') == 2) {
+    // google.maps.event.addListener(marker, 'click', function deleteMarker(event) {
 
-            // if this stop is part of a route then merge the links on either side of it.
+    //     //The user has clicked the delete markers button 
+    //     if (window.localStorage.getItem('mode') == 2) {
 
-            for (const route of Array.from(routeMap.values())) {
-                var i = 0;
-                while (i < route.stops.length) {
-                    if (route.stops[i] == stop.id) {
-                        // prevent route from becoming singleton.
-                        if (route.stops.length <= 2) {
-                            deleteDisplayRoute(route.id);
-                            break;
-                        }
-                        // if this is at the start or end of the array delete the link.
-                        else if (i == 0) {
-                            route.stops.splice(i, 1);
-                            route.links[i].setMap(null);
-                            route.links.splice(i, 1);
-                            route.continuityLinks[i].setMap(null);
-                            route.continuityLinks.splice(i,1);
-                        } else if (i == route.stops.length-1) {
-                            route.stops.splice(i, 1);
-                            route.links[i-1].setMap(null);
-                            route.links.splice(i-1, 1);
-                            route.continuityLinks[i - 2].setMap(null);
-                            route.continuityLinks.splice(i-2, 1);
-                        } else {
-                            // otherwise merge two links on either side of the stop
-                            route.stops.splice(i,1);
-                            route.continuityLinks[i - 1].setMap(null);
-                            route.continuityLinks.splice(i - 1, 1);
+    //         // if this stop is part of a route then merge the links on either side of it.
+
+    //         for (const route of Array.from(routeMap.values())) {
+    //             var i = 0;
+    //             while (i < route.stops.length) {
+    //                 if (route.stops[i] == stop.id) {
+    //                     // prevent route from becoming singleton.
+    //                     if (route.stops.length <= 2) {
+    //                         deleteDisplayRoute(route.id);
+    //                         break;
+    //                     }
+    //                     // if this is at the start or end of the array delete the link.
+    //                     else if (i == 0) {
+    //                         route.stops.splice(i, 1);
+    //                         route.links[i].setMap(null);
+    //                         route.links.splice(i, 1);
+    //                         route.continuityLinks[i].setMap(null);
+    //                         route.continuityLinks.splice(i,1);
+    //                     } else if (i == route.stops.length-1) {
+    //                         route.stops.splice(i, 1);
+    //                         route.links[i-1].setMap(null);
+    //                         route.links.splice(i-1, 1);
+    //                         route.continuityLinks[i - 2].setMap(null);
+    //                         route.continuityLinks.splice(i-2, 1);
+    //                     } else {
+    //                         // otherwise merge two links on either side of the stop
+    //                         route.stops.splice(i,1);
+    //                         route.continuityLinks[i - 1].setMap(null);
+    //                         route.continuityLinks.splice(i - 1, 1);
                             
-                            // extend the first link with the second
-                            const path = route.links[i - 1].getPath();
-                            route.links[i].getPath().forEach(pt => {
-                                path.push(new google.maps.LatLng(pt.lat(), pt.lng()))
-                            })
+    //                         // extend the first link with the second
+    //                         const path = route.links[i - 1].getPath();
+    //                         route.links[i].getPath().forEach(pt => {
+    //                             path.push(new google.maps.LatLng(pt.lat(), pt.lng()))
+    //                         })
 
-                            route.links[i].setMap(null);
-                            route.links.splice(i, 1);
-
-
-                        }
-                        updateContinuityLinks(route);
-                    } else {
-                        i++;
-                    }
-                }
-            }
+    //                         route.links[i].setMap(null);
+    //                         route.links.splice(i, 1);
 
 
-            busStops.get(event.latLng).setMap(null);
-            busStops.delete(event.latLng);
+    //                     }
+    //                     updateContinuityLinks(route);
+    //                 } else {
+    //                     i++;
+    //                 }
+    //             }
+    //         }
 
-            window.dispatchEvent(new Event('bus_stops_change'));
-        }
-    });
+
+    //         busStops.get(event.latLng).setMap(null);
+    //         busStops.delete(event.latLng);
+
+    //         window.dispatchEvent(new Event('bus_stops_change'));
+    //     }
+    // });
 
     window.dispatchEvent(new Event('bus_stops_change'));
 
@@ -562,6 +564,68 @@ function deleteDisplayRoute(id) {
     window.dispatchEvent(new Event('routes_change'));
 }
 
+/** Delete a bus stop marker and upadte any routes that used it
+ * 
+ * @param {number} id stop id
+ */
+function deleteDisplayStop(id) {
+    const stop = busStops.get(id);
+
+    // if this stop is part of a route then merge the links on either side of it.
+    for (const route of Array.from(routeMap.values())) {
+        var i = 0;
+        while (i < route.stops.length) {
+            if (route.stops[i] == stop.id) {
+                // prevent route from becoming singleton.
+                if (route.stops.length <= 2) {
+                    deleteDisplayRoute(route.id);
+                    break;
+                }
+                // if this is at the start or end of the array delete the link.
+                else if (i == 0) {
+                    route.stops.splice(i, 1);
+                    route.links[i].setMap(null);
+                    route.links.splice(i, 1);
+                    route.continuityLinks[i].setMap(null);
+                    route.continuityLinks.splice(i, 1);
+                } else if (i == route.stops.length - 1) {
+                    route.stops.splice(i, 1);
+                    route.links[i - 1].setMap(null);
+                    route.links.splice(i - 1, 1);
+                    route.continuityLinks[i - 2].setMap(null);
+                    route.continuityLinks.splice(i - 2, 1);
+                } else {
+                    // otherwise merge two links on either side of the stop
+                    route.stops.splice(i, 1);
+                    route.continuityLinks[i - 1].setMap(null);
+                    route.continuityLinks.splice(i - 1, 1);
+
+                    // extend the first link with the second
+                    const path = route.links[i - 1].getPath();
+                    route.links[i].getPath().forEach(pt => {
+                        path.push(new google.maps.LatLng(pt.lat(), pt.lng()))
+                    })
+
+                    route.links[i].setMap(null);
+                    route.links.splice(i, 1);
+
+
+                }
+                updateContinuityLinks(route);
+            } else {
+                i++;
+            }
+        }
+    }
+
+
+    stop.setMap(null);
+    busStops.delete(id);
+
+    window.dispatchEvent(new Event('bus_stops_change'));
+    
+}
+
 
 /** Collects the stops and routes currently displaying on the screen
  * 
@@ -578,25 +642,6 @@ function getCurrentlyDisplaying() {
         hidden_attrs: marker.bnopiHiddenAttrs,
         user_attrs: marker.bnopiUserAttrs
     }));
-
-    // const BNOPIRoutes = Array.from(polyMap.values()).map(polyLine => {
-    //     const points = [];
-    //     polyLine.getPath().forEach(googlePoint => {
-    //         points.push({
-    //             lat: googlePoint.lat(),
-    //             lon: googlePoint.lng()
-    //         });
-    //     });
-    //     return {
-    //         id: polyLine.id,
-    //         name: polyLine.name,
-    //         // points: points,
-    //         stops: polyLine.stops,
-    //         links: polyLine.links, // this needs to be updated by the front end. It needs to know which section of the polyline has been changed, and then make the changes within the polyLine.links property.
-    //         hidden_attrs: polyLine.bnopiHiddenAttrs,
-    //         user_attrs: polyLine.bnopiUserAttrs
-    //     }
-    // });
 
     /** @type {BNOPIRoute[]}*/
     const BNOPIRoutes = Array.from(routeMap.values()).map(displayRoute => ({
@@ -776,8 +821,10 @@ function disableRouteDraw() {
 
     }else if(current_route_draw.length === 1){
         // If the user has clicked once on the map in the draw tool and then finishes we have to delete the bus stop created
-        busStops.get(current_route_draw[current_route_draw.length - 1]).setMap(null);
-        busStops.delete(current_route_draw[current_route_draw.length - 1]);
+        // busStops.get(current_route_draw[current_route_draw.length - 1]).setMap(null);
+        // busStops.delete(current_route_draw[current_route_draw.length - 1]);
+        busStops.get(stops_track[0]).setMap(null);
+        busStops.delete(stops_track[0]);
         window.dispatchEvent(new Event('bus_stops_change'));
     }
 

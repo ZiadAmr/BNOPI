@@ -30,9 +30,7 @@ export default function Stops_list() {
               </ListItemIcon>
               <ListItemText id='stops_list' primary={item.name} style={{color:'ffffff'}}/>
               <IconButton onClick={() => {
-                item.setMap(null);
-                busStops.delete(key);
-                window.dispatchEvent(new Event('bus_stops_change'));
+                deleteDisplayStop(key);
               }}>
                   <FontAwesomeIcon icon={faTrash} style={{ color: '#ffffff', fontSize:17 }} />
               </IconButton>
