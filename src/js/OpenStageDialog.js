@@ -93,16 +93,13 @@ export default function OpenStageDialog(props) {
 	}
 
 
-	var i = 0;
 	return <Dialog open={mdPath != null} onClose={onCancel}>
 		<DialogTitle>Select Requirement Instances</DialogTitle>
 		<DialogContent>
-			{ins.stageFormatInfo.requirements.map(req => {
-				const j = i; // doesn't change as i is incremented
-				i++;
+			{ins.stageFormatInfo.requirements.map((req, j) => {
 				const options = requirementInstanceList[j];
 
-				return <FormControl fullWidth>
+				return <FormControl fullWidth key={j}>
 					<InputLabel variant="standard" htmlFor="uncontrolled-native">
 						{req}
 					</InputLabel>
@@ -114,10 +111,10 @@ export default function OpenStageDialog(props) {
 							onChange: (event) => handleSelectedOptionsChange(j, event.target.value)
 						}}
 					>
-						{options.map(op => {
+						{options.map((op, index) => {
 							// make one option for each instance. Use the datafile name, as is displayed in the stage tracker.
 							const datafile = stageInstances.find(i => i.path == op).metadata.datafile;
-							return <option value={op} key={op}>{datafile}</option>
+							return <option value={op} key={index}>{datafile}</option>
 						})}
 					</NativeSelect>
 				</FormControl>

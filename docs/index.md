@@ -15,7 +15,7 @@ The role of BNOPI is to
 
 In the dependency graph, each node represents an **algorithm**. Algorithms are accessed by BNOPI using a metadata file, which contains information about the command-line parameters, input and output file formats, and a shell script to launch the algorithm.
 
-To transfer data between nodes, BNOPI uses [**stage formats**](/bnopi-stage-fmts/README.md). A stage format refers to the structure of some input, output, or intermediary file. The files themselves are referred to as **stage instances**, or instances of the stage format. An example of a stage format is `STOPS`, instances of which contain data about bus stops in a standardized JSON format. Each edge in a project's dependency graph represents the flow of a stage instance from one node to the next.
+To transfer data between nodes, BNOPI uses [**stage formats**](/docs/Stage-Formats.md). A stage format refers to the structure of some input, output, or intermediary file. The files themselves are referred to as **stage instances**, or instances of the stage format. An example of a stage format is `STOPS`, instances of which contain data about bus stops in a standardized JSON format. Each edge in a project's dependency graph represents the flow of a stage instance from one node to the next.
 
 On a node, a **breakpoint** may be placed. This indicates that the resulting stage instances of that node should be visualized, and the user should be able to edit them before proceeding.
 
@@ -50,7 +50,7 @@ The main entry point for the project is `info.json`, located in the top level of
 }
 ```
 
-`dependencyGraph` references a *.dg.json* file containing information about the structure of the nodes in the project. `stageInstances` contains a list of directories within which BNOPI will look for [stage instance metadata (*.stg.json*) files](/bnopi-stage-fmts/README.md), which are used to keep track of generated stage instances. Generally the stage instances are stored in the same folder alongside the *.stg.json* files.
+`dependencyGraph` references a *.dg.json* file containing information about the structure of the nodes in the project. `stageInstances` contains a list of directories within which BNOPI will look for [stage instance metadata (*.stg.json*) files](/docs/Stage-Formats.md), which are used to keep track of generated stage instances. Generally the stage instances are stored in the same folder alongside the *.stg.json* files.
 
 ### Dependency Graph
 
@@ -161,7 +161,7 @@ Continuing the execution, we generate a route network using a genetic algorithm.
 ## Documentation
 Documentation on how to create metadata files can be found below.
 
-+ [Stage format documentation](/bnopi-stage-fmts/README.md)
++ [Stage format documentation](/docs/Stage-Formats.md)
 + [Algorithm documentation](/bnopi-algs/README.md)
 
 

@@ -45,9 +45,13 @@ contextBridge.exposeInMainWorld('electron', {
   loadStageInstance: (...args) => ipcRenderer.invoke("loadStageInstance", ...args),
   saveStageInstanceAs: (...args) => ipcRenderer.invoke("saveStageInstanceAs", ...args),
 
+  // dialog boxes
+  showMessageBox: (...args) => ipcRenderer.invoke("showMessageBox", ...args),
+
 
   // one way communication, main process to bnopi window renderer:
-  onOpenProject: (callback) => ipcRenderer.on("openProject", callback)
+  onOpenProject: (callback) => ipcRenderer.on("openProject", callback),
+  onSave: (callback) => ipcRenderer.on("save", callback)
 
 
 

@@ -72,7 +72,7 @@ export default function StageTracker() {
 			onClick={(event) => {
 				handleListItemClick(event, index);
 			}}
-			key={index}
+			
 			onDoubleClick={async (event) => {
 				// click button to load stage instance.
 				// if there are any requirements open a dialog box
@@ -91,13 +91,13 @@ export default function StageTracker() {
 
 
 		if (disabled) {
-			return <Tooltip title="Unrecognized stage format" placement="top" key={index} >
+			return <Tooltip title="Unrecognized stage format" placement="left" key={index} >
 				<span>
 					{stageInstanceButton}
 				</span>
 			</Tooltip>
 		} else {
-			return <span>{stageInstanceButton}</span>;
+			return <span key={index}>{stageInstanceButton}</span>;
 		}
 
 
