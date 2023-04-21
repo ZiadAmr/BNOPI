@@ -285,8 +285,59 @@ function displayBNOPIStop(stop) {
 
         //The user has clicked the delete markers button 
         if (window.localStorage.getItem('mode') == 2) {
+
+            // if this stop is part of a route then merge the links on either side of it.
+
+            for (const route of Array.from(routeMap.values())) {
+                var i = 0;
+                while (i < route.stops.length) {
+                    if (route.stops[i] == stop.id) {
+                        // prevent route from becoming singleton.
+                        if (route.stops.length <= 2) {
+                            deleteDisplayRoute(route.id);
+                            break;
+                        }
+                        // if this is at the start or end of the array delete the link.
+                        else if (i == 0) {
+                            route.stops.splice(i, 1);
+                            route.links[i].setMap(null);
+                            route.links.splice(i, 1);
+                            route.continuityLinks[i].setMap(null);
+                            route.continuityLinks.splice(i,1);
+                        } else if (i == route.stops.length-1) {
+                            route.stops.splice(i, 1);
+                            route.links[i-1].setMap(null);
+                            route.links.splice(i-1, 1);
+                            route.continuityLinks[i - 2].setMap(null);
+                            route.continuityLinks.splice(i-2, 1);
+                        } else {
+                            // otherwise merge two links on either side of the stop
+                            route.stops.splice(i,1);
+                            route.continuityLinks[i - 1].setMap(null);
+                            route.continuityLinks.splice(i - 1, 1);
+                            
+                            // extend the first link with the second
+                            const path = route.links[i - 1].getPath();
+                            route.links[i].getPath().forEach(pt => {
+                                path.push(new google.maps.LatLng(pt.lat(), pt.lng()))
+                            })
+
+                            route.links[i].setMap(null);
+                            route.links.splice(i, 1);
+
+
+                        }
+                        updateContinuityLinks(route);
+                    } else {
+                        i++;
+                    }
+                }
+            }
+
+
             busStops.get(event.latLng).setMap(null);
             busStops.delete(event.latLng);
+
             window.dispatchEvent(new Event('bus_stops_change'));
         }
     });
@@ -393,18 +444,6 @@ function displayBNOPIRoute(route) {
 
         polyLine.setMap(map);
 
-        // add listeners to move this line if the links change
-        thisLink.getPath().addListener('set_at', function () {
-            polyLine.getPath().setAt(0, 
-                thisLink.getPath().getAt(thisLink.getPath().getLength() - 1)
-            )
-        });
-        nextLink.getPath().addListener('set_at', function () {
-            polyLine.getPath().setAt(1,
-                nextLink.getPath().getAt(0)
-            )
-        });
-
         // listener to delete route
         polyLine.addListener("click", function () {
             if (window.localStorage.getItem('mode') == 4 /*delete route*/) {
@@ -416,6 +455,7 @@ function displayBNOPIRoute(route) {
         continuityLinks.push(polyLine);
         
     }
+
 
     // convert to DisplayRoute - this is how it is stored
     /** @type {DisplayRoute} */
@@ -429,10 +469,32 @@ function displayBNOPIRoute(route) {
         user_attrs: route.user_attrs
     }
 
+    // listeners to update continuity links
+    newRoute.links.forEach(link =>
+        link.getPath().addListener('set_at', () =>
+            updateContinuityLinks(newRoute)
+        )
+    )
+
     routeMap.set(route.id, newRoute);
     window.dispatchEvent(new Event('routes_change'));
 
 
+}
+
+/** Update endpoints of continuity links in a route.
+ * 
+ * @param {DisplayRoute} route 
+ */
+function updateContinuityLinks(route) {
+    for (let j = 0; j < route.links.length - 1; j++) {
+        const pt = route.links[j].getPath().getAt(route.links[j].getPath().getLength() - 1);
+        route.continuityLinks[j].getPath().setAt(0, pt);
+    }
+    for (let j = 1; j < route.links.length; j++) {
+        const pt = route.links[j].getPath().getAt(0);
+        route.continuityLinks[j - 1].getPath().setAt(1, pt);
+    }
 }
 
 /**
