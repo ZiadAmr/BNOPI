@@ -305,7 +305,7 @@ function displayBNOPIStop(stop) {
         name = stop.id;
     }
 
-    marker = new google.maps.Marker({
+    const marker = new google.maps.Marker({
         position: {
             lat: stop.lat,
             lng: stop.lon
@@ -326,7 +326,11 @@ function displayBNOPIStop(stop) {
     // add the marker to the busStops hashmap
     busStops.set(marker.id, marker);
     window.dispatchEvent(new Event('bus_stops_change'));
-    google.maps.event.addListener(marker, 'click', () => deleteDisplayStop(marker.id));
+    google.maps.event.addListener(marker, 'click', () => {
+        if (window.localStorage.getItem('mode') == 2 /*delete stop*/) {
+            deleteDisplayStop(marker.id);
+        }
+    });
 
     window.dispatchEvent(new Event('bus_stops_change'));
 
@@ -767,11 +771,7 @@ function disableRouteDraw() {
 
     }else if(current_route_draw.length === 1){
         // If the user has clicked once on the map in the draw tool and then finishes we have to delete the bus stop created
-        // busStops.get(current_route_draw[current_route_draw.length - 1]).setMap(null);
-        // busStops.delete(current_route_draw[current_route_draw.length - 1]);
-        busStops.get(stops_track[0]).setMap(null);
-        busStops.delete(stops_track[0]);
-        window.dispatchEvent(new Event('bus_stops_change'));
+        deleteDisplayStop(stops_track[0]);
     }
 
     // Reset the variables used so the next time tool is selected it work correctly
