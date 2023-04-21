@@ -620,7 +620,6 @@ function createGoogleMarker(marker) {
     })
     busStops.set(temp.position, temp);
     google.maps.event.addListener(temp, 'click', function deleteMarker(event) {
-        console.log("Clicked");
         //The user has clicked the delete markers button 
         if (window.localStorage.getItem('mode') == 2) {
             busStops.get(event.latLng).setMap(null);
@@ -659,7 +658,6 @@ function stopsToJson() {
 
     return { "stops": stops };
 }
-
 
 
 //Called when a button from the network toolkit is clicked
@@ -739,9 +737,17 @@ function draw_tool(event){
 //Once the draw a route button is clicked, this function will be called
 function enableRouteDraw() {
     window.addEventListener('mapClick', draw_tool);
+
+    // Make the done button appear
+    var done_button = new CustomEvent('done_button', {detail: {status:true}});
+    window.dispatchEvent(done_button)
 }
 
 function disableRouteDraw() {
+    // Make the done button disappear
+    var done_button = new CustomEvent('done_button', {detail: {status:false}});
+    window.dispatchEvent(done_button)
+
     if(current_route_draw.length > 1){
         // If the last point is not a stop, manually add a stop at the last point
         if(current_link.length > 1){
