@@ -689,8 +689,8 @@ function draw_tool(event){
             stops_track.push(event.detail.ID)
         }else{
             const stop = displayBNOPIStop({
-                lat: event.latLng.lat(),
-                lon: event.latLng.lng(),
+                lat: event.detail.values.latLng.lat(),
+                lon: event.detail.values.latLng.lng(),
                 id: newUniqueStopID(),
                 name: "Custom stop",
                 hidden_attrs: {},
