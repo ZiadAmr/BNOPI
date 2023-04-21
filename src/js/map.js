@@ -72,7 +72,14 @@ function initMap() {
     google.maps.event.addListener(map, 'click',
         function (event) {
             if (window.localStorage.getItem('mode') == 1) {
-                createGoogleMarker(event);
+                displayBNOPIStop({
+                    lat: event.latLng.lat(),
+                    lon: event.latLng.lng(),
+                    id: newUniqueStopID(),
+                    name: "Custom stop",
+                    hidden_attrs: {},
+                    user_attrs: {}
+                })
             }else if(window.localStorage.getItem('mode') == 3){
                 var new_click = new CustomEvent('mapClick', {detail: {type:'path_point', values:event}});
                 window.dispatchEvent(new_click)
@@ -83,8 +90,16 @@ function initMap() {
     google.maps.event.addListener(map, 'rightclick',
         function (event) {
             if (window.localStorage.getItem('mode') == 3) {
-                const temp = createGoogleMarker(event);
-                var new_click = new CustomEvent('mapClick', {detail: {type:'bus_stop', values:event, ID:temp}});
+                const stop = displayBNOPIStop({
+                    lat: event.latLng.lat(),
+                    lon: event.latLng.lng(),
+                    id: newUniqueStopID(),
+                    name: "Custom stop",
+                    hidden_attrs: {},
+                    user_attrs: {}
+                });
+
+                var new_click = new CustomEvent('mapClick', {detail: {type:'bus_stop', values:event, ID:stop.id}});
                 window.dispatchEvent(new_click)
             }
         });
@@ -102,6 +117,15 @@ function initMap() {
     window.addEventListener("bus_stops_change", event => { setModified() });
     window.addEventListener("routes_change", event => { setModified() });
 
+}
+
+function newUniqueStopID() {
+    var newID = 1;
+    if (busStops.size > 0) {
+        // one higher than highest existing id
+        newID = Math.max(...Array.from(busStops.values()).map(b => b.id)) + 1;
+    }
+    return newID;
 }
 
 /** Update the global variable stageInstances, and update stage tracker
@@ -269,9 +293,10 @@ async function saveStageInstanceAs(oldPrimPath, oldReqPaths) {
 
 
 /** Display a bus stop from the BNOPI format (that which is received from the stage format handler).
- * Converts the stop into a google maps marker.
+ * Converts the stop into a google maps marker and adds to hashmap / screen
  * 
  * @param {{lat: number; lon: number; id: number; name: string | undefined; hidden_attrs: any; user_attrs: any;}} stop Stop in BNOPI format
+ * @returns {google.maps.Marker}
  */
 function displayBNOPIStop(stop) {
     // if the bus stop doesn't have a name just use the id
@@ -363,6 +388,8 @@ function displayBNOPIStop(stop) {
     });
 
     window.dispatchEvent(new Event('bus_stops_change'));
+
+    return marker;
 
 }
 
@@ -595,43 +622,6 @@ function getCurrentlyDisplaying() {
 
 }
 
-
-//Called when a marker is created by clicking on the map
-function createGoogleMarker(marker) {
-
-    // create a new id
-    var newID = 1;
-    if (busStops.size > 0) {
-        // one higher than highest existing id
-        newID = Math.max(...Array.from(busStops.values()).map(b => b.id)) + 1;
-    }
-
-    temp = new google.maps.Marker({
-        position: marker.latLng,
-        map: map,
-        id: newID,
-        title: "Bus stop",
-        name: "Custom stop",
-        icon: {
-            size: new google.maps.Size(30, 30),
-            scaledSize: new google.maps.Size(30, 30),
-            url: "icons/bus-station.png"
-        }
-    })
-    busStops.set(temp.position, temp);
-    google.maps.event.addListener(temp, 'click', function deleteMarker(event) {
-        console.log("Clicked");
-        //The user has clicked the delete markers button 
-        if (window.localStorage.getItem('mode') == 2) {
-            busStops.get(event.latLng).setMap(null);
-            busStops.delete(event.latLng);
-            window.dispatchEvent(new Event('bus_stops_change'));
-        }
-    });
-    window.dispatchEvent(new Event('bus_stops_change'));
-    return newID;
-}
-
 function stopsToJson() {
 
     var id_counter = 0;
@@ -699,8 +689,15 @@ function draw_tool(event){
         if(event.detail.type === "bus_stop"){
             stops_track.push(event.detail.ID)
         }else{
-            const temp = createGoogleMarker(event.detail.values)
-            stops_track.push(temp)
+            const stop = displayBNOPIStop({
+                lat: event.latLng.lat(),
+                lon: event.latLng.lng(),
+                id: newUniqueStopID(),
+                name: "Custom stop",
+                hidden_attrs: {},
+                user_attrs: {}
+            });
+            stops_track.push(stop.id)
         }
         current_link.push({lat, lon})
     }else{
@@ -745,9 +742,16 @@ function disableRouteDraw() {
     if(current_route_draw.length > 1){
         // If the last point is not a stop, manually add a stop at the last point
         if(current_link.length > 1){
-            const temp = createGoogleMarker({latLng:new google.maps.LatLng(current_link[current_link.length - 1].lat, current_link[current_link.length - 1].lon)})
+            const stop = displayBNOPIStop({
+                lat: current_link[current_link.length - 1].lat,
+                lon: current_link[current_link.length - 1].lon,
+                id: newUniqueStopID(),
+                name: "Custom stop",
+                hidden_attrs: {},
+                user_attrs: {}
+            });
             // Add the new stop to the list of stops in the route
-            stops_track.push(temp)
+            stops_track.push(stop.id)
             // Add the link to the list of links
             links_track.push(current_link)
         }
