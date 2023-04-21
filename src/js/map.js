@@ -696,7 +696,6 @@ function stopsToJson() {
 }
 
 
-
 //Called when a button from the network toolkit is clicked
 function changeMode(newMode) {
     //If the last mode the program was in was add route mode, we need to disable the drawing manager
@@ -735,8 +734,8 @@ function draw_tool(event){
             stops_track.push(event.detail.ID)
         }else{
             const stop = displayBNOPIStop({
-                lat: event.latLng.lat(),
-                lon: event.latLng.lng(),
+                lat: event.detail.values.latLng.lat(),
+                lon: event.detail.values.latLng.lng(),
                 id: newUniqueStopID(),
                 name: "Custom stop",
                 hidden_attrs: {},
@@ -781,9 +780,17 @@ function draw_tool(event){
 //Once the draw a route button is clicked, this function will be called
 function enableRouteDraw() {
     window.addEventListener('mapClick', draw_tool);
+
+    // Make the done button appear
+    var done_button = new CustomEvent('done_button', {detail: {status:true}});
+    window.dispatchEvent(done_button)
 }
 
 function disableRouteDraw() {
+    // Make the done button disappear
+    var done_button = new CustomEvent('done_button', {detail: {status:false}});
+    window.dispatchEvent(done_button)
+
     if(current_route_draw.length > 1){
         // If the last point is not a stop, manually add a stop at the last point
         if(current_link.length > 1){

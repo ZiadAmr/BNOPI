@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBus, faPenToSquare, faRoute } from '@fortawesome/free-solid-svg-icons';
 export default function NetworkToolKit() {
 
-    function handleChange(newMode){
+    function update_buttons(newMode){
         //Get the 5 buttons
         var buttons = [document.getElementById("add_stop"), 
                     document.getElementById("remove_stop"), 
@@ -24,10 +24,29 @@ export default function NetworkToolKit() {
                 }
             }
         }
+    }
+
+    function handleChange(newMode){
+        update_buttons(newMode)
 
         //Finally call the function in the back-end to change the mode
         window.changeMode(newMode);
     }
+
+    // Update the buttons state when the done button is clicked (for the route draw tool)
+    useEffect(() => {
+        const handleDoneChange = (event) => {
+            if(event.detail.status === false){
+                update_buttons(0)
+            }
+        };
+    
+        window.addEventListener('done_button', handleDoneChange);
+    
+        return () => {
+          window.removeEventListener('done_button', handleDoneChange);
+        };
+    }, []);
 
   return (
     <>
