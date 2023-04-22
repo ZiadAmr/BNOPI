@@ -13,6 +13,8 @@
       let dpgraph = [];
       window.localStorage.clear();
       //Hashmap used for storing the loaded bus stops
+
+      /** @type {Map<number, google.maps.Marker>} */
       var busStops = new Map();
       window.localStorage.setItem('mode', 0);
       window.localStorage.setItem("routeCounter", 0);
