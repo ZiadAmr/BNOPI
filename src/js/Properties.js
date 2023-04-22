@@ -52,6 +52,7 @@ export default function Properties() {
 
   const handleScriptLoad = useCallback(async (item) =>{
     var node_to_update = dpgraph.find(obj => obj.id === prop);
+    node_to_update.location = item.path
     node_to_update.description = item.meta.description
     node_to_update.file = item.meta.launchScript
     node_to_update.input_stage_formats = item.meta.inputStageFormats
@@ -88,6 +89,7 @@ export default function Properties() {
     setDescription(node_to_update.description);
     var stage_change = new CustomEvent('change_state', {detail: {id: prop, name:node_to_update.name, script:node_to_update.file.bash}});
     window.dispatchEvent(stage_change);
+    console.log(dpgraph)
   }, [prop]);
 
 

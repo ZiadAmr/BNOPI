@@ -171,7 +171,7 @@ async function openBNOPIAlg(){
 	var meta = await fsp.readFile(file.filePaths[0], { encoding: "utf-8", flag: "r" });
 	meta = JSON.parse(meta);
 
-	return {status: "ok", meta}
+	return {status: "ok", meta, path:path.dirname(file.filePaths[0])}
 }
 
 /**
