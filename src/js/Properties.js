@@ -89,7 +89,6 @@ export default function Properties() {
     setDescription(node_to_update.description);
     var stage_change = new CustomEvent('change_state', {detail: {id: prop, name:node_to_update.name, script:node_to_update.file.bash}});
     window.dispatchEvent(stage_change);
-    console.log(dpgraph)
   }, [prop]);
 
 
@@ -170,7 +169,7 @@ export default function Properties() {
   };
 
   function construct_input_stage(item, index, info){
-    const possible_stages = stageInstances.filter(stage => stage.stageFormatInfo !== undefined && stage.stageFormatInfo.id === item.stage_format);
+    const possible_stages = stageInstances.filter(stage => stage.metadata.format === item.stage_format);
 
     return <div key= {index.toString() + " " + info.toString() + " stage_instance"} style={{ display: 'flex', alignItems: 'center', paddingTop:'15px'}}>
       <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '6px', paddingLeft: '10px', paddingRight:'4px' }}>
@@ -193,8 +192,8 @@ export default function Properties() {
         >
           {possible_stages.map((element, i) => (
             <MenuItem key={"Random_key" + " " + i.toString() + " "+ index.toString() + " Menu item"}
-            value={element.stageFormatInfo.name.toString() + " " + element.metadata.generatedBy.toString()}>
-              {element.stageFormatInfo.name.toString() + " " + element.metadata.generatedBy.toString()}
+            value={element.metadata.datafile}>
+              {element.metadata.datafile}
             </MenuItem>
           ))}
 
