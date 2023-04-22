@@ -1,0 +1,1 @@
+python bnopi-algs/test.py $args
