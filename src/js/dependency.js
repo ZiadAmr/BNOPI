@@ -3,7 +3,7 @@ let memory = {}
 
 // Add breakpoints
 
-export function addStage(id, stageName, filename, parameters=[], parents=[], description, script) {
+export function addStage(id, stageName, filename, parameters=[], parents=[], description, instage) {
     console.log("Adding new stage", stageName)
     dpgraph.push({
         "id": id,
@@ -12,9 +12,8 @@ export function addStage(id, stageName, filename, parameters=[], parents=[], des
         "params": parameters,
         "parents": parents,
         "description": description,
-        "input_stage_formats":[],
-        "output_stage_formats":[],
-        "script": script
+        "input_stage_formats":instage,
+        "output_stage_formats":[]
     })
     return dpgraph;
 }
@@ -86,8 +85,8 @@ export function runGraph() {
                 run.push(x)
             }
         });
-        console.log(run)
-        run.forEach((x,i) => runScript(x.id, x.script.bash, x.params))
+        console.log("RUN: ", run)
+        run.forEach((x,i) => runScript(x.id, x.file, x.params))
         run.forEach((x,i) => stages_run.push(x.id))
         console.log("loop", stages_run)
         // console.log("Stages Run: ", stages_run)
@@ -102,26 +101,18 @@ export function runScript(id, script, params) {
     let args = []
     console.log("Params = ", params)
     for (var i = 0; i < params.length; i++){
-        print(params)
-        args.push(memory[params[i]])
+        if (params[i].setVal == undefined){
+            args.push(params[i].default)
+        } else {
+            args.push(params[i].setVal)
+        }
     }
     console.log("Script: ", script)
     console.log("Arguments: ", args)
-
-    //BUG 1 - Require causing issues
-    // var python = require('child_process').spawn(script, args);
-
-    var python = window.electron.spawn_child(script, "arguments");
+    // console.log("\t Input Stages: ", stageInstances)
+    var python = window.electron.spawn_child(script.powershell, args);
     console.log("Output: ", python)
     return ""
-    // python.stdout.on('data',function(data){
-    //     console.log("data: ",data.toString());
-    //     memory[id] = data.toString()
-        
-    //     console.log("after:", memory)
-
-    //     return data.toString()
-    // });
 }
 
 

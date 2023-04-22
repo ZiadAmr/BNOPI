@@ -44,6 +44,6 @@
 
 	"launchScript":{
 		"bash": "launch-gen-stop-connection-graph.sh",
-		"powershell": "launch-powershell.ps1"
+		"powershell": "bnopi-algs/launch-gen-stop-connection-graph.ps1"
 	} 
 }
