@@ -78,7 +78,7 @@ body {
 #executeGraph {
   position: absolute;
   top: 93%;
-  right: 20%;
+  right: 27%;
 }
 
 #addNode2 {
@@ -93,6 +93,10 @@ body {
 }
 #Description{
   padding:0;
+  background-color: #3e3e3e;
+}
+#StageTracker {
+  padding: 0;
   background-color: #3e3e3e;
 }
 .container{
@@ -132,4 +136,20 @@ body {
   --bs-nav-link-color: #ffffff;
   --bs-nav-link-hover-color: #a3a3a3;
   --bs-nav-link-disabled-color: #6c757d;
+}
+
+.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-pa0tud-MuiAutocomplete-root .MuiOutlinedInput-root {
+  padding-right: 65px;
+  color: white;
+}
+
+.css-l3ln04-MuiAutocomplete-root .MuiOutlinedInput-root .MuiAutocomplete-input {
+  color: white;
+}
+
+#Route_drawing{
+  z-index: 102;
+  position: absolute;
+  top: 80%;
+  left: 1%;
 }

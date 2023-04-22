@@ -27,6 +27,10 @@ const file_handler = require("./file_handler")
  * @typedef {{id: number; name: string | undefined; links: {lat: number; lon: number;}[][], stops:number[], hidden_attrs: any, user_attrs: any}} BNOPIRoute
  */
 
+/**
+ * @typedef {{name: string;id: string; requirements: string[]; description: string; fileExtension: string;}} StageFormatInfo
+ */
+
 
 class StageFormatHandler {
 
@@ -182,7 +186,7 @@ class StageFormatHandler {
 		
 		// fix requirementInstances to be a list of oldRequirementsMetadataPaths.length,
 		// add nulls in necessary
-		if (typeof edits.requirementDatas == "undefined") {
+		if (typeof edits.requirementDatas == "undefined" || edits.requirementDatas === null) {
 			edits.requirementDatas = Array(oldRequirementsMetadataPaths.length).fill(null);
 		} else {
 			while (edits.requirementDatas.length < oldRequirementsMetadataPaths.length) {
@@ -203,7 +207,7 @@ class StageFormatHandler {
 		var newRequirementInstances = [];
 
 		// decide where to save the new stage instance(s)
-		if (typeof edits.primaryData != "undefined") {
+		if (typeof edits.primaryData != null) {
 			newPrimaryInstance = await this.editInstance(primaryInstance, edits.primaryData, "primary");
 			newPrimaryInstance.metadata.parentStageInstances = parents;
 			siblings.push(newPrimaryInstance.metadataFilePath);
@@ -215,7 +219,7 @@ class StageFormatHandler {
 		for (let i = 0; i < oldRequirementsMetadataPaths.length; i++) {
 			const newData = edits.requirementDatas[i];
 			const oldInstance = requirementInstances[i];
-			if (newData === null) {
+			if (newData == null) {
 				newRequirementInstances.push(null);
 			} else {
 				const newInstance = await this.editInstance(oldInstance, newData, "requirement");
@@ -226,12 +230,34 @@ class StageFormatHandler {
 		}
 
 		// add the siblings property to all the new metadata files - but don't add the current file as a sibling
+		// also convert parent instances to relative paths.
 		if (newPrimaryInstance != null)
-			newPrimaryInstance.metadata.siblingStageInstances = siblings.filter(x => x != newPrimaryInstance.metadataFilePath);
+			newPrimaryInstance.metadata.siblingStageInstances = siblings
+				// remove itself from the siblings
+				.filter(x => x != newPrimaryInstance.metadataFilePath)
+				// convert paths to relative
+				.map(x => path.relative(path.dirname(newPrimaryInstance.metadataFilePath), x));
+			// convert parents to relative paths
+			newPrimaryInstance.metadata.parentStageInstances = newPrimaryInstance.metadata.parentStageInstances
+				.map(x => path.relative(path.dirname(newPrimaryInstance.metadataFilePath), x));
+
 		for (const requirementInstance of newRequirementInstances) {
-			if (requirementInstance != null)
-				requirementInstance.metadata.siblingStageInstances = siblings.filter(x => x != requirementInstance.metadataFilePath);
+			if (requirementInstance != null) {
+				requirementInstance.metadata.siblingStageInstances = siblings
+					.filter(x => x != requirementInstance.metadataFilePath)
+					.map(x => path.relative(path.dirname(requirementInstance.metadataFilePath), x));
+				requirementInstance.metadata.parentStageInstances = requirementInstance.metadata.parentStageInstances
+					.map(x => path.relative(path.dirname(requirementInstance.metadataFilePath), x));
+			}
 		}
+
+		// convert parent and sibling metadata paths to relative paths.
+		// if (newPrimaryInstance != null)
+		// 	for (const pa)
+		// for (const requirementInstance of newRequirementInstances) {
+		// 	if (requirementInstance != null)
+				
+		// }
 
 		// write files to disk
 		if (newPrimaryInstance != null) {
@@ -345,7 +371,7 @@ class StageFormatHandler {
 		newMetadata.generatedBy = alg;
 		newMetadata.nodeInGraph = oldInstance.metadata.nodeInGraph;
 		// parent stage instances refer to to stage instances that were used to create this, i.e. the data and requirements
-		newMetadata.parentStageInstances = [oldInstance.metadataFilePath];
+		newMetadata.parentStageInstances = [path.relative(path.dirname(newMetadataPath), oldInstance.metadataFilePath)];
 		newMetadata.siblingStageInstances = []; // other stage instances that were generated at the same time (come back to this later)
 
 		return {
@@ -353,6 +379,27 @@ class StageFormatHandler {
 			metadata: newMetadata,
 			metadataFilePath: newMetadataPath
 		};
+	}
+
+
+	/**
+	 * 
+	 * @param {string} stageFormatID 
+	 * @returns Result of getters from the StageFormat class.
+	 */
+	getStageFormatInfo(stageFormatID) {
+		const stage = this.loadedStageFormats.find((x) => x.id == stageFormatID);
+		if (typeof stage == "undefined") {
+			return undefined;
+		}
+		return {
+			name: stage.name,
+			id: stage.id,
+			requirements: stage.requirements,
+			description: stage.description,
+			fileExtension: stage.fileExtension
+		}
+
 	}
 }
 

@@ -6,8 +6,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { faZ } from '@fortawesome/free-solid-svg-icons';
-import Routes_list from './routes_list';
+import Routes_list from './Routes_list';
 import Stops_list from './Stops_list';
+import Properties from './Properties';
 
 
 export default function Description() {
@@ -16,25 +17,26 @@ export default function Description() {
 
 
   return (
-
-    <Tab.Container activeKey={key} onSelect={setKey}>
-      <Nav variant="tabs" className='Navigation'>
-        <Nav.Item style={{ width: '50%', fontSize:15 }}>
-          <Nav.Link eventKey="Properties" style={{ textAlign: 'center'}}>Properties</Nav.Link>
-        </Nav.Item>
-        <Nav.Item style={{ width: '50%', fontSize:15 }}>
-          <Nav.Link eventKey="Routes_and_Stops" style={{ textAlign: 'center'}}>Map info</Nav.Link>
-        </Nav.Item>
-      </Nav>
-      <Tab.Content id='routes_stops_content'>
-        <Tab.Pane eventKey="Properties">
-          
-        </Tab.Pane>
-        <Tab.Pane eventKey="Routes_and_Stops">
-          <Routes_list></Routes_list>
-          <Stops_list></Stops_list>
-        </Tab.Pane>
-      </Tab.Content>
-    </Tab.Container>
+    <div>
+      <Tab.Container activeKey={key} onSelect={setKey}>
+        <Nav variant="tabs" className='Navigation'>
+          <Nav.Item style={{ width: '50%', fontSize:15 }}>
+            <Nav.Link eventKey="Properties" style={{ textAlign: 'center'}}>Properties</Nav.Link>
+          </Nav.Item>
+          <Nav.Item style={{ width: '50%', fontSize:15 }}>
+            <Nav.Link eventKey="Routes_and_Stops" style={{ textAlign: 'center'}}>Map info</Nav.Link>
+          </Nav.Item>
+        </Nav>
+        <Tab.Content id='routes_stops_content'>
+          <Tab.Pane eventKey="Properties">
+            <Properties></Properties>
+          </Tab.Pane>
+          <Tab.Pane eventKey="Routes_and_Stops">
+            <Routes_list></Routes_list>
+            <Stops_list></Stops_list>
+          </Tab.Pane>
+        </Tab.Content>
+      </Tab.Container>
+    </div>
   )
 }

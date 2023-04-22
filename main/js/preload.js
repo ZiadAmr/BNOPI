@@ -16,6 +16,12 @@ contextBridge.exposeInMainWorld('electron', {
   writeFile: (path, data) => ipcRenderer.invoke('writeFile', path, data),
   readFile: (path) => ipcRenderer.invoke('readFile', path),
 
+  /* 
+  * Dependency Graph
+  */
+
+  spawn_child: (script, args) => ipcRenderer.invoke('spawn_child', script, args),
+
   /*
   * specific functions for loading/saving stage formats
   * defined in file_handler.js
@@ -23,6 +29,8 @@ contextBridge.exposeInMainWorld('electron', {
   openStageFormat: (project, stage, path) => ipcRenderer.invoke("openStageFormat", project, stage, path),
   saveStageFormat: (project, stage, path, data, metadata) => ipcRenderer.invoke("saveStageFormat", project, stage, path, data, metadata),
   getListOfStageFormat: (...args) => ipcRenderer.invoke("getListOfStageFormat", ...args),
+  openBNOPIALG: () => ipcRenderer.invoke('openBNOPIALG'),
+  getStageFormatInfo: (...args) => ipcRenderer.invoke("getStageFormatInfo", ...args),
 
   inputTextBox: (prompt) => ipcRenderer.invoke("inputTextBox", prompt),
 
@@ -37,9 +45,13 @@ contextBridge.exposeInMainWorld('electron', {
   loadStageInstance: (...args) => ipcRenderer.invoke("loadStageInstance", ...args),
   saveStageInstanceAs: (...args) => ipcRenderer.invoke("saveStageInstanceAs", ...args),
 
-  
+  // dialog boxes
+  showMessageBox: (...args) => ipcRenderer.invoke("showMessageBox", ...args),
+
+
   // one way communication, main process to bnopi window renderer:
-  onOpenProject: (callback) => ipcRenderer.on("openProject", callback)
+  onOpenProject: (callback) => ipcRenderer.on("openProject", callback),
+  onSave: (callback) => ipcRenderer.on("save", callback)
 
 
 

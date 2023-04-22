@@ -4,7 +4,7 @@
 	"format":"STOP_CONNECTION_GRAPH",
 	"generatedBy": "GEN_STOP_CONNECTION_GRAPH",
 	"nodeInGraph":null,
-	"parentStageInstances":["stops.stg.json"],
+	"parentStageInstances":["stops.stg.json", "roads.stg.json"],
 	"siblingStageInstances": [],
 	"datafile":"stop-connection-graph.json"
 }

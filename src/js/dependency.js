@@ -1,17 +1,19 @@
 const { memo } = require('react')
-
-let dpgraph = []
 let memory = {}
 
 // Add breakpoints
 
-export function addStage(id, stageName, filename, parameters=[], parents=[]) {
+export function addStage(id, stageName, filename, parameters=[], parents=[], description, instage) {
+    console.log("Adding new stage", stageName)
     dpgraph.push({
         "id": id,
         "name": stageName,
         "file": filename,
         "params": parameters,
         "parents": parents,
+        "description": description,
+        "input_stage_formats":instage,
+        "output_stage_formats":[]
     })
     return dpgraph;
 }
@@ -83,7 +85,7 @@ export function runGraph() {
                 run.push(x)
             }
         });
-        // console.log(run)
+        console.log("RUN: ", run)
         run.forEach((x,i) => runScript(x.id, x.file, x.params))
         run.forEach((x,i) => stages_run.push(x.id))
         console.log("loop", stages_run)
@@ -93,25 +95,24 @@ export function runGraph() {
     console.log("Stages Run: ", stages_run)
 }
 
-export function runScript(id, filename, params) {
+export function runScript(id, script, params) {
     /*...*/
-    let args = [filename]
+    // let args = [filename]
+    let args = []
     console.log("Params = ", params)
     for (var i = 0; i < params.length; i++){
-        args.push(memory[params[i]])
+        if (params[i].setVal == undefined){
+            args.push(params[i].default)
+        } else {
+            args.push(params[i].setVal)
+        }
     }
-    console.log(args, memory["param1"], memory["param2"])
-
-    //BUG 1 - Require causing issues
-    var python = require('child_process').spawn('python', args);
-    python.stdout.on('data',function(data){
-        console.log("data: ",data.toString());
-        memory[id] = data.toString()
-        
-        console.log("after:", memory)
-
-        return data.toString()
-    });
+    console.log("Script: ", script)
+    console.log("Arguments: ", args)
+    // console.log("\t Input Stages: ", stageInstances)
+    var python = window.electron.spawn_child(script.powershell, args);
+    console.log("Output: ", python)
+    return ""
 }
 
 

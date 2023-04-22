@@ -11,10 +11,10 @@ Front end
 + ~~Save/load project in main window~~
 + Display/editing frameworks
 	+ ~~Stops~~
-	+ Routes
+	+ ~~Routes~~
 	+ stop connection graph (??)
 	+ roads (??)
-+ Automatically add new id to stops and routes
++ ~~Automatically add new id to stops and routes~~
 
 Back end
 + Objective function algorithm (could do)
@@ -22,3 +22,7 @@ Back end
 + OD matrix generator
 + Read in OD matrix to genetic algorithm
 + stop connection graph convert to BFS
+
+Docs
++ Algorithms
++ Projects

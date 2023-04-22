@@ -19,21 +19,21 @@
 			"var": "MAX_SEARCH_DISTANCE"
 		}
 	],
-	"input-stage-formats":[
+	"inputStageFormats":[
 		{
 			"name": "Stops",
 			"help": "The stops between which to make the stop connection graph edges",
 			"var": "STOPS_FILELOC",
-			"stage-format": "STOPS"
+			"stage_format": "STOPS"
 		},
 		{
 			"name": "Roads",
 			"help": "Roads between the stops",
 			"var": "ROADS_FILELOC",
-			"stage-format": "ROADS"
+			"stage_format": "ROADS"
 		}
 	],
-	"output-stage-formats":[
+	"outputStageFormats":[
 		{
 			"name": "Stop connection graph",
 			"help": "A json file containing the generated stops",
@@ -42,8 +42,8 @@
 		}
 	],
 
-	"launch-script":{
+	"launchScript":{
 		"bash": "launch-gen-stop-connection-graph.sh",
-		"powershell": "launch-powershell.ps1"
+		"powershell": "bnopi-algs/launch-gen-stop-connection-graph.ps1"
 	} 
 }

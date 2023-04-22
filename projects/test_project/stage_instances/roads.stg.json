@@ -1,0 +1,10 @@
+{
+	"timeCreated": "2012-04-23T18:25:43.511Z",
+	"dependencyGraph": "../test_dependency_graph.dg.json",
+	"format": "ROADS",
+	"generatedBy": "GEN_ROADS",
+	"nodeInGraph": null,
+	"parentStageInstances": [],
+	"siblingStageInstances": [],
+	"datafile": "roads.json"
+}
