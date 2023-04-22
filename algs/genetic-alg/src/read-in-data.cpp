@@ -148,3 +148,21 @@ std::string routenet_to_string(RouteNet& rn) {
 	return j.dump();
 }
 
+OD::Matrix read_in_od_matrix(std::ifstream &od_matrix_fs, Graph& graph) {
+
+	// parse JSON
+	json data = json::parse(od_matrix_fs);
+
+	// TODO
+	// ignore snapshots for now.
+	// just import the demands of the first one.
+
+	json demands;
+	for (auto& s : data["snapshots"].items()) {
+		demands = s.value()["demands"];
+		break;
+	}
+
+	return OD::Matrix(demands, graph);
+}
+

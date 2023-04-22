@@ -27,6 +27,10 @@ int main(int argc, char **argv)
 	program.add_argument("connection-graph")
 		.help("json file containing the stop connection graph")
 		.required();
+	
+	program.add_argument("od-matrix")
+		.help("json file containing the origin-destination matrix")
+		.required();
 
 	program.add_argument("--verbose")
 		.help("increase output verbosity")
@@ -53,6 +57,7 @@ int main(int argc, char **argv)
 	string stops_file_loc = program.get<string>("stops");
 	string connection_graph_file_loc = program.get<string>("connection-graph");
 	string outfile_file_loc = program.get<string>("output");
+	string od_matrix_file_loc = program.get<string>("od-matrix");
 	verbose = program.get<bool>("verbose");
 
 #ifdef DEBUG
@@ -79,6 +84,14 @@ int main(int argc, char **argv)
 		exit(errno);
 	}
 
+	std::ifstream od_matrix_fs;
+	od_matrix_fs.open(od_matrix_file_loc, fstream::in);
+	if (connection_graph_fs.fail())
+	{
+		std::cerr << "Error opening file for reading: " << od_matrix_file_loc << std::endl;
+		exit(errno);
+	}
+
 	std::ofstream outfile_file_fs;
 	outfile_file_fs.open(outfile_file_loc);
 	if (outfile_file_fs.fail())
@@ -87,6 +100,7 @@ int main(int argc, char **argv)
 		exit(errno);
 	}
 
+	// create graph
 	Graph *graph = nullptr;
 	if (verbose)
 		cout << "Reading in files..." << endl;
@@ -94,6 +108,9 @@ int main(int argc, char **argv)
 	{
 		exit(1);
 	}
+
+	// create od matrix
+	OD::Matrix od_matrix = read_in_od_matrix(od_matrix_fs, *graph);
 
 #ifdef DEBUG
 	int x = 4;
@@ -136,7 +153,7 @@ int main(int argc, char **argv)
 	Population initial_population = generatePopulation(settings,*graph);
 
 	// init algorithm
-	SMODriver smo_driver(initial_population, settings, /*niter=*/10000);
+	SMODriver smo_driver(initial_population, od_matrix, settings, /*niter=*/10000);
 
 	// main loop
 	smo_driver.run();

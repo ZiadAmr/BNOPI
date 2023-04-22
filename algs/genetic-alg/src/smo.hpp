@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include "alg-driver.hpp"
+#include "od-matrix.hpp"
 #include <vector>
 
 /**
@@ -22,6 +23,7 @@ private:
 	typedef std::vector<DRouteNet> DPopulation; // Directional population
 
 	DPopulation population;
+	OD::Matrix &od_matrix;
 	AlgSettings settings;
 
 	std::vector<float> parent_fitness;
@@ -41,7 +43,7 @@ public:
 	 * @param initial_population Initial population of route networks
 	 * @param settings Struct containing general settings for the algorithm
 	 */
-	SMODriver(Population initial_population, AlgSettings &settings, int niter);
+	SMODriver(Population initial_population, OD::Matrix &od_matrix, AlgSettings &settings, int niter);
 
 	/**
 	 * @brief Create a new generation of offspring and replace parents
