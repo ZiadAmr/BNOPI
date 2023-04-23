@@ -35,7 +35,7 @@
 			"name": "Stops",
 			"help": "A json file containing the generated stops",
 			"var": "OUTPUT_FILELOC",
-			"stage-format": "STOPS"
+			"stage_format": "STOPS"
 		}
 	],
 	"launchScript": {

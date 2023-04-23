@@ -35,7 +35,7 @@
 			"name": "Roads",
 			"help": "A json file containing the downloaded roads",
 			"var": "OUTPUT_FILELOC",
-			"stage-format": "ROADS"
+			"stage_format": "ROADS"
 		}
 	],
 	"launchScript": {

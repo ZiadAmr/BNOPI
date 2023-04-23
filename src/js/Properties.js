@@ -129,9 +129,26 @@ export default function Properties() {
 
   const select_output_location = useCallback(async (item, id, node_id, index) => {
     if(item.status === "ok"){
-      dpgraph.find(obj => obj.id === node_id).output_stage_formats[index].setLoc = item.path
+      var temp = dpgraph.find(obj => obj.id === node_id).output_stage_formats[index].stage_format
+
+      // Get the ID of the new stage instance
+      var new_id = 1;
+      const potential_array = stageInstances.reduce( (reduceArray, element) => {
+        if(element.metadata.format === temp){
+          if(!isNaN(element.metadata.datafile.slice(temp.length + 1, temp.length + 2))){
+            reduceArray.push(element.metadata.datafile.slice(temp.length + 1, temp.length + 2));
+          }
+        }
+        return reduceArray;
+      }, []);
+
+      if(potential_array.size> 0){
+        new_id = Math.max(...potential_array) + 1;
+      }
+
+      dpgraph.find(obj => obj.id === node_id).output_stage_formats[index].setLoc = item.path + "\\" + temp + "_" + new_id + ".json"
       const change_values = {...outputLocs}
-      change_values[id] = item.path
+      change_values[id] = item.path + "\\" + temp + "_" + new_id + ".json"
       setOutputLocs(change_values)
     }
   },[prop]);
