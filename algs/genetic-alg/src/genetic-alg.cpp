@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 	Population initial_population = generatePopulation(settings,*graph);
 
 	// init algorithm
-	SMODriver smo_driver(initial_population, od_matrix, settings, /*niter=*/10000);
+	SMODriver smo_driver(initial_population, od_matrix, graph, settings, /*niter=*/10000);
 
 	// main loop
 	smo_driver.run();

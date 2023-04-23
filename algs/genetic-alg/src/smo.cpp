@@ -7,7 +7,7 @@
 #include <algorithm>
 using namespace std;
 
-SMODriver::SMODriver(Population initial_population, OD::Matrix &od_matrix, AlgSettings &settings, int niter) : settings(settings), od_matrix(od_matrix), niter(niter)
+SMODriver::SMODriver(Population initial_population, OD::Matrix &od_matrix, Graph* graph, AlgSettings &settings, int niter) : settings(settings), od_matrix(od_matrix), niter(niter), graph(graph)
 {
 	// convert Population to DPopulation (add `inverted` bit to represent which end of the route we are adding to)
 	for (RouteNet route_net: initial_population) {
@@ -111,9 +111,13 @@ bool SMODriver::is_feasible(DRouteNet& rn) {
 }
 
 float SMODriver::objective_function(RouteNet& rn) {
-	// TODO
-	// return opt()
-	return rand()/((float)INT32_MAX);
+
+	pair<double, double> o = opt(graph->stops_by_id, rn, od_matrix);
+
+	// just add the two up for now, worry about weighting them later
+	float fitness = (float) (o.first + o.second);
+
+	return fitness;
 }
 
 

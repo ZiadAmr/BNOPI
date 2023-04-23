@@ -10,6 +10,10 @@ class Stop
 public:
 	std::string name;
 	int id;
+	/* cid is "contiguous id". Index of this stop id in a sorted list of all ids.
+	 * Added later in constructor for Graph.
+	*/
+	int cid;
 	double lat, lon;
 	std::vector<Link *> out_edges;
 	std::vector<Link *> in_edges;

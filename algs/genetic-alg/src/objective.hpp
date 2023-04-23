@@ -6,5 +6,5 @@
 #include <vector>
 #include <utility>
 
-std::pair<double, double> opt(std::vector<Stop> stops, RouteNet route, std::vector<std::vector<double>> od);
-float djikstra(RouteNet routes, std::vector<Stop> stops, int source, int destination);
+std::pair<double, double> opt(std::vector<Stop*> &stops, RouteNet& routenet, OD::Matrix& od_matrix);
+float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int destination);
