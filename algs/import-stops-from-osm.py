@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 # downloads a file from OSM containing all the stops in a radius.
 # run with -h option for help
@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser(
 
 
 
-parser.add_argument('radius', help="Radius centered on (lat, lon) within which to get bus stops", type=float)
+parser.add_argument('radius', help="Radius in meters, centered on (lat, lon), within which to get bus stops", type=float)
 parser.add_argument("latitude", help="Latitude in range [-90, 90]", type=float_in_range(-90, 90))
 parser.add_argument("longitude", help="Longitude in range [-180, 180]", type=float_in_range(-180, 180))
 

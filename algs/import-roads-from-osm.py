@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 # downloads a file from OSM containing all the ways that buses can drive on in a radius, as well as the nodes they run on.
 # run with -h option for help
@@ -48,6 +48,9 @@ way(around:{args.radius:},{args.latitude:},{args.longitude:})->.a;
 	way.a  [highway~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|road|busway|service"];
 	way.a[highway="proposed"][proposed~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|road|busway|service"];
 	way.a[highway="construction"][construction~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|road|busway|service"];
+
+	// also get the turn restriction relations
+	relation(around:{args.radius:},{args.latitude:},{args.longitude:})[restriction~".*"];
 );
 
 // expand set "_" (default set) to include nodes

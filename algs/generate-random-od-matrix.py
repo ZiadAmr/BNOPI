@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 import argparse
 import json
@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument("stops", type=argparse.FileType("r"),
                     action="store", help="A json file containing the stops. See the stage format specification.")
 parser.add_argument("-n", "--num-users", dest="num_users", metavar="N", action="store", required=False,
-                    help="Number of passengers in OD matrix", default=100, type=positive_int)
+                    help="Number of passengers in OD matrix. Default is 100", default=100, type=positive_int)
 parser.add_argument("-o", dest="output", type=argparse.FileType("w"),
                     action="store", required=False, metavar="outputfile", help="The filename of the output OD matrix file. Defaults to od-matrix.json", default="od-matrix.json")
 

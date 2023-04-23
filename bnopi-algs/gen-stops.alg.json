@@ -1,0 +1,44 @@
+{
+	"name": "Import Stops From OpenStreetMap",
+	"id": "GEN_STOPS",
+	"description": "Download all stops within a range centered on a lat-lon coordinate, and output a STOPS format.",
+	"params": [
+		{
+			"name": "Radius",
+			"type": "posint",
+			"default": 1000,
+			"help": "Radius in meters, centered on (lat, lon), within which to get bus stops",
+			"var": "RADIUS"
+		},
+		{
+			"name": "Latitude",
+			"type": "float",
+			"min": -90,
+			"max": 90,
+			"default": 0,
+			"help": "Latitude of coordinate around which to look for bus stops",
+			"var": "LATITUDE"
+		},
+		{
+			"name": "Longitude",
+			"type": "float",
+			"min": -180,
+			"max": 180,
+			"default": 0,
+			"help": "Longitude of coordinate around which to look for bus stops",
+			"var": "LONGITUDE"
+		}
+	],
+	"inputStageFormats": [],
+	"outputStageFormats": [
+		{
+			"name": "Stops",
+			"help": "A json file containing the generated stops",
+			"var": "OUTPUT_FILELOC",
+			"stage-format": "STOPS"
+		}
+	],
+	"launchScript": {
+		"python3": "launch-gen-stops.py"
+	}
+}

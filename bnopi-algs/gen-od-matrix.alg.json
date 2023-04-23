@@ -1,0 +1,33 @@
+{
+	"name": "Generate Origin-Destination Matrix",
+	"id": "GEN_OD_MATRIX",
+	"description": "Generate an OD matrix by assiging a fixed number of trips uniformly at random.",
+	"params": [
+		{
+			"name": "Number of users",
+			"type": "posint",
+			"default": 100,
+			"help": "The number of trips to randomly distribute in the OD matrix",
+			"var": "NUM_USERS"
+		}
+	],
+	"inputStageFormats": [
+		{
+			"name": "Stops",
+			"help": "Bus stops, which act as start and end points of each trip.",
+			"var": "STOPS_FILELOC",
+			"stage_format": "STOPS"
+		}
+	],
+	"outputStageFormats": [
+		{
+			"name": "OD Matrix",
+			"help": "An origin-destination matrix containing the specified number of trips assigned uniformly at random",
+			"var": "OUTPUT_FILELOC",
+			"stage-format": "OD_MATRIX"
+		}
+	],
+	"launchScript": {
+		"python3": "launch-gen-od-matrix.py"
+	}
+}

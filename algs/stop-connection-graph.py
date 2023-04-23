@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 import multiprocessing
 from joblib import Parallel, delayed, cpu_count # for parallelizing for loops.

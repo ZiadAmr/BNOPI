@@ -36,7 +36,7 @@
 	"outputStageFormats":[
 		{
 			"name": "Stop connection graph",
-			"help": "A json file containing the generated stops",
+			"help": "A json file containing the generated stop connection graph",
 			"var": "OUTPUT_FILELOC",
 			"stage-format": "STOP_CONNECTION_GRAPH"
 		}
@@ -44,6 +44,8 @@
 
 	"launchScript":{
 		"bash": "launch-gen-stop-connection-graph.sh",
-		"powershell": "bnopi-algs/launch-gen-stop-connection-graph.ps1"
+		"powershell": "bnopi-algs/launch-gen-stop-connection-graph.ps1",
+		"python3": "launch-gen-stop-connection-graph.py"
+
 	} 
 }
