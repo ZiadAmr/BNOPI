@@ -172,6 +172,7 @@ app.whenReady().then(() => {
   ipcMain.handle("loadStageInstance", async (event, ...args) => sfh.loadStageInstance(...args));
   ipcMain.handle("saveStageInstanceAs", async (event, ...args) => sfh.saveStageInstanceAs(...args));
   ipcMain.handle("openBNOPIALG", async (event) => file_handler.openBNOPIAlg());
+  ipcMain.handle("openBNOPIDir", async (event) => file_handler.selectBNOPIOutputStageInstanceLocation())
   ipcMain.handle("getStageFormatInfo", async (event, ...args) => sfh.getStageFormatInfo(...args));
 
   // ================================================================

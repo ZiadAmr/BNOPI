@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, ListItem, ListItemText, ListItemButton, Typography, ListItemIcon, IconButton, TextField, Button, Autocomplete, Select, MenuItem } from '@mui/material';
+import { Typography, TextField, Button, Autocomplete, Select, MenuItem, IconButton, InputAdornment } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPen, faPenNib, faRoute, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faFile } from '@fortawesome/free-solid-svg-icons';
 
 export default function Properties() {
   const [prop, setProp] = useState('-1');
@@ -10,6 +10,7 @@ export default function Properties() {
   const [description, setDescription] = useState('');
   const [autocompletevalues, setautocompletevalues] = useState({});
   const [positiveIntegers, setpositiveintegers] = useState({});
+  const [outputLocs, setOutputLocs] = useState({});
   const [path, setPath] = useState('');
   const [stages, setStages] = useState({});
   const [type, setType] = useState('');
@@ -65,6 +66,7 @@ export default function Properties() {
     const new_parameter_update = {...autocompletevalues}
     const new_posint_update = {...positiveIntegers}
     const new_selections = {...stages}
+    const new_outputs = {...outputLocs}
 
     val.params.forEach((x,i) =>{
         x.setVal = x.default
@@ -81,9 +83,15 @@ export default function Properties() {
       new_selections[x.name.toString() + " " + i.toString() + " " + node_to_update.id.toString() + " " + "Stage_instance_select"] = ''
     })
 
+    val.output_stage_formats.forEach((x,i)=> {
+      x.setLoc = undefined
+      new_outputs[i.toString() + " " + node_to_update.id.toString() + "stage_instance_output"]
+    })
+
     setStages(new_selections);
     setpositiveintegers(new_posint_update);
     setautocompletevalues(new_parameter_update);
+    setOutputLocs(new_outputs);
     setValue(node_to_update.name);
     setPath(node_to_update.file.bash);
     setDescription(node_to_update.description);
@@ -119,13 +127,38 @@ export default function Properties() {
     }
   };
 
+  const select_output_location = useCallback(async (item, id, node_id, index) => {
+    if(item.status === "ok"){
+      var temp = dpgraph.find(obj => obj.id === node_id).output_stage_formats[index].stage_format
+
+      // Get the ID of the new stage instance
+      var new_id = 1;
+      const potential_array = stageInstances.reduce( (reduceArray, element) => {
+        if(element.metadata.format === temp){
+          if(!isNaN(element.metadata.datafile.slice(temp.length + 1, temp.length + 2))){
+            reduceArray.push(element.metadata.datafile.slice(temp.length + 1, temp.length + 2));
+          }
+        }
+        return reduceArray;
+      }, []);
+
+      if(potential_array.size> 0){
+        new_id = Math.max(...potential_array) + 1;
+      }
+
+      dpgraph.find(obj => obj.id === node_id).output_stage_formats[index].setLoc = item.path + "\\" + temp + "_" + new_id + ".json"
+      const change_values = {...outputLocs}
+      change_values[id] = item.path + "\\" + temp + "_" + new_id + ".json"
+      setOutputLocs(change_values)
+    }
+  },[prop]);
 
   function construct_param(item, index, info){
     if(item.type === "dropdown"){
 
       return <div key={index} style={{ display: 'flex', justifyContent: 'left', marginTop: '2px'}}>
         <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '12px', paddingLeft: '10px', paddingRight: '10px' }}>
-          {item.name} :
+          {index + 1}. {item.name} :
         </Typography>
 
         <Autocomplete
@@ -147,7 +180,7 @@ export default function Properties() {
     }else if(item.type === "posint"){
       return <div key={index} style={{ display: 'flex', justifyContent: 'left', marginTop: '10px'}}>
         <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '12px', paddingLeft: '10px', paddingRight: '10px' }}>
-          {item.name} :
+          {index + 1}. {item.name} :
         </Typography>
         <TextField
             type={"number"}
@@ -173,7 +206,7 @@ export default function Properties() {
 
     return <div key= {index.toString() + " " + info.toString() + " stage_instance"} style={{ display: 'flex', alignItems: 'center', paddingTop:'15px'}}>
       <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '6px', paddingLeft: '10px', paddingRight:'4px' }}>
-        {item.name} :
+        {index + 1}. {item.name} :
       </Typography>
 
       <Select
@@ -199,6 +232,35 @@ export default function Properties() {
 
       </Select>
     </div>
+  }
+
+  function construct_output_stage(item, index, info){
+
+    return <div key= {item.name.toString() + " " + index.toString() + " " + info.id.toString() + " stage_instance_output"}>
+      <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px' }}>
+        {index + 1}. {item.name}
+      </Typography>
+      <div style={{ display: 'flex', justifyContent: 'center', paddingTop:'15px'}}>
+        <TextField
+              variant="outlined"
+              style={{ width: '80%', height: '15%', backgroundColor: '#7aa2bd33', borderRadius: '8px'}}
+              value={outputLocs[item.name.toString() + " " + index.toString() + " " + info.id.toString() + " stage_instance_output"] || ''}
+              inputProps={{ style: { color: 'white', textAlign:'center' } }}
+              InputProps={{ style: { borderColor: 'white' }, readOnly: true, endAdornment:(
+                <InputAdornment position='end'>
+                  <IconButton onClick={async() => select_output_location(await window.electron.openBNOPIDir(), 
+                    item.name.toString() + " " + index.toString() + " " + info.id.toString() + " stage_instance_output",
+                    info.id.toString(),
+                    index)}>
+                    <FontAwesomeIcon icon={faFile} />
+                  </IconButton>
+                </InputAdornment>
+              )}}
+              InputLabelProps={{style: { color: "#ffffff94" }}}
+        />
+      </div>
+    </div>
+    
   }
   
 
@@ -255,7 +317,7 @@ export default function Properties() {
           </div>
 
           {/* Parameters for the algorithm */}
-          <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px' }}>
+          <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px', fontWeight:'bold' }}>
             Algorithm parameters
           </Typography>
           <div>
@@ -266,7 +328,7 @@ export default function Properties() {
             })}
           </div>
 
-          <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px' }}>
+          <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px', fontWeight:'bold' }}>
             Input stage instances
           </Typography>
           <div>
@@ -277,10 +339,21 @@ export default function Properties() {
             })}
           </div>
 
+          <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px', fontWeight:'bold' }}>
+            Output stage instances location
+          </Typography>
+          <div>
+            {
+              node.output_stage_formats != undefined &&
+              node.output_stage_formats.map((item, index) => {
+                return construct_output_stage(item, index, node);
+            })}
+          </div>
+
 
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', marginBottom:'20px'}}>
           <Button variant="contained" onClick={async () => {handleScriptLoad(await window.electron.openBNOPIALG())}}>Select Script</Button>
         </div>
 

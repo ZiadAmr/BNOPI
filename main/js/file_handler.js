@@ -146,6 +146,35 @@ async function openProjectFolderDialog() {
 }
 
 /**
+ * Opens a dialog box and returns a status, either "cancelled", "not_project", or "ok".
+ * If "ok", then it also returns a path.
+ * This function is used for selecting a directory to store an output stage instance created by an algorithm
+ * 
+ */
+async function selectBNOPIOutputStageInstanceLocation() {
+	
+	const dir = await dialog.showOpenDialog({
+		properties: ["openDirectory"],
+		defaultPath: projectsDir,
+	});
+
+	if (dir.canceled === true) {
+		return {status: "cancelled"}
+	}
+
+	try {
+		await fsp.access(dir.filePaths[0]);
+	} catch {
+		// display error dialog
+		dialog.showErrorBox("Error opening directory")
+		return { status: "Error"}
+	}
+
+	return {status: "ok", path:dir.filePaths[0]}
+
+}
+
+/**
  * 
  * @returns Returns the path to a metadatafile (of an algorithm)
  */
@@ -307,4 +336,4 @@ async function addToRecents(projPath) {
 
 
 
-module.exports = { openBNOPIAlg, openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog, createNewProject, /*openProject,*/ getRecents, getProjectMetadata, addToRecents};
+module.exports = { openBNOPIAlg, selectBNOPIOutputStageInstanceLocation, openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog, createNewProject, /*openProject,*/ getRecents, getProjectMetadata, addToRecents};

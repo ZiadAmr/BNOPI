@@ -38,7 +38,7 @@
 			"name": "Stop connection graph",
 			"help": "A json file containing the generated stop connection graph",
 			"var": "OUTPUT_FILELOC",
-			"stage-format": "STOP_CONNECTION_GRAPH"
+			"stage_format": "STOP_CONNECTION_GRAPH"
 		}
 	],
 

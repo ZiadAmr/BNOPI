@@ -28,7 +28,7 @@
 			"name": "Route Network",
 			"help": "A route network using links from the stop connection graph.",
 			"var": "OUTPUT_FILELOC",
-			"stage-format": "ROUTES"
+			"stage_format": "ROUTES"
 		}
 	],
 	"launchScript": {
