@@ -1,20 +1,20 @@
 # Stage Formats
 
-Stage formats are used to type the files being transferred between nodes. BNOPI understands stage formats from *.fmt.js* files. This page is concerned with the structure of these files and how BNOPI uses them.
+Stage formats are used to give a type to the files ([stage instances](Stage-Instances.md)) that are transferred between nodes. Within a project's metadata files, a stage format is referenced by its **stage format id**, which is conventionally a string comprised of uppercase letters and underscores, such as STOP_CONNECTION_GRAPH.
 
-In this document stage instances will sometimes be refered to as just "instances", and likewise with stage formats being referred to as "formats".
+For some stage formats, *.fmt.js* files have been written. These files, stored in the [/bnopi-stage-fmts/](/bnopi-stage-fmts/) directory, tell BNOPI extra information about the stage format, including how to display and handle edits to an instance of this format in the UI. The rest of this section is concerned with the structure of *.fmt.js* and how BNOPI uses them.
 
-## Procedure for displaying a stage instance
+## Procedure for displaying a stage instance in the UI
 
-The stage tracker displays a list of [*.stg.json* files](/projects/test_project/) which contains some metadata and point to the actual stage instance. The user selects an item from this list, which will be referred to as the **primary instance**.
+The stage tracker displays a list of [*.stg.json* files](/projects/test_project/) which contain some metadata and point to the actual stage instance. The user selects an item from this list, which will be referred to as the **primary instance**.
 
-BNOPI considers the stage instance metadata (*.stg.json*) file of the selected primary instance. It contains the `format` property, which is the instance's stage format. If there is a *.fmt.js* for this stage in the directory [/bnopi-stage-fmts/](/bnopi-stage-fmts/), then this will have been loaded when BNOPI is opened.
+BNOPI considers the stage instance metadata (*.stg.json*) file of the selected primary instance. This contains the `format` property, which is the instance's stage format. If there is a *.fmt.js* for this stage in the directory [/bnopi-stage-fmts/](/bnopi-stage-fmts/), then this will have been loaded when BNOPI is opened.
 
 **NOT IMPLEMENTED: In the future, projects will be able to add their own *.fmt.js* files.**
 
-In some cases, opening a stage format has some extra **requirements**; these are other stage instances that are needed in combination with the primary stage instance in order to display useful information of the map. For example, displaying a ROUTE_NETWORK instance requires access to a STOP_CONNECTION_GRAPH instance, as the route network references edges in the stop connection graph. If there are requirements, the user will be prompted to select the requirement stage instances, and BNOPI will try to guess the appropriate instances based on the [**parents** and **siblings**](/docs/Stage-Instances.md) of the primary instance. 
+In some cases, opening a stage format has some extra **requirements**; these are other stage instances that are needed in combination with the primary stage instance in order to display useful information of the map. For example, displaying a ROUTE_NETWORK instance requires access to a STOP_CONNECTION_GRAPH instance, because the route network references edges in the stop connection graph. If there are requirements, the user will be prompted to select the requirement stage instances. BNOPI will try to guess the appropriate instances based on the [**parents** and **siblings**](/docs/Stage-Instances.md) of the primary instance and display the most likely instances first in the selection boxes. 
 
-BNOPI then reads the primary instance (referenced in the *.stg.json* file) and the requirement instances into `Buffer` objects. It calls the **display framework** of the stage format, defined in the *.fmt.js*. This is of the type:
+BNOPI then reads the primary instance (referenced by the property `datafile` in the *.stg.json* file) and the requirement instances into `Buffer` objects. It calls the **display framework** of the stage format, defined in the *.fmt.js*. This is of the type:
 
 ```typescript
 (method) displayFramework(primaryInstance: BNOPIInstance, requirementInstances: BNOPIInstance[], stageFormatHandler: StageFormatHandler): {
