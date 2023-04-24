@@ -52,8 +52,9 @@ contextBridge.exposeInMainWorld('electron', {
 
   // one way communication, main process to bnopi window renderer:
   onOpenProject: (callback) => ipcRenderer.on("openProject", callback),
-  onSave: (callback) => ipcRenderer.on("save", callback)
+  onSave: (callback) => ipcRenderer.on("save", callback),
 
-
+  // Path creation
+  createNewLoc: (loc, format, id) => ipcRenderer.invoke("createNewLoc", loc, format, id)
 
 })

@@ -22,7 +22,7 @@ export default function Properties() {
         const node_id = dpgraph.find(obj => obj.id === event.detail.id);
         setValue(node_id.name);
         setNode(node_id);
-        setPath(node_id.file.bash);
+        setPath(node_id.file.python3);
         setDescription(node_id.description);
         setType('dependency_node');
       }else if(event.detail.type === 'Route_draw'){
@@ -93,9 +93,9 @@ export default function Properties() {
     setautocompletevalues(new_parameter_update);
     setOutputLocs(new_outputs);
     setValue(node_to_update.name);
-    setPath(node_to_update.file.bash);
+    setPath(node_to_update.file.python3);
     setDescription(node_to_update.description);
-    var stage_change = new CustomEvent('change_state', {detail: {id: prop, name:node_to_update.name, script:node_to_update.file.bash}});
+    var stage_change = new CustomEvent('change_state', {detail: {id: prop, name:node_to_update.name, script:node_to_update.file.python3}});
     window.dispatchEvent(stage_change);
   }, [prop]);
 
@@ -146,9 +146,10 @@ export default function Properties() {
         new_id = Math.max(...potential_array) + 1;
       }
 
-      dpgraph.find(obj => obj.id === node_id).output_stage_formats[index].setLoc = item.path + "\\" + temp + "_" + new_id + ".json"
+      const setting_val = await window.electron.createNewLoc(item.path, temp, new_id)
+      dpgraph.find(obj => obj.id === node_id).output_stage_formats[index].setLoc = setting_val
       const change_values = {...outputLocs}
-      change_values[id] = item.path + "\\" + temp + "_" + new_id + ".json"
+      change_values[id] = setting_val
       setOutputLocs(change_values)
     }
   },[prop]);

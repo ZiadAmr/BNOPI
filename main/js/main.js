@@ -151,6 +151,14 @@ app.whenReady().then(() => {
   })
 
 
+  // ================================================================
+  // Path creation endpoints
+  // ================================================================
+  ipcMain.handle("createNewLoc", async (event, loc, format, id) => {
+    const temp = `${format}_${id}.json`;
+    const return_path = path.join(loc, temp);
+    return return_path;
+  });
 
   // ================================================================
   // file_handler endpoints
