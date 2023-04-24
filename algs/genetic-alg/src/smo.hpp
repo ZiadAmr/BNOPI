@@ -2,6 +2,7 @@
 #include "common.hpp"
 #include "alg-driver.hpp"
 #include "od-matrix.hpp"
+#include "graph.hpp"
 #include <vector>
 
 /**
@@ -25,6 +26,7 @@ private:
 	DPopulation population;
 	OD::Matrix &od_matrix;
 	AlgSettings settings;
+	Graph* graph;
 
 	std::vector<float> parent_fitness;
 	float best_so_far_fitness = 0;
@@ -43,7 +45,7 @@ public:
 	 * @param initial_population Initial population of route networks
 	 * @param settings Struct containing general settings for the algorithm
 	 */
-	SMODriver(Population initial_population, OD::Matrix &od_matrix, AlgSettings &settings, int niter);
+	SMODriver(Population initial_population, OD::Matrix &od_matrix, Graph* graph, AlgSettings &settings, int niter);
 
 	/**
 	 * @brief Create a new generation of offspring and replace parents

@@ -97,6 +97,9 @@ int create_graph(ifstream &stops_fs, ifstream &links_fs, Graph **graph)
 		return 1;
 	links_fs.close();
 
+	// sort stops and set contiguous ids.
+	(*graph)->set_cids();
+
 	return 0;
 }
 

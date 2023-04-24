@@ -9,30 +9,31 @@
 
 // need time t for time required to transfer between routes, need theta to measure inconvenience of the transfer
 // transit edges have length t + theta
-// then use djikstra's to find the cost of getting to the destination through our transit network
+// then use dijkstra's to find the cost of getting to the destination through our transit network
 double cost(int i, int j) {return 0;}; 
 
-// for now this considers just one route, extend to the whole transit graph
-std::pair<double, double> opt(std::vector<Stop> stops, RouteNet route, std::vector<std::vector<double>> od){
+// // for now this considers just one route, extend to the whole transit graph
+std::pair<double, double> opt(std::vector<Stop *> &stops, RouteNet &routenet, OD::Matrix &od_matrix) {
+
     double Cp = 0;
-    for(int i = 0; i < stops.size(); i++){
-        for(int j = 0; j < stops.size(); j++){
-            Cp += od[i][j] * djikstra(route, stops, i,j);
+    for (OD::Origin& origin : od_matrix.origins) {
+        for (OD::Destination& destination: origin.destinations) {
+            Cp += destination.n * dijkstra(routenet, stops, origin.stop->cid, destination.stop->cid);
         }
     }
 
     double Co = 0; // total length of route, extend for multiple routes later
-    for(int i = 0; i < route.size(); i++){
-        for(int j = 0; j < route[i].size(); j++){
-            Co += route[i][j]->length;
+    for(int i = 0; i < routenet.size(); i++){
+        for(int j = 0; j < routenet[i].size(); j++){
+            Co += routenet[i][j]->length;
         }
     }
 
     // paper  talks about tradeoff between Cp an Co using multi-objective optimization algorithm, so I'm returning both
-    return std::make_pair(Cp, Co); 
+    return std::make_pair(Cp, Co);
 }
 
-float djikstra(RouteNet routes, std::vector<Stop> stops, int source, int destination){
+float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int destination){
     // 1 - make set of unvisited nodes
 
     // int *neighbours = new int[stops.size()*stops.size()]();
@@ -42,8 +43,8 @@ float djikstra(RouteNet routes, std::vector<Stop> stops, int source, int destina
             int start = routes[i][j]->start->id;
             int end = routes[i][j]->end->id;
 
-            auto start_loc = std::find_if(stops.begin(), stops.end(), [start](const Stop& st){return st.id == start;}) - stops.begin();
-            auto end_loc = std::find_if(stops.begin(), stops.end(), [end](const Stop& st){return st.id == end;}) - stops.begin();
+            auto start_loc = std::find_if(stops.begin(), stops.end(), [start](const Stop* st){return st->id == start;}) - stops.begin();
+            auto end_loc = std::find_if(stops.begin(), stops.end(), [end](const Stop* st){return st->id == end;}) - stops.begin();
 
             // neighbours[start_loc * end_loc] = i;
             adjacency[start_loc].push_back({end_loc, routes[i][j]->length});
