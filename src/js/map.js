@@ -45,7 +45,8 @@ var current_link = [];  // Information on the latlng points of the current pair 
 var stops_track = [];   // Information on the stops that have been placed during route draw
 var links_track = [];   //Information on the links that have been generated during the route draw
 
-
+// Google drawing manager used for drawing circles in the map (used for defining the work area of the map to generate the bus network)
+var draw = null;
 
 
 //Elements relating to editing a polyline
@@ -104,6 +105,26 @@ function initMap() {
             }
         });
 
+    // Set up the drawing manager used for drawing circles (specifying work region in the map)
+    draw = new google.maps.drawing.DrawingManager({
+        drawingMode: google.maps.drawing.OverlayType.CIRCLE,
+        drawingControl: true,
+        drawingControlOptions: {
+          position: google.maps.ControlPosition.TOP_CENTER,
+          drawingModes: [
+            google.maps.drawing.OverlayType.CIRCLE,
+          ],
+        },
+    
+        circleOptions: {
+          fillColor: "grey",
+          fillOpacity: 0.5,
+          strokeWeight: 5,
+          clickable: false,
+          editable: true,
+          zIndex: 1,
+        },
+    });
 
     // add open project event listener
     window.electron.onOpenProject((_event, projPath) => openProject(projPath));
@@ -809,6 +830,39 @@ function processSnapToRoadResponse(data) {
         snappedCoordinates.push(latlng);
     }
 }
+
+// Function called when select map region button of the start node in the dependency graph is called
+function specifyRegion(event){
+    window.dispatchEvent(new Event("started_specifying"));
+    draw.setMap(map);
+    var circ = null;
+
+    google.maps.event.clearListeners(draw, 'circlecomplete');
+
+    google.maps.event.addListener(draw, 'circlecomplete', (c) => {
+      draw.setMap(null);
+      circ = c;
+    });
+
+    const handleFinishedSpecifying = () => {
+        draw.setMap(null);
+
+        if(circ != null){
+            WORK_AREA_LAT = circ.getCenter().lat();
+            WORK_AREA_LON = circ.getCenter().lng();
+            WORK_AREA_RADIUS = circ.getRadius();
+            circ.setMap(null);
+            console.log(WORK_AREA_LAT)
+            console.log(WORK_AREA_LON)
+            console.log(WORK_AREA_RADIUS)
+        }else{
+            window.dispatchEvent(new Event('error_select_region'));
+        }
+        window.removeEventListener('finished_specifying', handleFinishedSpecifying)
+    }
+
+    window.addEventListener('finished_specifying', handleFinishedSpecifying);
+} 
 
 // Draws the snapped polyline (after processing snap-to-road response).
 function drawSnappedPolyline() {

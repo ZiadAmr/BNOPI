@@ -9,6 +9,7 @@ import DependencyGraph from './DependencyGraph';
 import Description from './Description';
 import StageTracker from './StageTracker';
 import RouteDrawTools from './RouteDrawTools';
+import RegionSelect from './RegionSelect';
 import { Hidden } from '@mui/material';
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
             <div id="map"></div>
             <NetworkToolKit></NetworkToolKit>
             <RouteDrawTools></RouteDrawTools>
+            <RegionSelect></RegionSelect>
           </Col>
           <Col sm id="Description" style={{ overflow: "auto", maxHeight:'100%' }}>
             <Description></Description>

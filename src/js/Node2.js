@@ -1,15 +1,17 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear, faStop, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { faGear, faStop, faPlus, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'react-bootstrap';
 import { v4 as uuidv4 } from 'uuid';
+import './map.js'
 
 const handleStyle = { left: 10 };
 
 export default function Node2({ data }) {
   const [name, setName] = useState('')
   const [script, setScript] = useState('')
+  const [isDisabled, setIsDisabled] = useState(false);
 
   useEffect(() => {
     const handle_state_change = (event) => {
@@ -19,10 +21,23 @@ export default function Node2({ data }) {
       }
     };
 
+    const change_state_true = (event) => {
+      setIsDisabled(true)
+    }
+
+    const change_state_false = (event) => {
+      setIsDisabled(false)
+    }
+
     window.addEventListener('change_state', handle_state_change);
+    
+    window.addEventListener('started_specifying', change_state_true);
+    window.addEventListener('finished_specifying', change_state_false);
 
     return () => {
       window.removeEventListener('change_state', handle_state_change);
+      window.removeEventListener('started_specifying', change_state_true);
+      window.removeEventListener('finished_specifying', change_state_false);
     };
   }, []);
 
@@ -37,9 +52,9 @@ export default function Node2({ data }) {
       <label htmlFor="text" className='nodeLabel' style={{ whiteSpace: 'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>Name: {name}</label>
         <label htmlFor="text" className='nodeLabel' style={{ whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis' }}>Script: {script}</label>
         <Button variant ='secondary' id="setting" size= 'sm' onClick={() => data.propertyClick(data.id)}><FontAwesomeIcon icon={faGear}/></Button>
+        <Button variant ='secondary' id="map_work_area_select" disabled={isDisabled} size= 'sm' onClick={(event) => {specifyRegion(event)}}><FontAwesomeIcon icon={faMapLocationDot}/></Button>
         <Button variant ='danger' id="breakPoint2" size= 'sm'><FontAwesomeIcon icon={faStop}/></Button>
         <Button variant ='secondary' id="addNode2" onClick={() => data.addNewNode(data.label, uuidv4())} size= 'sm'><FontAwesomeIcon icon={faPlus}/></Button>
-        {/* <input id="text" name="text" onChange={onChange} /> */}
       </div>
       <Handle type="source" position={Position.Right} id="a" />
     </div>

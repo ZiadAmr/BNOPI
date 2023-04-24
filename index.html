@@ -43,6 +43,14 @@
       /** Whether the user has made any edits in the interface to the currently open stage instance.*/
       var modifiedStageInstance = false;
 
+      // Variables used for storing the region of the map to create a bus network (The region is a circle around a center point)
+      // Holds the latitude of the center point (float)
+      var WORK_AREA_LAT = null;
+      //Holds the longitude of the center point (float)
+      var WORK_AREA_LON = null;
+      // Holds the radius of the work area around the center point (float)
+      var WORK_AREA_RADIUS = null;
+
     </script>
 
     <!--Include JQuery for api calls-->
