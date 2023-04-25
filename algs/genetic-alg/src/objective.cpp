@@ -15,12 +15,14 @@ double cost(int i, int j) {return 0;};
 // // for now this considers just one route, extend to the whole transit graph
 std::pair<double, double> opt(std::vector<Stop *> &stops, RouteNet &routenet, OD::Matrix &od_matrix) {
 
+    // std::cout << "Entering OPT \n";
     double Cp = 0;
     for (OD::Origin& origin : od_matrix.origins) {
         for (OD::Destination& destination: origin.destinations) {
             Cp += destination.n * dijkstra(routenet, stops, origin.stop->cid, destination.stop->cid);
         }
     }
+    // std::cout << "Fist loop done \n";
 
     double Co = 0; // total length of route, extend for multiple routes later
     for(int i = 0; i < routenet.size(); i++){
@@ -37,7 +39,7 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
     // 1 - make set of unvisited nodes
 
     // int *neighbours = new int[stops.size()*stops.size()]();
-    std::vector< std::vector<std::pair<int,float>>> adjacency;
+    std::vector< std::vector<std::pair<int,float>>> adjacency(stops.size());
     for(int i = 0; i < routes.size(); i++){
         for(int j = 0; j < routes[i].size(); j++){
             int start = routes[i][j]->start->id;
@@ -47,8 +49,11 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
             auto end_loc = std::find_if(stops.begin(), stops.end(), [end](const Stop* st){return st->id == end;}) - stops.begin();
 
             // neighbours[start_loc * end_loc] = i;
-            adjacency[start_loc].push_back({end_loc, routes[i][j]->length});
-            adjacency[end_loc].push_back({end_loc, routes[i][j]->length});
+            // adjacency[start_loc].push_back({end_loc, routes[i][j]->length});
+            // adjacency[end_loc].push_back({end_loc, routes[i][j]->length});
+            // std::cout << end_loc << " -- " << routes[i][j]->length << " ( " << i  << ", " << j << ") out of " << stops.size() << " - "  << routes[i].size()<< std::endl; 
+            adjacency[start_loc].push_back(std::make_pair(end_loc, routes[i][j]->length));
+            adjacency[end_loc].push_back(std::make_pair(start_loc, routes[i][j]->length));
         }
     }
 
@@ -76,5 +81,5 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
             }
         }
     }
-
+    return -100;
 }
