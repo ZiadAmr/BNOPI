@@ -11,10 +11,10 @@ export default function Routes_list() {
   useEffect(() =>{
     const handle_change_routes = () => {
       setRoutes(!routes)
+      setSelectedIndex({})
     }
 
     window.addEventListener('routes_change', handle_change_routes);
-    
 
     return () => {
       window.removeEventListener('routes_change', handle_change_routes);

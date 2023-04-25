@@ -53,6 +53,9 @@ export default function Stops_list() {
   useEffect(() =>{
     const handle_change = () => {
       setStops(!stops)
+      setSelectedIndex({})
+      setInfoWindows({})
+      setDisabled(false);
     }
 
     const handleRoutesDisplaying = (event) => {
