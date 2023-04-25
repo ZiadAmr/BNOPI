@@ -34,7 +34,7 @@ std::pair<double, double> opt(std::vector<Stop *> &stops, RouteNet &routenet, OD
     }
 
     // paper  talks about tradeoff between Cp an Co using multi-objective optimization algorithm, so I'm returning both
-    std::cout << "OUTPUT: " << Cp << " " << Co << "\n";
+    // std::cout << "OUTPUT: " << Cp << " " << Co << "\n";
     return std::make_pair(Cp, Co);
 }
 
