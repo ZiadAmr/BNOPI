@@ -16,11 +16,13 @@ double cost(int i, int j) {return 0;};
 std::pair<double, double> opt(std::vector<Stop *> &stops, RouteNet &routenet, OD::Matrix &od_matrix) {
 
     // std::cout << "Entering OPT \n";
-    float Cp = 0;
+    double Cp = 0;
+    int num = 0;
     for (OD::Origin& origin : od_matrix.origins) {
         for (OD::Destination& destination: origin.destinations) {
             float d = dijkstra(routenet, stops, origin.stop->cid, destination.stop->cid);
             Cp += destination.n * d;
+            num += 1;
             // std::cout << Cp << "= " << destination.n <<  " * " << d << std::endl;
         }
     }
@@ -34,8 +36,8 @@ std::pair<double, double> opt(std::vector<Stop *> &stops, RouteNet &routenet, OD
     }
 
     // paper  talks about tradeoff between Cp an Co using multi-objective optimization algorithm, so I'm returning both
-    // std::cout << "OUTPUT: " << Cp << " " << Co << "\n";
-    return std::make_pair(Cp, Co);
+    // std::cout << "OUTPUT: " << Cp /1000000000.00 << " " << Co << "(" << Cp << " " << num << ")" << "\n";
+    return std::make_pair(Cp/50000000000.00, Co);
 }
 
 float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int destination){
