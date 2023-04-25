@@ -112,8 +112,8 @@ function initMap() {
     
         circleOptions: {
           fillColor: "grey",
-          fillOpacity: 0.5,
-          strokeWeight: 5,
+          fillOpacity: 0.4,
+          strokeWeight: 2,
           clickable: false,
           editable: true,
           zIndex: 1,
@@ -831,24 +831,37 @@ function specifyRegion(event){
     draw.setMap(map);
     var circ = null;
 
+    // Show the old working region to the user
+    if(old_circle != null){
+        old_circle.fillOpacity = 0.2;
+        old_circle.editable = false;
+        old_circle.strokeWeight = 2;
+        old_circle.fillColor = 'grey';
+        old_circle.setMap(map);
+    }
+
+
     google.maps.event.clearListeners(draw, 'circlecomplete');
 
     google.maps.event.addListener(draw, 'circlecomplete', (c) => {
-      draw.setMap(null);
-      circ = c;
+        if(old_circle != null){
+            old_circle.setMap(null);
+        }
+        draw.setMap(null);
+        circ = c;
+        old_circle = c;
     });
 
     const handleFinishedSpecifying = () => {
         draw.setMap(null);
-
+        if(old_circle != null){
+            old_circle.setMap(null);
+        }
         if(circ != null){
             WORK_AREA_LAT = circ.getCenter().lat();
             WORK_AREA_LON = circ.getCenter().lng();
             WORK_AREA_RADIUS = circ.getRadius();
             circ.setMap(null);
-            console.log(WORK_AREA_LAT)
-            console.log(WORK_AREA_LON)
-            console.log(WORK_AREA_RADIUS)
         }else{
             window.dispatchEvent(new Event('error_select_region'));
         }
