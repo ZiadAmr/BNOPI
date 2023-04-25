@@ -86,5 +86,5 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
             }
         }
     }
-    return -1;
+    return 1000;
 }
