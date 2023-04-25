@@ -163,11 +163,13 @@ int main(int argc, char **argv)
 #ifdef DEBUG
 
 	// display one of the routenets
-	cout << "Routenet at the end: " << routenet_to_string(*smo_driver.get_population().begin()) << endl;
+	cout << "Best routenet" << routenet_to_string(best_routenet) << endl;
 
 #endif
 
 	// TODO serialize this and write to outfile_file_fs
+
+	outfile_file_fs << routenet_to_string(best_routenet);
 
 	stops_fs.close();
 	connection_graph_fs.close();
