@@ -10,6 +10,10 @@
 
 
     <script>
+
+      //Variable storing the google maps embedding
+      var map;
+
       let dpgraph = [];
       window.localStorage.clear();
       //Hashmap used for storing the loaded bus stops
@@ -50,6 +54,10 @@
       var WORK_AREA_LON = null;
       // Holds the radius of the work area around the center point (float)
       var WORK_AREA_RADIUS = null;
+
+      // Used for storing the stops to display
+      // When the user click on a route on the map info pannel, this variable holds all the stops which are used by the routes selected
+      var active_stops = [];
 
     </script>
 

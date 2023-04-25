@@ -1,46 +1,108 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {List, ListItem, ListItemText, ListItemButton, Typography, ListItemIcon, IconButton} from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faPenNib, faRoute, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function Routes_list() { 
-  const [selectedIndex, setSelectedIndex] = React.useState(-1);
+  const [selectedIndex, setSelectedIndex] = React.useState({});
   const [routes, setRoutes] = useState(false);
+  
 
   useEffect(() =>{
     const handle_change_routes = () => {
       setRoutes(!routes)
     }
 
-    const handleOutsideClick = (event) => {
-      if (event.target.getAttribute("id") !== "routes_stops_content") {
-        setSelectedIndex(-1);
-      }
-    };
-
     window.addEventListener('routes_change', handle_change_routes);
-    window.addEventListener("click", handleOutsideClick);
+    
 
     return () => {
       window.removeEventListener('routes_change', handle_change_routes);
-      window.removeEventListener("click", handleOutsideClick);
+      
     }
   }, [routes]);
 
-  const handleListItemClick = (event, index) => {
-    setSelectedIndex(index);
+  // Returns true initially and if all the list items are not selected
+  const all_draw = () => {
+    if(selectedIndex === {}){
+      return true
+    }else{
+      return Object.values(selectedIndex).every((v) => v === false);
+    }
+  }
+
+  // Updates the state of the route on the map (either draws on the map or not)
+  const setRouteState = (val, state) => {
+    val.links.forEach(pL => {
+      pL.setMap(state);
+    });
+    val.continuityLinks.forEach(pL => {
+        pL.setMap(state);
+    });
+
+    if(state != null){
+      val.stops.forEach(stp => {
+        active_stops.push(stp)
+      })
+    }
   };
 
+  useEffect(()=>{
+    active_stops = []
+    if(all_draw()){
+      window.dispatchEvent(new CustomEvent('displaying_routes', {detail: {status:false}}))
+      routeMap.forEach((value, key) => {
+        setRouteState(value, map);
+      });
+
+      busStops.forEach((value, key) => {
+        value.setMap(map);
+      })
+    }else{
+      window.dispatchEvent(new CustomEvent('displaying_routes', {detail: {status:true}}))
+      routeMap.forEach((value, key) => {
+        if(selectedIndex[key] === true){
+          setRouteState(value, map);
+        }else{
+          setRouteState(value, null);
+        }
+      });
+
+      busStops.forEach((value, key) => {
+        if(active_stops.includes(key)){
+          value.setMap(map);
+        }else{
+          value.setMap(null);
+        }
+      })
+    }
+  }, [selectedIndex])
+
+  const handleListItemClick = useCallback((id) => {
+    const new_click_vals = {...selectedIndex}
+    if(new_click_vals[id] === true){
+      new_click_vals[id] = false;
+    }else{
+      new_click_vals[id] = true;
+    }
+
+    setSelectedIndex(new_click_vals);
+
+  },[selectedIndex]);
+
   var generate_listing = Array.from(routeMap).map(([key, item], index) => {
-    return <ListItemButton style={selectedIndex === index ? {backgroundColor: '#c0c6c9a8', color: '#ffffff'} : null} key={index} selected={selectedIndex === index} onClick={(event) => handleListItemClick(event, index)}>
+    return <ListItemButton style={selectedIndex[key] === true ? {backgroundColor: '#c0c6c9a8', color: '#ffffff'} : null} key={key} selected={selectedIndex[key] === true} onClick={() => handleListItemClick(key)}>
               <ListItemIcon>
                   <FontAwesomeIcon icon={faRoute} style={{color:'#ffffff'}}/>
               </ListItemIcon>
               <ListItemText id='route_list' primary={item.name} style={{color:'ffffff'}}/>
-              <IconButton>
+              <IconButton onClick={(event)=>{
+                event.stopPropagation();
+              }}>
                 <FontAwesomeIcon icon={faPen} style={{ color: '#ffffff', fontSize:17 }} />
               </IconButton>
-              <IconButton onClick={() => {
+              <IconButton onClick={(event) => {
+                event.stopPropagation();
                 deleteDisplayRoute(key);
                 window.dispatchEvent(new Event('routes_change'));
               }}>
