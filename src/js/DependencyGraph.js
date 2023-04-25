@@ -58,11 +58,6 @@ function DependencyGraph() {
 
     //When a new node is added we need to update our backend to hold this data
     addStage(newNodeID, "New stage", {bash:'Unspecified', powershell:'', python3:'Unspecified'}, [], [prevNodeId], "", null);
-    
-    // let dpgraph = getdpgraph()    
-
-    // addStage(newNodeID, dpgraph.name, dpgraph.file, dpgraph.params, [prevNodeId], dpgraph.description, [], null);
-    // console.log(getdpgraph());
 
   }, []);
 

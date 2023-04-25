@@ -87,7 +87,7 @@ export function runGraph() {
             }
         });
         console.log("RUN: ", run)
-        run.forEach((x,i) => runScript(x.id, x.file, x.params))
+        run.forEach((x,i) => runScript(x.id, x.file, x.params, x.input_stage_formats, x.output_stage_formats))
         run.forEach((x,i) => stages_run.push(x.id))
         console.log("loop", stages_run)
         // console.log("Stages Run: ", stages_run)
@@ -96,7 +96,7 @@ export function runGraph() {
     console.log("Stages Run: ", stages_run)
 }
 
-export function runScript(id, script, params) {
+export function runScript(id, script, params, isf, osf) {
     /*...*/
     // let args = [filename]
     let args = []
@@ -108,8 +108,31 @@ export function runScript(id, script, params) {
             args.push(params[i].setVal)
         }
     }
+
+    for (var i = 0; i < isf.length; i++){
+        for (var j = 0; j < stageInstances.length; j++){
+            console.log(isf[i])
+            console.log(stageInstances[j])
+            if (isf[i].stage_format == stageInstances[j].metadata.format){
+                args.push(stageInstances[j].path)
+            }
+        }
+    }
+
+    for (var i = 0; i < osf.length; i++){
+        for (var j = 0; j < stageInstances.length; j++){
+            console.log(osf[i])
+            console.log(stageInstances[j])
+            if (osf[i].stage_format == stageInstances[j].metadata.format){
+                args.push(stageInstances[j].path)
+            }
+        }
+    }
+
     console.log("Script: ", script)
     console.log("Arguments: ", args)
+    console.log("Input Stage Format: ", isf);
+    console.log("All Stage Formats: ", stageInstances);
     // console.log("\t Input Stages: ", stageInstances)
     var python = window.electron.spawn_child(script.powershell, args);
     console.log("Output: ", python)
