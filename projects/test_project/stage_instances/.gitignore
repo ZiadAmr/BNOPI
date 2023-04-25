@@ -1,0 +1,13 @@
+*
+
+!.gitignore
+!od-matrix.json
+!od-matrix.stg.json
+!roads.json
+!roads.stg.json
+!routes.json
+!routes.stg.json
+!stop-connection-graph.json
+!stop-connection-graph.stg.json
+!stops.json
+!stops.stg.json
