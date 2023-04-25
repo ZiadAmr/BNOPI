@@ -16,10 +16,12 @@ double cost(int i, int j) {return 0;};
 std::pair<double, double> opt(std::vector<Stop *> &stops, RouteNet &routenet, OD::Matrix &od_matrix) {
 
     // std::cout << "Entering OPT \n";
-    double Cp = 0;
+    float Cp = 0;
     for (OD::Origin& origin : od_matrix.origins) {
         for (OD::Destination& destination: origin.destinations) {
-            Cp += destination.n * dijkstra(routenet, stops, origin.stop->cid, destination.stop->cid);
+            float d = dijkstra(routenet, stops, origin.stop->cid, destination.stop->cid);
+            Cp += destination.n * d;
+            // std::cout << Cp << "= " << destination.n <<  " * " << d << std::endl;
         }
     }
     // std::cout << "Fist loop done \n";
@@ -65,6 +67,7 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
         distance.push_back(INT32_MAX);
     }
     distance[source]=0;
+    visited[source]=true;
 
     for(int i = 0; i < visited.size(); i++){
         if(visited[i] == true){
@@ -76,6 +79,7 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
                     distance[j] = distance[i] + dist;
                 }
 
+                // std::cout << j << " - " << destination;
                 if(j == destination){
                     return distance[j];
                 }
