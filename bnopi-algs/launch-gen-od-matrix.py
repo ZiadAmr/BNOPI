@@ -9,3 +9,4 @@ else:
     # otherwise assume we can read the shebang
     system(
         f'../algs/generate-random-od-matrix.py -n {getenv("NUM_USERS")} -o "{getenv("OUTPUT_FILELOC")}" "{getenv("STOPS_FILELOC")}"')
+

@@ -2,33 +2,7 @@
 	"name": "Import Roads From OpenStreetMap",
 	"id": "GEN_ROADS",
 	"description": "Download all bus-passable roads within a range centered on a lat-lon coordinate from OpenStreetMap.",
-	"params": [
-		{
-			"name": "Radius",
-			"type": "posint",
-			"default": 1000,
-			"help": "Radius in meters, centered on (lat, lon), within which to get roads",
-			"var": "RADIUS"
-		},
-		{
-			"name": "Latitude",
-			"type": "float",
-			"min": -90,
-			"max": 90,
-			"default": 0,
-			"help": "Latitude of coordinate around which to look for roads",
-			"var": "LATITUDE"
-		},
-		{
-			"name": "Longitude",
-			"type": "float",
-			"min": -180,
-			"max": 180,
-			"default": 0,
-			"help": "Longitude of coordinate around which to look for roads",
-			"var": "LONGITUDE"
-		}
-	],
+	"params": [],
 	"inputStageFormats": [],
 	"outputStageFormats": [
 		{

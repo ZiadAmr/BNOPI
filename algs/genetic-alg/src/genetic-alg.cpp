@@ -147,13 +147,13 @@ int main(int argc, char **argv)
 	settings.max_route_stops = 20;
 	settings.min_route_stops = 2;
 	settings.num_routes = 6;
-	settings.population_size = 1;
+	settings.population_size = 5;
 
 	// generate population
 	Population initial_population = generatePopulation(settings,*graph);
 
 	// init algorithm
-	SMODriver smo_driver(initial_population, od_matrix, graph, settings, /*niter=*/10000);
+	SMODriver smo_driver(initial_population, od_matrix, graph, settings, /*niter=*/500);
 
 	// main loop
 	smo_driver.run();
@@ -163,11 +163,13 @@ int main(int argc, char **argv)
 #ifdef DEBUG
 
 	// display one of the routenets
-	cout << "Routenet at the end: " << routenet_to_string(*smo_driver.get_population().begin()) << endl;
+	cout << "Best routenet" << routenet_to_string(best_routenet) << endl;
 
 #endif
 
 	// TODO serialize this and write to outfile_file_fs
+
+	outfile_file_fs << routenet_to_string(best_routenet);
 
 	stops_fs.close();
 	connection_graph_fs.close();

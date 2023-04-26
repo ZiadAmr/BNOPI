@@ -4,7 +4,7 @@
 	"format":"ROUTES",
 	"generatedBy": "GEN_ROUTES",
 	"nodeInGraph":null,
-	"parentStageInstances":["stop-connection-graph.stg.json"],
+	"parentStageInstances":["stop-connection-graph.stg.json", "od-matrix.stg.json"],
 	"siblingStageInstances": [],
 	"datafile":"routes.json"
 }
