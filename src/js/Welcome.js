@@ -2,12 +2,12 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Typography } from '@mui/material';
-import { Col, Row, Container } from 'react-bootstrap';
+import { Col, Row, Container, Button } from 'react-bootstrap';
 import Box from '@mui/material/Box';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faFolder } from '@fortawesome/free-regular-svg-icons'; 
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 import logo from "../../icons/bnopi-logo.png";
 
 
@@ -52,18 +52,18 @@ export default function Welcome() {
 			<Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 15, fontFamily: 'sans-serif', color: "white"}}>
 				Bus Network Optimization and Planning Interface. Create a new project or open an existing one to begin.
 			</Typography>
-			<Container style={{ width: "100%", height: "200px", display: "flex", alignItems: "center" }} >
+			<Container style={{ width: "100%", height: "150px", display: "flex", alignItems: "center" }} >
 				<Row style={{ margin: 0, width: "100%" }}>
-					<Col sm={6} style={{ display: 'flex', justifyContent: 'center', alignItems: "center", flexDirection: "column", height: "100%"}}>
-						<Box sx={{ width: '100px', height: '100px', backgroundColor: "red" }}>
+					<Col sm={3} style={{ display: 'flex', justifyContent: 'center', alignItems: "center", flexDirection: "column", height: "100%"}}>
+						<Box sx={{ width: '100px', height: '100px', backgroundColor: "#dc3545" }}>
 							<Button variant='danger' id="setting" size='sm' style={{ alignItems: "center", width: "100%", height: "100%" }} onClick={startNewProject}>
 								<FontAwesomeIcon icon={faPlus} style={{ fontSize: "60px" }}/>
 							</Button>
 							<center>New</center>
 						</Box>
 					</Col>
-					<Col sm={6} style={{ display: 'flex', justifyContent: 'center', alignItems: "center", flexDirection: "column" }}>
-						<Box sx={{ width: '100px', height: '100px', backgroundColor: "red" }}>
+					<Col sm={8} style={{ display: 'flex', justifyContent: 'center', alignItems: "center", flexDirection: "column" }}>
+						<Box sx={{ width: '100px', height: '100px', backgroundColor: "#dc3545" }}>
 							<Button variant='danger' id="setting" size='sm' style={{ alignItems: "center", width: "100%", height: "100%" }} onClick={openExistingProject}>
 								<FontAwesomeIcon icon={faFolder} style={{ fontSize: "60px" }} />
 								
