@@ -66,7 +66,7 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
     std::vector<float> distance;
     for(int i = 0; i < stops.size(); i++){
         visited.push_back(false);
-        distance.push_back(INT32_MAX);
+        distance.push_back(1000);
     }
     distance[source]=0;
     visited[source]=true;
@@ -78,15 +78,17 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
                     visited[j] = true;
                     int dist_loc =  (std::find_if(adjacency[i].begin(), adjacency[i].end(),  [j](const std::pair<int, float>& pair){return std::get<1>(pair) == j;}) - adjacency[i].begin());
                     float dist = std::get<1>(adjacency[i][dist_loc]);
-                    distance[j] = distance[i] + dist;
+                    if(distance[j] > distance[i] + dist){
+                        distance[j] = distance[i] + dist;
+                    }
                 }
 
                 // std::cout << j << " - " << destination;
-                if(j == destination){
-                    return distance[j];
-                }
+                // if(j == destination){
+                    // return distance[j];
+                // }
             }
         }
     }
-    return 1000;
+    return distance[j];
 }
