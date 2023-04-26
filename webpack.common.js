@@ -2,7 +2,10 @@ const path = require('path');
 
 module.exports = {
   mode: 'development',
-  entry: './src/js/index.js',
+  entry: {
+    app: './src/js/index.js',
+    launch: './src/js/launch.js'
+  },
   devtool: 'inline-source-map',
   target: 'electron-renderer',
   module: {
@@ -19,7 +22,7 @@ module.exports = {
                   esmodules: true
                 }
               }],
-              '@babel/preset-react']
+              '@babel/preset-react']  
           }
         }
       },
@@ -33,6 +36,17 @@ module.exports = {
           // Compiles Sass to CSS
           'sass-loader',
         ],
+      },
+      {
+        test: /\.(png|jpg|gif)$/i,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 8192,
+            },
+          },
+        ],
       }
     ]
   },
@@ -40,7 +54,7 @@ module.exports = {
     extensions: ['.js'],
   },
   output: {
-    filename: 'app.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'build', 'js'),
   },
 };

@@ -24,5 +24,5 @@ Back end
 + stop connection graph convert to BFS
 
 Docs
-+ Algorithms
++ ~~Algorithms~~
 + Projects

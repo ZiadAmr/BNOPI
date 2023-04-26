@@ -20,6 +20,12 @@ body {
   width: 100%;
   margin:0;
 }
+#Welcome {
+  padding-top: 0px;
+  padding-left: 40px;
+  padding-right: 40px;
+  background-color: black;
+}
 #Network_toolkit {
   height: 50%;
   z-index: 99;
@@ -98,6 +104,16 @@ body {
 #StageTracker {
   padding: 0;
   background-color: #3e3e3e;
+}
+#RecentProjects {
+  background-color: #3e3e3e;
+  text-overflow: ellipsis;
+}
+#LaunchPage {
+    overflow: "hidden";
+    padding-left: 0;
+    padding-right: 0;
+    height: 100%;
 }
 .container{
   overflow: hidden;
@@ -184,3 +200,4 @@ body {
 button.gm-ui-hover-effect {
   visibility: hidden;
 }
+

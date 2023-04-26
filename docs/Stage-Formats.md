@@ -1,3 +1,4 @@
+
 # Stage Formats
 
 Stage formats are used to give a type to the files ([stage instances](Stage-Instances.md)) that are transferred between nodes. Within a project's metadata files, a stage format is referenced by its **stage format id**, which is conventionally a string comprised of uppercase letters and underscores, such as STOP_CONNECTION_GRAPH.

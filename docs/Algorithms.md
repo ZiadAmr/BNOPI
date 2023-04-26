@@ -1,4 +1,6 @@
+
 # Algorithms
+
 Algorithms are the building blocks of BNOPI projects. An algorithm is a script or executable which takes in 0 or more stage instances as input and produces 0 or more stage instances as output.
 
 ## Example

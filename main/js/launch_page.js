@@ -15,14 +15,15 @@ function createLaunchPage() {
 			contextIsolation: true,
 			preload: path.join(__dirname, 'preload.js')
 		},
-		show: false
+		show: false,
+		// frame: false,
 	})
 
 	win.once("ready-to-show", () => {
 		win.show();
 	});
 
-	win.loadFile(path.resolve('launchwindow.html'));
+	win.loadFile(path.resolve('launchpage.html'));
 
 	return win;
 }

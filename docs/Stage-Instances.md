@@ -1,3 +1,4 @@
+
 # Stage Instances
 
 A **stage instance** is a file that is used as input to, or generated as output from, an [**algorithm**](/docs/Algorithms.md). To keep track of stage instances, for each stage instance BNOPI generates a **stage instance metadata file**, with the file extension *.stg.json*. 
