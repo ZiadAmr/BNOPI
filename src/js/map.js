@@ -56,7 +56,7 @@ function initMap() {
     var optionParams = {
         zoom: 14,
         center: { lat: 52.52955, lng: -1.22395 },
-        mapTypeId: "terrain"
+        // mapTypeId: "terrain"
     };
 
     map = new google.maps.Map(document.getElementById('map'), optionParams);

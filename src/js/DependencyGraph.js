@@ -87,7 +87,7 @@ function DependencyGraph() {
 
   // Function is called when we manually connect two nodes
   const onConnect = useCallback((params) => {
-    setEdges((eds) => addEdge(params, eds))
+    setEdges((eds) => addEdge({...params, type: 'default', animated:true}, eds))
 
     // Set the parent of the node in our backend
     addParent(params.target, params.source);
