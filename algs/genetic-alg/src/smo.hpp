@@ -29,7 +29,7 @@ private:
 	Graph* graph;
 
 	std::vector<float> parent_fitness;
-	float best_so_far_fitness = 0;
+	float best_so_far_fitness = -99999999999.0;
 	RouteNet best_so_far_routenet;
 
 	// iteration number

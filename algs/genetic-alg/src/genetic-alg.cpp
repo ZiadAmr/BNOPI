@@ -125,18 +125,18 @@ int main(int argc, char **argv)
 
 	// do a walk in the graph to check pointers are correct
 	cout << "doing a random walk..." << endl;
-	Stop& stop = graph->stops.begin()->second;
+	Stop* stop = &graph->stops.begin()->second;
 	for (int i = 0; i < 5; i++) {
-		cout << "Stop id: " << stop.id << " lat: " << stop.lat << " lon " << stop.lon << " name: " << stop.name << endl;
+		cout << "Stop id: " << stop->id << " lat: " << stop->lat << " lon " << stop->lon << " name: " << stop->name << endl;
 
 		
-		if (stop.out_edges.size() == 0) break;
+		if (stop->out_edges.size() == 0) break;
 
 		// choose the first out_edge
-		Link& link = *stop.out_edges[0];
+		Link& link = *stop->out_edges[0];
 		cout << "Link id: " << link.id << " name: " << link.name << " length: " << link.length << endl;
 
-		stop = *link.end;
+		stop = link.end;
 
 	}
 

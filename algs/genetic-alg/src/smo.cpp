@@ -21,7 +21,7 @@ SMODriver::SMODriver(Population initial_population, OD::Matrix &od_matrix, Graph
 	// calculate the initial fitness of each network
 	for (DRouteNet drn : population) {
 		// TOOD call fitness function (net yet implemented)
-		float fitness = 0;
+		float fitness = -99999999999.0;
 
 		parent_fitness.push_back(fitness);
 	}
@@ -115,9 +115,10 @@ float SMODriver::objective_function(RouteNet& rn) {
 	pair<double, double> o = opt(graph->stops_by_id, rn, od_matrix);
 
 	// just add the two up for now, worry about weighting them later
-	float fitness = (float) (o.first + o.second);
+	// float fitness = (float) (o.first + o.second);
+	float fitness = (float) o.first;
 
-	return fitness;
+	return -fitness;
 }
 
 
@@ -136,7 +137,6 @@ Population SMODriver::DPopulation_to_Population(DPopulation &dp) {
 	}
 	return p;
 }
-
 
 
 void SMODriver::make_small_change(DRouteNet &route_net) {
