@@ -7,7 +7,8 @@ import Box from '@mui/material/Box';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faFolder } from '@fortawesome/free-regular-svg-icons'; 
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
+import Button from 'react-bootstrap/Button';
 import logo from "../../icons/bnopi-logo.png";
 
 
@@ -55,16 +56,16 @@ export default function Welcome() {
 			<Container style={{ width: "100%", height: "200px", display: "flex", alignItems: "center" }} >
 				<Row style={{ margin: 0, width: "100%" }}>
 					<Col sm={6} style={{ display: 'flex', justifyContent: 'center', alignItems: "center", flexDirection: "column", height: "100%"}}>
-						<Box sx={{ width: '100px', height: '100px', backgroundColor: "red" }}>
-							<Button variant='danger' id="setting" size='sm' style={{ alignItems: "center", width: "100%", height: "100%" }} onClick={startNewProject}>
+						<Box sx={{ width: '120px', height: '120px', backgroundColor: "transparent" }}>
+							<Button variant='danger' id="setting" size='sm' style={{ alignItems: "center", width: "100%", height: "100%", borderRadius:'5px' }} onClick={startNewProject}>
 								<FontAwesomeIcon icon={faPlus} style={{ fontSize: "60px" }}/>
 							</Button>
 							<center>New</center>
 						</Box>
 					</Col>
 					<Col sm={6} style={{ display: 'flex', justifyContent: 'center', alignItems: "center", flexDirection: "column" }}>
-						<Box sx={{ width: '100px', height: '100px', backgroundColor: "red" }}>
-							<Button variant='danger' id="setting" size='sm' style={{ alignItems: "center", width: "100%", height: "100%" }} onClick={openExistingProject}>
+						<Box sx={{ width: '120px', height: '120px', backgroundColor: "transparent" }}>
+							<Button variant='danger' id="setting" size='sm' style={{ alignItems: "center", width: "100%", height: "100%", borderRadius:'5px' }} onClick={openExistingProject}>
 								<FontAwesomeIcon icon={faFolder} style={{ fontSize: "60px" }} />
 								
 							</Button>
