@@ -90,5 +90,5 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
             }
         }
     }
-    return distance[j];
+    return distance[destination];
 }
