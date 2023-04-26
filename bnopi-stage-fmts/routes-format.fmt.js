@@ -190,8 +190,8 @@ module.exports = class RoutesFormat extends StageFormat {
 						// the points in the link must match closely (accounting for floating point errors)
 						if (scgLink.points.length != link.length) return false;
 						for (let j = 0; j < link.length; j++) {
-							const scgPoint = points_map.get(scgLink.points[i]);
-							const point = link[i];
+							const scgPoint = points_map.get(scgLink.points[j]);
+							const point = link[j];
 
 							if (Math.abs(scgPoint.lat - point.lat) > 0.00001) return false;
 							if (Math.abs(scgPoint.lon - point.lon) > 0.00001) return false;
@@ -222,7 +222,7 @@ module.exports = class RoutesFormat extends StageFormat {
 					// work out length of link in km.
 					var linkLength = 0;
 					for (let j = 0; j < link.length-1; j++) {
-						linkLength += (new GeoCoordinate(link[i].lat, link[i].lon)).distanceTo(new GeoCoordinate(link[i+1].lat, link[i+1].lon)) / 1000;
+						linkLength += (new GeoCoordinate(link[j].lat, link[j].lon)).distanceTo(new GeoCoordinate(link[j+1].lat, link[j+1].lon)) / 1000;
 					}
 					
 					/** @type {SCGLink} */

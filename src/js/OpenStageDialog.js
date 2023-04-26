@@ -73,13 +73,16 @@ function getRequirementInstanceList(mdPath) {
 
 export default function OpenStageDialog(props) {
 
-
-	const {onCancel, onClose, mdPath} = props;
-
+	const { onCancel, onClose, mdPath } = props;
 
 	const ins = stageInstances.find(i => i.path == mdPath);
-
 	if (mdPath == null) return <></>
+
+	// just used to rerender
+	const [openStageDialog, setOpenStageDialog] = useState(false);
+	window.addEventListener('stage_instances_change', () => {
+		setOpenStageDialog(openStageDialog);
+	});
 
 	// create the dialog to open requirements (if there are any)
 	const requirementInstanceList = getRequirementInstanceList(mdPath);

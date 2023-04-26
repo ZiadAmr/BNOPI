@@ -358,7 +358,17 @@ class StageFormatHandler {
 			const nameStem = path.basename(newMetadataPath).match(expr)[1];
 			// relative path, and since this is in the same folder as the metadata file we don't need to worry.
 			// get the data file extension
-			const fileExtension = this.loadedStageFormats.find((x) => x.id == oldInstance.metadata.format).fileExtension;
+			const format = this.loadedStageFormats.find((x) => x.id == oldInstance.metadata.format);
+			var fileExtension = "dat";
+			if (typeof format == "undefined"){
+				// user the format of the old file
+				const split = oldInstance.metadata.datafile.split(".");
+				if (split.length > 0) {
+					fileExtension = split.pop();
+				}
+			} else {
+				fileExtension = format.fileExtension;
+			}
 			newMetadata.datafile = nameStem + "." + fileExtension;
 		}
 

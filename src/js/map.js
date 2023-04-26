@@ -191,20 +191,6 @@ async function openProject(projPath) {
     // set global variable
     projectPath = projPath;
 
-    // TODO hard code it to open the route network
-    const routesInstancePath = stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "routes.stg.json").path;
-    const requirementMetadataPaths = [
-        stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "stop-connection-graph.stg.json").path,
-        stageInstances.find((ins) => ins.path.split('\\').pop().split('/').pop() == "stops.stg.json").path, 
-    ];
-    displayStageInstance(routesInstancePath, requirementMetadataPaths);
-
-
-
-    // const re = /STOPS_1/;
-    // const stopsInstance = stageInstances.find((ins) => ins.path.match(re) != null);
-    // displayStageInstance(stopsInstance.path);
-    // console.log(polyMap);
     return null;
 
 

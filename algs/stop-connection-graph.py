@@ -8,7 +8,7 @@ from math import sqrt, inf, sin, cos, atan2, radians
 from numbers import Number
 from sys import exit
 from re import search
-from typing import List
+from typing import List, Generator
 from os.path import isfile
 
 def positive_float(x):
@@ -107,8 +107,20 @@ road_data = json.loads(args.roads.read())
 ##### REQUIRES stops.json to be generated already. We only add connections between stops that appear in stops.json.
 
 
-# finds the point on the line (p0x, p0y)=>(p1x, p1y) that is closest to (cx, cy)
-def closest_point_on_line(p0x: Number, p0y: Number, p1x: Number, p1y: Number, cx: Number, cy: Number) -> 'tuple[Number, Number]':
+def closest_point_on_line(p0x: Number, p0y: Number, p1x: Number, p1y: Number, cx: Number, cy: Number) -> 'tuple[Number, Number, Number]':
+	"""Finds the point on the line `(p0x, p0y)=>(p1x, p1y)` that is closest to `(cx, cy)`
+
+	Args:
+		p0x (Number): x-coordinate of line endpoint 0
+		p0y (Number): y-coordinate of line endpoint 0
+		p1x (Number): x-coordinate of line endpoint 1
+		p1y (Number): y-coordinate of line endpoint 0
+		cx (Number): x-coordinate of query point
+		cy (Number): y-coordinate of query point
+
+	Returns:
+		tuple[Number, Number, Number]: `(x, y, t)`, where `(x, y)` is the location of the closest point on the line to `(cx, cy)`, and `t` is the value t in the parametrized vector equation of the line :math:`p = a + bt`. `t` may be outside the range :math:`[0,1]`, but `(x, y)` will always be a point on the line, possibly being snapped to one of the endpoints.
+	"""
 	
 	# parametrized vector eqn of line: p = a + bt
 	ax = p0x
@@ -125,7 +137,12 @@ def closest_point_on_line(p0x: Number, p0y: Number, p1x: Number, p1y: Number, cx
 	else: return (ax+t*bx, ay+t*by, t)
 
 # https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude
-def surface_distance(lat0, lon0, lat1, lon1):
+
+
+def surface_distance(lat0: Number, lon0: Number, lat1: Number, lon1: Number) -> Number:
+	"""Finds distance between 2 lat/lon coordinates in metres.
+	Adapted from `<https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude>`.
+	"""
 
 	# hopefully should prevent divide by zero errors
 	if lat0 == lat1 and lon0 == lon1: return 0.0
@@ -148,35 +165,55 @@ def surface_distance(lat0, lon0, lat1, lon1):
 
 	return distance
 
-# https://stackoverflow.com/questions/1560492/how-to-tell-whether-a-point-is-to-the-right-or-left-side-of-a-line
+# 
 # Where a = line point 1; b = line point 2; c = point to check against.
-def is_left(a, b, c):
-    return ((b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0])) > 0
 
+def is_left(a: tuple[Number, Number], b: tuple[Number, Number], c: tuple[Number, Number]) -> bool:
+	"""Check to see if a point lies to the left or right of a line.
+	Taken from `<https://stackoverflow.com/questions/1560492/how-to-tell-whether-a-point-is-to-the-right-or-left-side-of-a-line>`
+
+	Args:
+		a (Number): Starting point of the line
+		b (Number): Ending point of the line
+		c (Number): Query point
+
+	Returns:
+		bool: True if `c` lies to the left of the line when travelling from `a` to `b`.
+	"""
+	return ((b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0])) > 0
 
 
 r_major = 6378137.000
-# https://gis.stackexchange.com/questions/156035/calculating-mercator-coordinates-from-lat-lon
-def merc(lat, lon):
-    x = r_major * math.radians(lon)
-    scale = x/lon
-    y = 180.0/math.pi * \
-    	math.log(math.tan(math.pi/4.0 + lat * (math.pi/180.0)/2.0)) * scale
-    return (x, y)
+
+
+def merc(lat: Number, lon: Number) -> 'tuple[Number, Number]':
+	"""Convert point from lat/lon coordinates to mercator projection coordinates.
+	Taken from `<https://gis.stackexchange.com/questions/156035/calculating-mercator-coordinates-from-lat-lon>`
+	"""
+
+	x = r_major * math.radians(lon)
+	scale = x/lon
+	y = 180.0/math.pi * \
+		math.log(math.tan(math.pi/4.0 + lat * (math.pi/180.0)/2.0)) * scale
+	return (x, y)
 
 # hand-inverted from the above. hope it's correct!
-def amerc(x, y):
+def amerc(x: Number, y:Number) -> 'tuple[Number, Number]':
+	"""Convert point from mercator projection coordinates to lat/lon coordinates.
+	"""
 	lon = x/r_major * 180.0/math.pi
 	# no idea why that - 45.0 should be there - but it doesn't work without TODO.
 	lat = (2.0*math.atan(math.exp(y*math.pi/180.0*lon/x))-math.pi/4.0)*180.0/math.pi - 45.0
 	return (lat, lon)
 
-# https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
 def ccw(A, B, C):
-    return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
-# Return true if line segments AB and CD intersect
-def intersect(A, B, C, D):
-    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
+	"""`<https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect>`"""
+	return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
+def intersect(A: tuple[Number, Number], B: tuple[Number, Number], C: tuple[Number, Number], D: tuple[Number, Number]) -> bool:
+	"""Calculate if line `A=>B` intersections with `C=>D`.
+	Adapted from `<https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect>`
+	"""
+	return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
 	
 
@@ -396,8 +433,16 @@ allowed_access_tags = ("yes", "permissive", "permit",
 allowed_access_tags_pattern = f"^([^\|]*\|)*({'|'.join(allowed_access_tags)})(\|[^\|]*)*( @.*)?$"
 
 
-def has_access(tags, dir=None) -> bool:
-	"""Check access tags of element. Returns True if a bus can pass this node."""
+def has_access(tags: dict, dir: bool | None =None) -> bool:
+	"""Check OSM access tags of element. Returns True if a bus can pass this node or way based on the access tags only.
+
+	Args:
+		tags (dict): Tags of the element
+		dir (bool | None, optional): If the element is a way then `True` if we are travelling forwards along the way, `False` otherwise. If the element is a node then `None`. Defaults to None.
+
+	Returns:
+		bool: True if a bus can pass this node or way.
+	"""
 	# TODO again, ignoring conditionals.
 	# highest priority patterns first
 
@@ -773,7 +818,7 @@ def connections_from_node(nodeid:int, wayid:int, direction:bool) -> 'List[tuple[
 
 def paths_from_node(nodeid: int, wayid: int, path_distance: Number, stopid: int, path: List[int], direction: bool, maxdist: Number) -> 'List[tuple[Number, int, List[int], int]]':
 	"""
-	Return all the connection starting from "nodeid": way["wayid"], heading in "direction" along that way.
+	Return all the connections starting from "nodeid": way["wayid"], heading in "direction" along that way.
 	The behaviour of this function is to travel along the current way until a junction is reached, and then recur.
 
 	Args:
@@ -853,7 +898,7 @@ def paths_from_node(nodeid: int, wayid: int, path_distance: Number, stopid: int,
 					else:
 						return []
 
-		# if re-using the same link (in same direction), cancel search
+		# if re-using the same line (in same direction), cancel search
 		# TODO there might be some edge cases where this causes breakage (perhaps managed lanes requiring multiple traversal of the same way), but they seem very rare
 		if (this_node_id, next_node_id) in zip(path[:-1], path[1:]):
 			return []
@@ -952,8 +997,8 @@ shortest_pfs = []
 for i, stopid in enumerate(stops):
 	shortest_pfs.extend(paths_from_stop_wrapper((i, stopid)))
 
-# multiprocessing ver.
-# create a process pool that uses all cpus
+## multiprocessing ver.
+## create a process pool that uses all cpus
 # with multiprocessing.Pool() as pool:
 # 	# call the function for each item in parallel
 # 	for result in pool.map(paths_from_stop_wrapper, enumerate(stops), chunksize=1):
@@ -971,8 +1016,20 @@ for pfs in shortest_pfs:
 	stop_pfs[pfs[1]].append(pfs)
 
 
-# search all paths originating from this stop
-def extended_edges_from_stop(from_stopid, remaining_distance):
+def extended_edges_from_stop(from_stopid: int, remaining_distance: Number) -> 'Generator[tuple[Number, int, list[int], int]]':
+	"""Find all "extended edges" originating from that stop - (A,B) such that there is a path from A to B that is less than `remaining_distance`.
+
+	Args:
+		from_stopid (int): Stop to start from
+		remaining_distance (Number): Distance within which to search for extended edges.
+
+	Yields:
+		tuple[Number, int, list[int], int]: (distance, stopid, path, stopid0), where
+			distance (Number): the real-world distance between the stoppos of stopid and stopid0 in meters, travelling along the path.
+			stopid (int): Originating stopid
+			path (List[int]): path of nodeids between stopid and stopid0
+			stopid0 (int): Terminating stopid
+	"""
 	for distance, _, path, to_stopid in stop_pfs[from_stopid]:
 		if remaining_distance - distance > 0:
 			yield (distance, from_stopid, path, to_stopid)
