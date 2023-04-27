@@ -1,7 +1,7 @@
 {
 	"name": "Import Stops From OpenStreetMap",
 	"id": "GEN_STOPS",
-	"description": "Download all stops within a range centered on a lat-lon coordinate, and output a STOPS format.",
+	"description": "Download all stops within a range centered on a lat-lon coordinate, and output a STOPS format. Uses map data obtained from OpenStreetMap (see openstreetmap.org/copyright).",
 	"params": [],
 	"inputStageFormats": [],
 	"outputStageFormats": [

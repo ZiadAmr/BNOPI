@@ -1,7 +1,7 @@
 {
 	"name": "Import Roads From OpenStreetMap",
 	"id": "GEN_ROADS",
-	"description": "Download all bus-passable roads within a range centered on a lat-lon coordinate from OpenStreetMap.",
+	"description": "Download all bus-passable roads within a range centered on a lat-lon coordinate from OpenStreetMap. Uses map data obtained from OpenStreetMap (see openstreetmap.org/copyright).",
 	"params": [],
 	"inputStageFormats": [],
 	"outputStageFormats": [
