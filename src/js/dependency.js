@@ -77,7 +77,7 @@ export function addParent(id, parentID) {
     dpgraph.find(element => element.id == id).parents.push(parentID)
 }
 
-export function runGraph() {
+export async function runGraph() {
     let stages_run = []
     while(stages_run.length < dpgraph.length){
         let run = []
@@ -96,7 +96,7 @@ export function runGraph() {
     console.log("Stages Run: ", stages_run)
 }
 
-export function runScript(id, script, params, isf, osf) {
+export async function runScript(id, script, params, isf, osf) {
     /*...*/
     // let args = [filename]
     let args = []
@@ -106,16 +106,6 @@ export function runScript(id, script, params, isf, osf) {
             args.push(params[i].default)
         } else {
             args.push(params[i].setVal)
-        }
-    }
-
-    for (var i = 0; i < isf.length; i++){
-        for (var j = 0; j < stageInstances.length; j++){
-            console.log(isf[i])
-            console.log(stageInstances[j])
-            if (isf[i].stage_format == stageInstances[j].metadata.format){
-                args.push(stageInstances[j].path)
-            }
         }
     }
 
@@ -129,12 +119,23 @@ export function runScript(id, script, params, isf, osf) {
         }
     }
 
+    for (var i = 0; i < isf.length; i++){
+        for (var j = 0; j < stageInstances.length; j++){
+            console.log(isf[i])
+            console.log(stageInstances[j])
+            if (isf[i].stage_format == stageInstances[j].metadata.format){
+                args.push(stageInstances[j].path)
+            }
+        }
+    }
+
+
     console.log("Script: ", script)
     console.log("Arguments: ", args)
     console.log("Input Stage Format: ", isf);
     console.log("All Stage Formats: ", stageInstances);
     // console.log("\t Input Stages: ", stageInstances)
-    var python = window.electron.spawn_child(script.powershell, args);
+    var python = await window.electron.spawn_child(script.python3, args);
     console.log("Output: ", python)
     return ""
 }

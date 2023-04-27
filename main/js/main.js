@@ -129,9 +129,9 @@ app.whenReady().then(() => {
       console.log("Running: ");
       console.log("\t Script: ", script)
       console.log("\t Arguments: ", args)
-      arr = ["-file", script].concat(args)
+      arr = [script].concat(args)
       console.log("\t Array: ", arr)
-      const data = await child.spawn("powershell", arr);
+      const data = await child.spawn("python", arr);
       let output = ""
       await data.stdout.on('data',function(data){
         console.log("data: ",data.toString());
