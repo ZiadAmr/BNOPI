@@ -77,9 +77,9 @@ async function saveStageFormat(project, stage, metadataLoc, data, metadata) {
 
 /**
  * @param {string} projPath Path to the project folder
- * @returns List of all stage instances for this project and their metadata
+ * @returns {Promise<{path:String, metadata:InstanceMetadata}[]>}List of all stage instances for this project and their metadata
  */
-async function getListOfStageFormat(projPath) {
+async function getListOfStageInstance(projPath) {
 
 	var stageInstances = [];
 
@@ -336,4 +336,4 @@ async function addToRecents(projPath) {
 
 
 
-module.exports = { openBNOPIAlg, selectBNOPIOutputStageInstanceLocation, openStageFormat, saveStageFormat, getListOfStageFormat, openProjectFolderDialog, createNewProjectDialog, createNewProject, /*openProject,*/ getRecents, getProjectMetadata, addToRecents};
+module.exports = { openBNOPIAlg, selectBNOPIOutputStageInstanceLocation, openStageFormat, saveStageFormat, getListOfStageInstance: getListOfStageInstance, openProjectFolderDialog, createNewProjectDialog, createNewProject, /*openProject,*/ getRecents, getProjectMetadata, addToRecents};

@@ -8,27 +8,62 @@ const file_handler = require("./file_handler")
 
 /**
  * Instance type passed to display and editing frameworks
- * @typedef {{data: Buffer, metadata: InstanceMetadata, metadataFilePath: String}} BNOPIInstance
+ * @typedef {Object} BNOPIInstance
+ * @property {Buffer} data
+ * @property {InstanceMetadata} metadata
+ * @property {string} metadataFilePath
  */
 
 /**
  * Contents of a stage instance metadata file
- * @typedef {{timeCreated: string, dependencyGraph: string, format: string, generatedBy: string, nodeInGraph:(number|null), parentStageInstances:string[], siblingStageInstances:string[], datafile:string}} InstanceMetadata
+ * @typedef {Object} InstanceMetadata
+ * @property {string} timeCreated
+ * @property {string} dependencyGraph
+ * @property {string} format
+ * @property {string} generatedBy
+ * @property {number|null} nodeInGraph
+ * @property {string[]} parentStageInstances
+ * @property {string[]} siblingStageInstances
+ * @property {string} datafile
  */
 
 /**
  * A bus stop in the format used to communicate with the render
- * @typedef {{lat: number; lon: number; id: number; name: string | undefined; hidden_attrs: any; user_attrs: any;}} BNOPIStop
+ * @typedef {Object} BNOPIStop
+ * @property {number} lat
+ * @property {number} lon
+ * @property {number} id
+ * @property {string |undefined} name
+ * @property {any} hidden_attrs
+ * @property {any} user_attrs
  */
 
+/**
+ * Coordinates in the GCS system
+ * @typedef {Object} LatLon
+ * @property {number} lat
+ * @property {number} lon
+ */
 
 /**
  * A bus route in the format used to communicate with the renderer
- * @typedef {{id: number; name: string | undefined; links: {lat: number; lon: number;}[][], stops:number[], hidden_attrs: any, user_attrs: any}} BNOPIRoute
+ * @typedef {Object} BNOPIRoute
+ * @property {number} id
+ * @property {string | undefined} name
+ * @property {LatLon[][]} links
+ * @property {number[]} stops
+ * @property {any} hidden_attrs
+ * @property {any} user_attrs
  */
 
 /**
- * @typedef {{name: string;id: string; requirements: string[]; description: string; fileExtension: string;}} StageFormatInfo
+ * Properties of the stage format class, without the display or editing frameworks.
+ * @typedef {Object} StageFormatInfo
+ * @property {string} name
+ * @property {string} id
+ * @property {string[]} requirements
+ * @property {string} description
+ * @property {string} fileExtension
  */
 
 

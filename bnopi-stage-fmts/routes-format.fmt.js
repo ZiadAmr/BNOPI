@@ -2,14 +2,50 @@ const StopsFormat = require("./stops-format.fmt");
 const { StageFormat } = require("../main/js/stage_format_handler");
 const { GeoCoordinate } = require('geocoordinate');
 
+
 /**
- * Format of data in stage instance JSON
- * @typedef {{id: number, name: string, length:number, speed:any: startid: number, endid: number, points: number[]}} SCGLink
- * @typedef {{id: number, lat: number, lon: number}} SCGPoint
- * @typedef {{links: SCGLink[], points: SCGPoint[]}} SCG
- * @typedef {{id: number, name: string, stops: number[], links: number[]}} RNRoute Route network route (how they are stored in the stage instance)
- * @typedef {{routes: RNRoute[]}} RN Route network stage instance contents
+ * Link in the stop connection graph
+ * @typedef {Object} SCGLink
+ * @property {number} id
+ * @property {string} name
+ * @property {number} length
+ * @property {any} speed
+ * @property {number} startid
+ * @property {number} endid
+ * @property {number[]} points
  */
+
+/**
+ * Point in the stop connection graph
+ * @typedef {Object} SCGPoint
+ * @property {number} id
+ * @property {number} lat
+ * @property {number} lon
+ */
+
+/**
+ * Stop connection graph full instance
+ * @typedef {Object} SCG
+ * @property {SCGLink[]} links
+ * @property {SCGPoint[]} points
+ */
+
+/**
+ * Route network route
+ * @typedef {Object} RNRoute
+ * @property {number} id
+ * @property {string} name
+ * @property {number[]} stops
+ * @property {number[]} links
+ */
+
+/**
+ * Route network stage instance
+ * @typedef {Object} RN
+ * @property {RNRoute[]} routes
+ */
+
+
 
 module.exports = class RoutesFormat extends StageFormat {
 	static get name() {return "Routes"}
