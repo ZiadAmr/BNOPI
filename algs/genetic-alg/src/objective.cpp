@@ -37,7 +37,7 @@ std::pair<double, double> opt(std::vector<Stop *> &stops, RouteNet &routenet, OD
 
     // paper  talks about tradeoff between Cp an Co using multi-objective optimization algorithm, so I'm returning both
     // std::cout << "OUTPUT: " << Cp /1000000000.00 << " " << Co << "(" << Cp << " " << num << ")" << "\n";
-    return std::make_pair(Cp/50000000000.00, Co);
+    return std::make_pair(Cp/500000000000.00, Co);
 }
 
 float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int destination){
@@ -53,9 +53,6 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
             auto start_loc = std::find_if(stops.begin(), stops.end(), [start](const Stop* st){return st->id == start;}) - stops.begin();
             auto end_loc = std::find_if(stops.begin(), stops.end(), [end](const Stop* st){return st->id == end;}) - stops.begin();
 
-            // neighbours[start_loc * end_loc] = i;
-            // adjacency[start_loc].push_back({end_loc, routes[i][j]->length});
-            // adjacency[end_loc].push_back({end_loc, routes[i][j]->length});
             // std::cout << end_loc << " -- " << routes[i][j]->length << " ( " << i  << ", " << j << ") out of " << stops.size() << " - "  << routes[i].size()<< std::endl; 
             adjacency[start_loc].push_back(std::make_pair(end_loc, routes[i][j]->length));
             adjacency[end_loc].push_back(std::make_pair(start_loc, routes[i][j]->length));
