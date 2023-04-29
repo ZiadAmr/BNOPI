@@ -1,6 +1,6 @@
 {
 	"title": "Test Project",
-	"description": "Project used for testing.",
+	"description": "Create a bus network from scratch using a genetic algorithm. Uses map data obtained from OpenStreetMap (see openstreetmap.org/copyright)",
 	"dependencyGraph": "test_dependency_graph.dg.json",
 	"stageInstances": ["stage_instances/"]
 }

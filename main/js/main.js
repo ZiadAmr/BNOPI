@@ -123,21 +123,28 @@ app.whenReady().then(() => {
   // ================================================================
   // dependency graph
   // ================================================================
-  ipcMain.handle('spawn_child', async (event, script, args) => {
+  ipcMain.handle('spawn_child', async (event, script, args, names, wlat, wlon, wrad) => {
     try {
 
       console.log("Running: ");
-      console.log("\t Script: ", script)
-      console.log("\t Arguments: ", args)
-      arr = ["-file", script].concat(args)
+      console.log("\t Argument Names: ", names)
+      console.log("\t Argument Values: ", args)
+      arr = [script].concat(args)
       console.log("\t Array: ", arr)
-      const data = await child.spawn("powershell", arr);
+
+      obj =  {...process.env,
+        WORK_AREA_LAT: wlat,
+        WORK_AREA_LON: wlon,
+        WORK_AREA_RAD: wrad
+      }
+      for(var i = 0; i < names.length; i++){
+        obj[names[i]] = args[i]
+      }
+
+      const data = await child.spawn("python", arr, {env: obj} );
       let output = ""
       await data.stdout.on('data',function(data){
         console.log("data: ",data.toString());
-        // memory[id] = data.toString()
-        
-        // console.log("after:", memory)
         
         output += data.toString()
 
@@ -195,7 +202,7 @@ app.whenReady().then(() => {
   // ================================================================
   ipcMain.handle("openStageFormat", async (event, ...args) => file_handler.openStageFormat(...args));
   ipcMain.handle("saveStageFormat", async (event, ...args) => file_handler.saveStageFormat(...args));
-  ipcMain.handle("getListOfStageFormat", async (event, ...args) => file_handler.getListOfStageFormat(...args));
+  ipcMain.handle("getListOfStageInstance", async (event, ...args) => file_handler.getListOfStageInstance(...args));
 
   // ================================================================
   // getting user input (mainly for testing)

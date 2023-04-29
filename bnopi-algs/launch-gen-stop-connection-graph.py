@@ -2,6 +2,8 @@
 
 from os import getenv, system, name
 
+print("Hi there", getenv("DRIVE_ON_LEFT"), getenv("MAX_SEARCH_DISTANCE"), getenv("OUTPUT_FILELOC"), getenv("STOPS_FILELOC"), getenv("ROADS_FILELOC"))
+
 dol_flag = ""
 if getenv("DRIVE_ON_LEFT") == "left":
     dol_flag = "--drive-on-left"
