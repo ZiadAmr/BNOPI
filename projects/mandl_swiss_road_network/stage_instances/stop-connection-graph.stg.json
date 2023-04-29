@@ -1,0 +1,10 @@
+{
+	"timeCreated": "2012-04-23T18:25:43.511Z",
+	"dependencyGraph": "../graph.dg.json",
+	"format": "STOP_CONNECTION_GRAPH",
+	"generatedBy": "DIRECT_INPUT",
+	"nodeInGraph": null,
+	"parentStageInstances": ["stops.stg.json"],
+	"siblingStageInstances": [],
+	"datafile": "stop-connection-graph.json"
+}
