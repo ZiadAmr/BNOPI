@@ -129,9 +129,8 @@ export async function runScript(id, script, params, isf, osf) {
             }
         }
     }
-
     // console.log("\t Input Stages: ", stageInstances)
-    var python = await window.electron.spawn_child(script.python3, args, names);
+    var python = await window.electron.spawn_child(script.python3, args, names, WORK_AREA_LAT, WORK_AREA_LON, WORK_AREA_RADIUS);
     return ""
 }
 

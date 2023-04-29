@@ -123,7 +123,7 @@ app.whenReady().then(() => {
   // ================================================================
   // dependency graph
   // ================================================================
-  ipcMain.handle('spawn_child', async (event, script, args, names) => {
+  ipcMain.handle('spawn_child', async (event, script, args, names, wlat, wlon, wrad) => {
     try {
 
       console.log("Running: ");
@@ -132,7 +132,11 @@ app.whenReady().then(() => {
       arr = [script].concat(args)
       console.log("\t Array: ", arr)
 
-      obj =  {...process.env}
+      obj =  {...process.env,
+        WORK_AREA_LAT: wlat,
+        WORK_AREA_LON: wlon,
+        WORK_AREA_RAD: wrad
+      }
       for(var i = 0; i < names.length; i++){
         obj[names[i]] = args[i]
       }
