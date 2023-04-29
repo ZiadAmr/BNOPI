@@ -52,7 +52,7 @@ export default function Welcome() {
 			<Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 15, fontFamily: 'sans-serif', color: "white"}}>
 				Bus Network Optimization and Planning Interface. Create a new project or open an existing one to begin.
 			</Typography>
-			<Container style={{ width: "100%", height: "150px", display: "flex", alignItems: "center" }} >
+			<Container style={{ width: "100%", height: "170px", display: "flex", alignItems: "center" }} >
 				<Row style={{ margin: 0, width: "100%" }}>
 					<Col sm={6} style={{ display: 'flex', justifyContent: 'center', alignItems: "center", flexDirection: "column", height: "100%"}}>
 						<Box sx={{ width: '120px', height: '120px', backgroundColor: "transparent" }}>

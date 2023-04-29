@@ -21,7 +21,7 @@ def float_in_range(n0, n1):
 
 parser = argparse.ArgumentParser(
     prog=__file__,
-    description='Downloads a list of stops from OSM.')
+    description='Downloads a list of stops from OSM. Uses map data obtained from OpenStreetMap (see openstreetmap.org/copyright).')
 
 
 

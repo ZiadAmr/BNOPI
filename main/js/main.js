@@ -168,7 +168,7 @@ app.whenReady().then(() => {
   // ================================================================
   ipcMain.handle("openStageFormat", async (event, ...args) => file_handler.openStageFormat(...args));
   ipcMain.handle("saveStageFormat", async (event, ...args) => file_handler.saveStageFormat(...args));
-  ipcMain.handle("getListOfStageFormat", async (event, ...args) => file_handler.getListOfStageFormat(...args));
+  ipcMain.handle("getListOfStageInstance", async (event, ...args) => file_handler.getListOfStageInstance(...args));
 
   // ================================================================
   // getting user input (mainly for testing)

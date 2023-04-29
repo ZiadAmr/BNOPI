@@ -22,7 +22,7 @@ def float_in_range(n0, n1):
 
 parser = argparse.ArgumentParser(
     prog=__file__,
-    description='Downloads road data from OSM.')
+    description='Downloads road data from OpenStreetMap. Uses map data obtained from OpenStreetMap (see openstreetmap.org/copyright).')
 
 
 parser.add_argument(

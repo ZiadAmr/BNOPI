@@ -6,7 +6,15 @@ import OpenStageDialog from './OpenStageDialog';
 
 /**
  * Contents of a stage instance metadata file
- * @typedef {{timeCreated: string, dependencyGraph: string, format: string, generatedBy: string, nodeInGraph:(number|null), parentStageInstances:string[], siblingStageInstances:string[], datafile:string}} InstanceMetadata
+ * @typedef {Object} InstanceMetadata
+ * @property {string} timeCreated
+ * @property {string} dependencyGraph
+ * @property {string} format
+ * @property {string} generatedBy
+ * @property {number|null} nodeInGraph
+ * @property {string[]} parentStageInstances
+ * @property {string[]} siblingStageInstances
+ * @property {string} datafile
  */
 
 
