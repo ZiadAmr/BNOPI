@@ -123,21 +123,24 @@ app.whenReady().then(() => {
   // ================================================================
   // dependency graph
   // ================================================================
-  ipcMain.handle('spawn_child', async (event, script, args) => {
+  ipcMain.handle('spawn_child', async (event, script, args, names) => {
     try {
 
       console.log("Running: ");
-      console.log("\t Script: ", script)
-      console.log("\t Arguments: ", args)
+      console.log("\t Argument Names: ", names)
+      console.log("\t Argument Values: ", args)
       arr = [script].concat(args)
       console.log("\t Array: ", arr)
-      const data = await child.spawn("python", arr);
+
+      obj =  {...process.env}
+      for(var i = 0; i < names.length; i++){
+        obj[names[i]] = args[i]
+      }
+
+      const data = await child.spawn("python", arr, {env: obj} );
       let output = ""
       await data.stdout.on('data',function(data){
         console.log("data: ",data.toString());
-        // memory[id] = data.toString()
-        
-        // console.log("after:", memory)
         
         output += data.toString()
 

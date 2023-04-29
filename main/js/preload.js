@@ -20,7 +20,7 @@ contextBridge.exposeInMainWorld('electron', {
   * Dependency Graph
   */
 
-  spawn_child: (script, args) => ipcRenderer.invoke('spawn_child', script, args),
+  spawn_child: (script, args, names) => ipcRenderer.invoke('spawn_child', script, args, names),
 
   /*
   * specific functions for loading/saving stage formats

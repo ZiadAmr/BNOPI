@@ -100,8 +100,11 @@ export async function runScript(id, script, params, isf, osf) {
     /*...*/
     // let args = [filename]
     let args = []
-    console.log("Params = ", params)
+    let names = []
+    console.log("Stages Instances: ", isf)
+    console.log("Params: ", params)
     for (var i = 0; i < params.length; i++){
+        names.push(params[i].var)
         if (params[i].setVal == undefined){
             args.push(params[i].default)
         } else {
@@ -111,32 +114,24 @@ export async function runScript(id, script, params, isf, osf) {
 
     for (var i = 0; i < osf.length; i++){
         for (var j = 0; j < stageInstances.length; j++){
-            console.log(osf[i])
-            console.log(stageInstances[j])
             if (osf[i].stage_format == stageInstances[j].metadata.format){
                 args.push(stageInstances[j].path)
+                names.push(osf[i].var)
             }
         }
     }
 
     for (var i = 0; i < isf.length; i++){
         for (var j = 0; j < stageInstances.length; j++){
-            console.log(isf[i])
-            console.log(stageInstances[j])
             if (isf[i].stage_format == stageInstances[j].metadata.format){
                 args.push(stageInstances[j].path)
+                names.push(isf[i].var)
             }
         }
     }
 
-
-    console.log("Script: ", script)
-    console.log("Arguments: ", args)
-    console.log("Input Stage Format: ", isf);
-    console.log("All Stage Formats: ", stageInstances);
     // console.log("\t Input Stages: ", stageInstances)
-    var python = await window.electron.spawn_child(script.python3, args);
-    console.log("Output: ", python)
+    var python = await window.electron.spawn_child(script.python3, args, names);
     return ""
 }
 
