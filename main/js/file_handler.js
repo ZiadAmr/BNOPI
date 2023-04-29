@@ -193,7 +193,7 @@ async function openBNOPIAlg(){
 		await fsp.access(file.filePaths[0]);
 	} catch {
 		// display error dialog
-		dialog.showErrorBox("Not a algorithm metadata file", "This is not a metadata file for an algorithm")
+		dialog.showErrorBox("Not an algorithm metadata file", "This is not a metadata file for an algorithm")
 		return { status: "not_project"}
 	}
 

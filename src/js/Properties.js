@@ -127,7 +127,7 @@ export default function Properties() {
     }
   };
 
-  const select_output_location = useCallback(async (item, id, node_id, index) => {
+  const select_output_location = useCallback(async (item, id, node_id, index, type) => {
     if(item.status === "ok"){
       var temp = dpgraph.find(obj => obj.id === node_id).output_stage_formats[index].stage_format
 
@@ -146,10 +146,11 @@ export default function Properties() {
         new_id = Math.max(...potential_array) + 1;
       }
 
-      const setting_val = await window.electron.createNewLoc(item.path, temp, new_id)
-      dpgraph.find(obj => obj.id === node_id).output_stage_formats[index].setLoc = setting_val
+      const setting_val = await window.electron.createNewLoc(item.path, temp, new_id, type)
+      dpgraph.find(obj => obj.id === node_id).output_stage_formats[index].setLoc = setting_val.data
       const change_values = {...outputLocs}
-      change_values[id] = setting_val
+      change_values[id] = setting_val.data
+      window.reloadStageTracker(projectPath);
       setOutputLocs(change_values)
     }
   },[prop]);
@@ -236,7 +237,6 @@ export default function Properties() {
   }
 
   function construct_output_stage(item, index, info){
-
     return <div key= {item.name.toString() + " " + index.toString() + " " + info.id.toString() + " stage_instance_output"}>
       <Typography variant="h6" gutterBottom style={{ textAlign: 'left', fontSize: 17, fontFamily: 'sans-serif', paddingTop: '20px', paddingLeft: '10px' }}>
         {index + 1}. {item.name}
@@ -252,8 +252,9 @@ export default function Properties() {
                   <IconButton onClick={async() => select_output_location(await window.electron.openBNOPIDir(), 
                     item.name.toString() + " " + index.toString() + " " + info.id.toString() + " stage_instance_output",
                     info.id.toString(),
-                    index)}>
-                    <FontAwesomeIcon icon={faFile} />
+                    index,
+                    item.stage_format)}>
+                    <FontAwesomeIcon icon={faFile} style={{color:'white'}} />
                   </IconButton>
                 </InputAdornment>
               )}}
