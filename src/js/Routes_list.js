@@ -96,11 +96,6 @@ export default function Routes_list() {
                   <FontAwesomeIcon icon={faRoute} style={{color:'#ffffff'}}/>
               </ListItemIcon>
               <ListItemText id='route_list' primary={item.name} style={{color:'ffffff'}}/>
-              <IconButton onClick={(event)=>{
-                event.stopPropagation();
-              }}>
-                <FontAwesomeIcon icon={faPen} style={{ color: '#ffffff', fontSize:17 }} />
-              </IconButton>
               <IconButton onClick={(event) => {
                 event.stopPropagation();
                 deleteDisplayRoute(key);
