@@ -67,6 +67,9 @@ const file_handler = require("./file_handler")
  */
 
 
+/**
+ * Class handling interactions with stage formats. Does file i/o for display and editing frameworks.
+ */
 class StageFormatHandler {
 
 	constructor() {
@@ -428,9 +431,9 @@ class StageFormatHandler {
 
 
 	/**
-	 * 
+	 * Get information about a stage format as defined in the format's .fmt.js file. If no such file is loaded, then return undefined.
 	 * @param {string} stageFormatID 
-	 * @returns Result of getters from the StageFormat class.
+	 * @returns {StageFormatInfo | undefined} Result of getters from the StageFormat class.
 	 */
 	getStageFormatInfo(stageFormatID) {
 		const stage = this.loadedStageFormats.find((x) => x.id == stageFormatID);

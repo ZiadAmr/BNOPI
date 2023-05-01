@@ -259,6 +259,8 @@ app.whenReady().then(() => {
     }
   });
 
+  ipcMain.handle("getAbsolutePathToDatafile", async (event, ...args) => file_handler.getAbsolutePathToDatafile(...args));
+
 
   mainWindow = createWindow();
 
