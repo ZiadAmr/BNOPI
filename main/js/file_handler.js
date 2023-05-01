@@ -335,10 +335,5 @@ async function addToRecents(projPath) {
 }
 
 
-async function getAbsolutePathToDatafile(metadataFilePath, metadata) {
-	return path.resolve(path.dirname(metadataFilePath), metadata.datafile)
-}
 
-
-
-module.exports = { openBNOPIAlg, selectBNOPIOutputStageInstanceLocation, openStageFormat, saveStageFormat, getListOfStageInstance: getListOfStageInstance, openProjectFolderDialog, createNewProjectDialog, createNewProject, /*openProject,*/ getRecents, getProjectMetadata, addToRecents, getAbsolutePathToDatafile };
+module.exports = { openBNOPIAlg, selectBNOPIOutputStageInstanceLocation, openStageFormat, saveStageFormat, getListOfStageInstance: getListOfStageInstance, openProjectFolderDialog, createNewProjectDialog, createNewProject, /*openProject,*/ getRecents, getProjectMetadata, addToRecents};

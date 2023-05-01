@@ -45,7 +45,6 @@ contextBridge.exposeInMainWorld('electron', {
   sendOpenProjectSignal: (...args) => ipcRenderer.invoke("sendOpenProjectSignal", ...args),
   loadStageInstance: (...args) => ipcRenderer.invoke("loadStageInstance", ...args),
   saveStageInstanceAs: (...args) => ipcRenderer.invoke("saveStageInstanceAs", ...args),
-  getAbsolutePathToDatafile: (...args) => ipcRenderer.invoke("getAbsolutePathToDatafile", ...args),
 
   // dialog boxes
   showMessageBox: (...args) => ipcRenderer.invoke("showMessageBox", ...args),
