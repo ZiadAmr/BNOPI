@@ -102,7 +102,7 @@ export async function runScript(id, script, params, isf, osf) {
     // let args = [filename]
     let args = []
     let names = []
-    console.log("Stages Instances: ", isf)
+    console.log("Stages Instances: ", stageInstances)
     console.log("Params: ", params)
     for (var i = 0; i < params.length; i++){
         names.push(params[i].var)
@@ -127,12 +127,13 @@ export async function runScript(id, script, params, isf, osf) {
 
     for (var i = 0; i < isf.length; i++){
         for (var j = 0; j < stageInstances.length; j++){
-            names.push(isf[i].var)
-            args.push(isf[i].setLoc)
-            // if (isf[i].stage_format == stageInstances[j].metadata.format){
-            //     args.push(stageInstances[j].path)
-            //     names.push(isf[i].var)
-            // }
+            // names.push(isf[i].var)
+            // args.push(isf[i].setLoc)
+            if (isf[i].setStage == stageInstances[j].metadata.datafile){
+                args.push(stageInstances[j].metadata.datafileAbs)
+                names.push(isf[i].var)
+                break
+            }
         }
     }
     // console.log("\t Input Stages: ", stageInstances)
