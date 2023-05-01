@@ -1,0 +1,8 @@
+{
+	"title": "Mandl's Swiss Road Network",
+	"description": "Test case for the genetic algorithm using Mandl's swiss road network.",
+	"dependencyGraph": "graph.dg.json",
+	"stageInstances": [
+		"stage_instances/"
+	]
+}

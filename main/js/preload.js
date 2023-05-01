@@ -55,6 +55,6 @@ contextBridge.exposeInMainWorld('electron', {
   onSave: (callback) => ipcRenderer.on("save", callback),
 
   // Path creation
-  createNewLoc: (loc, format, id) => ipcRenderer.invoke("createNewLoc", loc, format, id)
+  createNewLoc: (loc, format, id, type) => ipcRenderer.invoke("createNewLoc", loc, format, id, type)
 
 })

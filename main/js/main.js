@@ -163,10 +163,40 @@ app.whenReady().then(() => {
   // ================================================================
   // Path creation endpoints
   // ================================================================
-  ipcMain.handle("createNewLoc", async (event, loc, format, id) => {
+  ipcMain.handle("createNewLoc", async (event, loc, format, id, type) => {
     const temp = `${format}_${id}.json`;
+    const meta = `${format}_${id}.stg.json`;
     const return_path = path.join(loc, temp);
-    return return_path;
+    const return_meta = path.join(loc, meta);
+
+    const meta_info = {
+      "timeCreated": "2012-04-23T18:25:43.511Z",
+      "dependencyGraph": "",
+      "format": type,
+      "generatedBy": "temporary",
+      "nodeInGraph": null,
+      "parentStageInstances": [],
+      "siblingStageInstances": [],
+      "datafile": temp
+    }
+
+    fs.writeFile(return_path, '', function (error) {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log("Created new stage instance");
+      }
+    });
+
+    fs.writeFile(return_meta, JSON.stringify(meta_info), function (error) {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log("Created new stage instance metadata");
+      }
+    });
+
+    return {data:return_path, meta_loc: return_meta, meta: meta_info}; 
   });
 
   // ================================================================

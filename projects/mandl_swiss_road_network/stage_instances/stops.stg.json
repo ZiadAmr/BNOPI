@@ -1,0 +1,10 @@
+{
+	"timeCreated": "2012-04-23T18:25:43.511Z",
+	"dependencyGraph": "../graph.dg.json",
+	"format": "STOPS",
+	"generatedBy": "DIRECT_INPUT",
+	"nodeInGraph": null,
+	"parentStageInstances": [],
+	"siblingStageInstances": [],
+	"datafile": "stops.json"
+}

@@ -1,0 +1,94 @@
+{
+	"stops": [
+		{
+			"name": "Stop 0",
+			"id": 1,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 1",
+			"id": 2,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 2",
+			"id": 3,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 3",
+			"id": 4,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 4",
+			"id": 5,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 5",
+			"id": 6,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 6",
+			"id": 7,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 7",
+			"id": 8,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 8",
+			"id": 9,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 9",
+			"id": 10,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 10",
+			"id": 11,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 11",
+			"id": 12,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 12",
+			"id": 13,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 13",
+			"id": 14,
+			"lat": 0,
+			"lon": 0
+		},
+		{
+			"name": "Stop 14",
+			"id": 15,
+			"lat": 0,
+			"lon": 0
+		}
+	]
+}
