@@ -6,6 +6,7 @@
 #include <utility>
 #include <algorithm>
 #include <map>
+#include <cmath>
 
 // need time t for time required to transfer between routes, need theta to measure inconvenience of the transfer
 // transit edges have length t + theta
@@ -63,7 +64,7 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
     std::vector<float> distance;
     for(int i = 0; i < stops.size(); i++){
         visited.push_back(false);
-        distance.push_back(1000);
+        distance.push_back(INT32_MAX);
     }
     distance[source]=0;
     visited[source]=true;
@@ -87,5 +88,12 @@ float dijkstra(RouteNet &routes, std::vector<Stop*> &stops, int source, int dest
             }
         }
     }
-    return distance[destination];
+    float lat1 = stops[source]->lat;
+    float lat2 = stops[destination]->lat;
+    float lon1 = stops[source]->lon;
+    float lon2 = stops[destination]->lon;
+
+    float dist = acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon2-lon1))*6371;
+    // std::cout << dist << std::endl;
+    return dist * 50;
 }
