@@ -141,7 +141,7 @@ app.whenReady().then(() => {
         obj[names[i]] = args[i]
       }
       
-      const data = child.spawnSync("python", arr, {env: obj} );
+      const data = child.spawn("python", arr, {env: obj} );
       let output = ""
       await data.stdout.on('data',function(data){
         console.log("data: ",data.toString());

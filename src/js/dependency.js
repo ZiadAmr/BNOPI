@@ -88,7 +88,10 @@ export async function runGraph() {
         });
         console.log("RUN: ", run)
         console.log(stages_run)
-        run.forEach((x,i) => runScript(x.id, x.file, x.params, x.input_stage_formats, x.output_stage_formats))
+        // run.forEach(async (x,i) => await runScript(x.id, x.file, x.params, x.input_stage_formats, x.output_stage_formats))
+        for(let x of run){
+            await runScript(x.id, x.file, x.params, x.input_stage_formats, x.output_stage_formats)
+        }
         run.forEach((x,i) => stages_run.push(x.id))
         console.log("loop", stages_run)
         // console.log("Stages Run: ", stages_run)
@@ -102,7 +105,7 @@ export async function runScript(id, script, params, isf, osf) {
     // let args = [filename]
     let args = []
     let names = []
-    console.log("Stages Instances: ", stageInstances)
+    console.log("Stages Instances: ", isf)
     console.log("Params: ", params)
     for (var i = 0; i < params.length; i++){
         names.push(params[i].var)
@@ -138,6 +141,7 @@ export async function runScript(id, script, params, isf, osf) {
     }
     // console.log("\t Input Stages: ", stageInstances)
     var python = await window.electron.spawn_child(script.python3, args, names, WORK_AREA_LAT, WORK_AREA_LON, WORK_AREA_RADIUS);
+
     return ""
 }
 
