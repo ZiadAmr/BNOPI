@@ -61,10 +61,10 @@ int main(int argc, char **argv)
 	verbose = program.get<bool>("verbose");
 
 #ifdef DEBUG
-	std::cout << "stops_file_loc: " << stops_file_loc << std::endl;
-	std::cout << "connection_graph_file_loc: " << connection_graph_file_loc << std::endl;
-	std::cout << "outfile_file_loc: " << outfile_file_loc << std::endl;
-	std::cout << "verbose: " << verbose << std::endl;
+	// std::cout << "stops_file_loc: " << stops_file_loc << std::endl;
+	// std::cout << "connection_graph_file_loc: " << connection_graph_file_loc << std::endl;
+	// std::cout << "outfile_file_loc: " << outfile_file_loc << std::endl;
+	// std::cout << "verbose: " << verbose << std::endl;
 #endif
 
 	// create file streams
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 	// create od matrix
 	OD::Matrix od_matrix = read_in_od_matrix(od_matrix_fs, *graph);
 
-#ifdef DEBUG
+#ifndef DEBUG
 	int x = 4;
 	cout << x << " sample stops:" << endl;
 	for (auto stop_pair : graph->stops)
