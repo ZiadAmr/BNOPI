@@ -87,6 +87,7 @@ export async function runGraph() {
             }
         });
         console.log("RUN: ", run)
+        console.log(stages_run)
         run.forEach((x,i) => runScript(x.id, x.file, x.params, x.input_stage_formats, x.output_stage_formats))
         run.forEach((x,i) => stages_run.push(x.id))
         console.log("loop", stages_run)
@@ -126,10 +127,12 @@ export async function runScript(id, script, params, isf, osf) {
 
     for (var i = 0; i < isf.length; i++){
         for (var j = 0; j < stageInstances.length; j++){
-            if (isf[i].stage_format == stageInstances[j].metadata.format){
-                args.push(stageInstances[j].path)
-                names.push(isf[i].var)
-            }
+            names.push(isf[i].var)
+            args.push(isf[i].setLoc)
+            // if (isf[i].stage_format == stageInstances[j].metadata.format){
+            //     args.push(stageInstances[j].path)
+            //     names.push(isf[i].var)
+            // }
         }
     }
     // console.log("\t Input Stages: ", stageInstances)

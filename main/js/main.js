@@ -141,7 +141,7 @@ app.whenReady().then(() => {
         obj[names[i]] = args[i]
       }
 
-      console.log(obj)
+      // console.log(obj)
 
       const data = await child.spawn("python", arr, {env: obj} );
       let output = ""
