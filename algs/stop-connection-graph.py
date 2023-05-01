@@ -433,7 +433,7 @@ allowed_access_tags = ("yes", "permissive", "permit",
 allowed_access_tags_pattern = f"^([^\|]*\|)*({'|'.join(allowed_access_tags)})(\|[^\|]*)*( @.*)?$"
 
 
-def has_access(tags: dict, dir: bool | None =None) -> bool:
+def has_access(tags: dict, dir: bool=None) -> bool:
 	"""Check OSM access tags of element. Returns True if a bus can pass this node or way based on the access tags only.
 
 	Args:
