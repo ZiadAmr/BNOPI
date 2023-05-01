@@ -152,6 +152,15 @@ app.whenReady().then(() => {
 
         return data.toString()
       });
+
+      await data.stderr.on('data',function(data){
+        console.log("data: ",data.toString());
+        
+        output += data.toString()
+
+        return data.toString()
+      });
+
       console.log("success!", output)
       return true;
     } catch (err) {

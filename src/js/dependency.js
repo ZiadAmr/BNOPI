@@ -112,13 +112,16 @@ export async function runScript(id, script, params, isf, osf) {
         }
     }
 
+    console.log(dpgraph)
     for (var i = 0; i < osf.length; i++){
-        for (var j = 0; j < stageInstances.length; j++){
-            if (osf[i].stage_format == stageInstances[j].metadata.format){
-                args.push(stageInstances[j].path)
-                names.push(osf[i].var)
-            }
-        }
+        names.push(osf[i].var)
+        args.push(osf[i].setLoc)
+        // for (var j = 0; j < stageInstances.length; j++){
+        //     if (osf[i].stage_format == stageInstances[j].metadata.format){
+        //         args.push(stageInstances[j].path)
+        //         names.push(osf[i].var)
+        //     }
+        // }
     }
 
     for (var i = 0; i < isf.length; i++){

@@ -1037,6 +1037,7 @@ def extended_edges_from_stop(from_stopid: int, remaining_distance: Number) -> 'G
 				yield (distance + dist_ext, from_stopid, path + path_ext, to_stopid_ext)
 	yield from []
 
+print("output")
 
 # we will recreate stop_pfs here with extended edges
 extended_stop_pfs = {stopid: [] for stopid in stops}

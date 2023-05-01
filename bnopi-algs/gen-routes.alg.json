@@ -32,6 +32,6 @@
 		}
 	],
 	"launchScript": {
-		"python3": "launch-gen-routes.py"
+		"python3": "bnopi-algs/launch-gen-routes.py"
 	}
 }

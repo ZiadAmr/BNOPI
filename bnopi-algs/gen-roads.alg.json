@@ -13,6 +13,6 @@
 		}
 	],
 	"launchScript": {
-		"python3": "launch-gen-roads.py"
+		"python3": "bnopi-algs/launch-gen-roads.py"
 	}
 }
