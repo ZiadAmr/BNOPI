@@ -14,5 +14,5 @@ if name == "nt": # windows
 else:
     # otherwise assume we can read the shebang
     system(
-        f'./algs/stop-connection-graph.py {dol_flag} -d {getenv("MAX_SEARCH_DISTANCE")} -o "{getenv("OUTPUT_FILELOC")}" "{getenv("STOPS_FILELOC")}" "{getenv("ROADS_FILELOC")}"')
+        './algs/stop-connection-graph.py ' + dol_flag + ' -d '  + getenv("MAX_SEARCH_DISTANCE") + ' -o ' + getenv("OUTPUT_FILELOC") + ' ' + getenv("STOPS_FILELOC") + ' ' + getenv("ROADS_FILELOC"))
 
