@@ -778,7 +778,7 @@ def paths_from_stop(stopid: int, maxdist: Number=max_search_distance) -> 'List[t
 		for next_stop_id in it:
 			next_stop = stops[next_stop_id]
 			if next_stop["dir"] == direction:
-				return [(surface_distance(*current_pos, next_stop["stoppos"]["lat"], next_stop["stoppos"]["lon"]), stopid, [], next_stop["stopid"])]
+				return [(surface_distance(*current_pos, next_stop["stoppos"]["lat"], next_stop["stoppos"]["lon"]), stopid, [], next_stop["id"])]
 
 
 	path_distance += surface_distance(*current_pos, nodes[next_node_id]["lat"], nodes[next_node_id]["lon"])

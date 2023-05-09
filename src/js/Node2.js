@@ -53,8 +53,7 @@ export default function Node2({ data }) {
         <label htmlFor="text" className='nodeLabel' style={{ whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis' }}>Script: {script}</label>
         <Button variant ='secondary' id="setting" size= 'sm' onClick={() => data.propertyClick(data.id)}><FontAwesomeIcon icon={faGear}/></Button>
         <Button variant ='secondary' id="map_work_area_select" disabled={isDisabled} size= 'sm' onClick={(event) => {specifyRegion(event)}}><FontAwesomeIcon icon={faMapLocationDot}/></Button>
-        <Button variant ='danger' id="breakPoint2" size= 'sm'><FontAwesomeIcon icon={faStop}/></Button>
-        <Button variant ='secondary' id="addNode2" onClick={() => data.addNewNode(data.label, uuidv4())} size= 'sm'><FontAwesomeIcon icon={faPlus}/></Button>
+        <Button variant ='danger' id="addNode2" onClick={() => data.addNewNode(data.label, uuidv4())} size= 'sm'><FontAwesomeIcon icon={faPlus}/></Button>
       </div>
       <Handle type="source" position={Position.Right} id="a" />
     </div>

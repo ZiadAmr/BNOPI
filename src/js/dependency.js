@@ -82,7 +82,7 @@ export async function runGraph() {
     while(stages_run.length < dpgraph.length){
         let run = []
         dpgraph.forEach((x, i) => {
-            if( x.parents.every( p => stages_run.find(e => e == p)) && x.id != stages_run){
+            if( x.parents.every( p => stages_run.find(e => e == p)) && !stages_run.find(s=> s === x.id)){
                 run.push(x)
             }
         });

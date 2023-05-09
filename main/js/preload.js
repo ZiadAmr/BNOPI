@@ -30,7 +30,7 @@ contextBridge.exposeInMainWorld('electron', {
   saveStageFormat: (project, stage, path, data, metadata) => ipcRenderer.invoke("saveStageFormat", project, stage, path, data, metadata),
   getListOfStageInstance: (...args) => ipcRenderer.invoke("getListOfStageInstance", ...args),
   openBNOPIALG: () => ipcRenderer.invoke('openBNOPIALG'),
-  openBNOPIDir: () => ipcRenderer.invoke('openBNOPIDir'),
+  openBNOPIDir: (...args) => ipcRenderer.invoke('openBNOPIDir', ...args),
   getStageFormatInfo: (...args) => ipcRenderer.invoke("getStageFormatInfo", ...args),
 
   inputTextBox: (prompt) => ipcRenderer.invoke("inputTextBox", prompt),

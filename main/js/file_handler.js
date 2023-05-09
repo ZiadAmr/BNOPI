@@ -151,11 +151,11 @@ async function openProjectFolderDialog() {
  * This function is used for selecting a directory to store an output stage instance created by an algorithm
  * 
  */
-async function selectBNOPIOutputStageInstanceLocation() {
+async function selectBNOPIOutputStageInstanceLocation(defaultDir=projectsDir) {
 	
 	const dir = await dialog.showOpenDialog({
 		properties: ["openDirectory"],
-		defaultPath: projectsDir,
+		defaultPath: defaultDir,
 	});
 
 	if (dir.canceled === true) {
@@ -181,7 +181,8 @@ async function selectBNOPIOutputStageInstanceLocation() {
 async function openBNOPIAlg(){
 	const file = await dialog.showOpenDialog({
 		properties: ["openFile"],
-		defaultPath: projectsDir,
+		// defaultPath: projectsDir,
+		defaultPath: path.resolve("bnopi-algs/"),
 		filters: [{name: 'Algorithm metadata files', extensions:['alg.json']}]
 	});
 

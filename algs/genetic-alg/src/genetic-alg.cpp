@@ -42,6 +42,12 @@ int main(int argc, char **argv)
 		.default_value(std::string("routes.json"))
 		.help("specify the output file.");
 
+	program.add_argument("-n", "--num-routes")
+		.metavar("NUM_ROUTES")
+		.scan<'i', int>()
+		.default_value(6)
+		.help("humber of routes to be generated.");
+
 	try
 	{
 		program.parse_args(argc, argv);
@@ -58,6 +64,7 @@ int main(int argc, char **argv)
 	string connection_graph_file_loc = program.get<string>("connection-graph");
 	string outfile_file_loc = program.get<string>("output");
 	string od_matrix_file_loc = program.get<string>("od-matrix");
+	int num_routes = program.get<int>("num-routes");
 	verbose = program.get<bool>("verbose");
 
 #ifdef DEBUG
@@ -146,7 +153,7 @@ int main(int argc, char **argv)
 	AlgSettings settings;
 	settings.max_route_stops = 20;
 	settings.min_route_stops = 2;
-	settings.num_routes = 6;
+	settings.num_routes = num_routes;
 	settings.population_size = 5;
 
 	// generate population

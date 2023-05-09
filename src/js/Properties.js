@@ -249,7 +249,7 @@ export default function Properties() {
               inputProps={{ style: { color: 'white', textAlign:'center' } }}
               InputProps={{ style: { borderColor: 'white' }, readOnly: true, endAdornment:(
                 <InputAdornment position='end'>
-                  <IconButton onClick={async() => select_output_location(await window.electron.openBNOPIDir(), 
+                  <IconButton onClick={async () => select_output_location(await window.electron.openBNOPIDir(projectPath), 
                     item.name.toString() + " " + index.toString() + " " + info.id.toString() + " stage_instance_output",
                     info.id.toString(),
                     index,

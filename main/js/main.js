@@ -140,26 +140,46 @@ app.whenReady().then(() => {
       for(var i = 0; i < names.length; i++){
         obj[names[i]] = args[i]
       }
-      
-      const data = child.spawn("python", arr, {env: obj} );
-      let output = ""
-      await data.stdout.on('data',function(data){
-        console.log("data: ",data.toString());
-        
-        output += data.toString()
+      // const data = child.spa
 
-        return data.toString()
+      let p = child.spawn("python", arr, { env: obj });
+      await new Promise((resolveFunc) => {
+        p.stdout.on("data", (x) => {
+          process.stdout.write(x.toString());
+        });
+        p.stderr.on("data", (x) => {
+          process.stderr.write(x.toString());
+        });
+        p.on("exit", (code) => {
+          resolveFunc(code);
+        });
       });
 
-      await data.stderr.on('data',function(data){
-        console.log("data: ",data.toString());
+
+
+      // const data = child.spawnSync("python", arr, {env: obj} );
+      // let output = ""
+
+      // console.log(data.stdout.toString());
+      // console.log(data.stderr.toString());
+      // dt = await data.stdout();
+      // await data.stdout.on('data',function(data){
+      //   console.log("data: ",data.toString());
         
-        output += data.toString()
+      //   output += data.toString()
 
-        return data.toString()
-      });
+      //   return data.toString()
+      // });
 
-      console.log("success!", output)
+      // await data.stderr.on('data',function(data){
+      //   console.log("data: ",data.toString());
+        
+      //   output += data.toString()
+
+      //   return data.toString()
+      // });
+
+      console.log("success!")
       return true;
     } catch (err) {
       console.log("Spawn child isn't working!\n", err);
@@ -226,7 +246,7 @@ app.whenReady().then(() => {
   ipcMain.handle("loadStageInstance", async (event, ...args) => sfh.loadStageInstance(...args));
   ipcMain.handle("saveStageInstanceAs", async (event, ...args) => sfh.saveStageInstanceAs(...args));
   ipcMain.handle("openBNOPIALG", async (event) => file_handler.openBNOPIAlg());
-  ipcMain.handle("openBNOPIDir", async (event) => file_handler.selectBNOPIOutputStageInstanceLocation())
+  ipcMain.handle("openBNOPIDir", async (event, ...args) => file_handler.selectBNOPIOutputStageInstanceLocation(...args))
   ipcMain.handle("getStageFormatInfo", async (event, ...args) => sfh.getStageFormatInfo(...args));
 
   // ================================================================

@@ -2,7 +2,14 @@
 	"name": "Genetic Algorithm",
 	"id": "GEN_ROUTES",
 	"description": "Create a route network using a genetic algorithm.",
-	"params": [],
+	"params": [
+		{
+			"name": "Number of routes",
+			"type": "posint",
+			"default": 6,
+			"help": "number of routes to be generated . Defaults to 6.",
+			"var": "NUM_ROUTES"
+		}],
 	"inputStageFormats": [
 		{
 			"name": "Stops",

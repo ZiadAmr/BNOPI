@@ -33,9 +33,8 @@ export default function AlgorithmNode({ data }) {
         <label htmlFor="text" className='nodeLabel' style={{ whiteSpace: 'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>Name: {name}</label>
         <label htmlFor="text" className='nodeLabel' style={{ whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis' }}>Script: {script}</label>
         <Button variant ='secondary' id="setting" size= 'sm' onClick={() => data.propertyClick(data.id)}><FontAwesomeIcon icon={faGear}/></Button>
-        <Button variant ='danger' id="breakPoint" size= 'sm'><FontAwesomeIcon icon={faStop}/></Button>
         <Button variant ='secondary' id="addNode" onClick={() => data.addNewNode(data.label, uuidv4())} size= 'sm'><FontAwesomeIcon icon={faPlus}/></Button>
-        <Button variant ='secondary' id="deleteNode" onClick={()=> data.removeNode(data.label)} size= 'sm'><FontAwesomeIcon icon={faMinus}/></Button>
+        <Button variant ='danger' id="deleteNode" onClick={()=> data.removeNode(data.label)} size= 'sm'><FontAwesomeIcon icon={faMinus}/></Button>
         {/* <input id="text" name="text" onChange={onChange} /> */}
       </div>
       <Handle type="source" position={Position.Right} id="a" />
