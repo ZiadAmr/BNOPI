@@ -49,14 +49,12 @@ debug:
 	@echo OS_MAIN_PROG: $(OS_MAIN_PROG)
 
 build/genetic_alg: $(OS)
-	@mkdir -p $(@D)
 	$(COMPILER) $(GENERAL_FLAGS) $^ -o $@ $(LINKING_FLAGS)
 
 build/libgenetic_alg.a: $(OS_MAIN_PROG)
 	ar crf $@ $^
 
 build/%.o: src/%.cpp $(HPPS) Makefile
-	@mkdir -p $(@D)
 	$(COMPILER) -c $(GENERAL_FLAGS) $(INCLUDE_FLAGS) $< -o $@
 
 tests/%.test.o: tests/%.cpp Makefile
