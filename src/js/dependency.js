@@ -98,6 +98,7 @@ export async function runGraph() {
     }
     
     console.log("Stages Run: ", stages_run)
+    window.reloadStageTracker(projectPath)
 }
 
 export async function runScript(id, script, params, isf, osf) {
