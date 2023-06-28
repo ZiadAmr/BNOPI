@@ -17,7 +17,7 @@ For running automated routing algorithms and c programs within the interface ple
 
 ## Our contribution
 
-This project was conducted by 4 fourth-year University students as our final-year project. Our intension was to ease the process of planning bus routes by introducing an intuitive and elegant interface that 
+This project was conducted by 4 fourth-year University students as our final-year project. We aimed to create an intuitive and elegant bus network planning interface that bridges the gap between algorithm implementation and real-world scenarios, enabling seamless integration. We are confident that this project has not only achieved its goal but also holds immense potential to make a significant contribution to the network planning research community.
 
 ## Important 
 
