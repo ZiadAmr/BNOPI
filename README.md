@@ -10,9 +10,9 @@ For more detailed information about the project (such as dependencies and the us
 
 To install and start the project
   1. Clone the repository.
-  2. run `npm install'.
-  3. run `npm run dev'.
-  4. run `npm start'.
+  2. run 'npm install'.
+  3. run 'npm run dev'.
+  4. run 'npm start'.
 
 For running automated routing algorithms and c programs within the interface please refer to docs.pdf.
 
